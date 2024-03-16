@@ -21,7 +21,9 @@ from django.utils.safestring import mark_safe
 import requests
 import json
 from django.db import models, IntegrityError, transaction
-
+from django.contrib.auth.views import LoginView
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.hashers import make_password
 
 @login_required(login_url='common:login')
 def base(request):
@@ -38,6 +40,7 @@ def base(request):
         form = ProfileForm(instance=request.user.profile)
     context = {'settings_type': 'base', 'form': form}
     return render(request, 'common/settings/base.html', context)
+
 
 @login_required(login_url='common:login')
 def account_page(request):
@@ -57,6 +60,7 @@ def account_page(request):
     }
     return render(request, 'common/account_page.html', context)
 
+
 @login_required(login_url='common:login')
 def user_questions(request, user_id):
     # Fetch the user based on the passed user_id
@@ -67,23 +71,25 @@ def user_questions(request, user_id):
     page_number = request.GET.get('page')
     questions = paginator.get_page(page_number)
     profile = user.profile
-    return render(request, 'common/user_questions.html', {'questions': questions, 'profile':profile})
+    return render(request, 'common/user_questions.html', {'questions': questions, 'profile': profile})
+
 
 @login_required(login_url='common:login')
 def user_answers(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     answers_lists = Answer.objects.filter(author=user).order_by('-create_date')
-    paginator = Paginator(answers_lists, 10) # 10 answers per page
+    paginator = Paginator(answers_lists, 10)  # 10 answers per page
     page_number = request.GET.get('page')
     answers = paginator.get_page(page_number)
     profile = user.profile
     return render(request, 'common/user_answers.html', {'answers': answers, 'profile': profile})
 
+
 @login_required(login_url='common:login')
 def user_comments(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     comments_list = Comment.objects.filter(author=user).order_by('-create_date')
-    paginator = Paginator(comments_list, 10) # 10 comments per page
+    paginator = Paginator(comments_list, 10)  # 10 comments per page
     page_number = request.GET.get('page')
     comments = paginator.get_page(page_number)
     profile = user.profile
@@ -115,6 +121,7 @@ def profile_modify_image(request):
 
     return render(request, 'common/settings/profile_picture.html')  # Render the template for image upload
 
+
 @login_required(login_url="common:login")
 def password_reset(request):
     if request.method == 'POST':
@@ -139,12 +146,14 @@ def signup(request):
             login(request, user)
             return redirect("index")
     else:
-        form = UserForm() 
-    return render(request, "common/signup.html", {"form":form})
+        form = UserForm()
+    return render(request, "common/signup.html", {"form": form})
+
 
 # needed for live run
 def page_not_found(request, exception):
     return render(request, 'common/404.html', {})
+
 
 def user_ranking(request):
     search_query = request.GET.get("search", "")
@@ -161,6 +170,7 @@ def user_ranking(request):
     profiles = Profile.objects.all().order_by("-score")
     context = {"profiles": profiles, "page_obj": page_obj, "search_query": search_query}
     return render(request, "common/user_ranking.html", context)
+
 
 @login_required(login_url="common:login")
 def attendance_check(request):
@@ -243,16 +253,87 @@ def referral_view(request):
         referral_code = None
     context = {
         "referral_code": user_profile.referral_code,
-        "has_referred":  user_profile.referred_by is not None
+        "has_referred": user_profile.referred_by is not None
     }
     return render(request, 'common/referral.html', context)
+
 
 @login_required(login_url='common:login')
 def transaction_detail(request, transaction_id):
     transaction = get_object_or_404(PointTokenTransaction, id=transaction_id, user=request.user)
     transaction_list = PointTokenTransaction.objects.filter(user=request.user).order_by('-timestamp')
-    paginator = Paginator(transaction_list, 10) # 10 transactions per page
+    paginator = Paginator(transaction_list, 10)  # 10 transactions per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'common/transaction_detail.html', {'transaction':transaction, 'transaction_list':page_obj})
+    return render(request, 'common/transaction_detail.html', {'transaction': transaction, 'transaction_list': page_obj})
 
+
+def find_id_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)  # Search for the user by email
+            send_simple_message(user.email, user.username)  # Send email with the username
+            messages.success(request, "이메일이 발송 되었습니다.")
+        except ObjectDoesNotExist:
+            messages.error(request, "해당 이메일이 존재 하지 않습니다.")
+            return redirect('aiphabtc:index')
+        return redirect('aiphabtc:index')  # Redirect back to the find ID page or to a success page
+    else:
+        return render(request, 'common/findid.html')
+
+
+def send_simple_message(email_to, username):
+    res = requests.post(
+        "https://api.mailgun.net/v3/sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org/messages",
+        auth=("api", "f84636086a29129757b0d540ca1317a1-b02bcf9f-ea05b8d8"),
+        data={"from": "AIPHABTC 고객응대 <mailgun@sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org>",
+              "to": [email_to],
+              "subject": "AIPHABTC - 아이디찾기 아이디 전달 드립니다.",
+              "template": "findid",
+              "h:X-Mailgun-Variables": json.dumps({"username": username}, ensure_ascii=False)
+              })
+    print("findid: ", res.text)  # DEBUG
+    return True
+
+
+def generate_password(length=12):
+    import secrets
+    import string
+    """Generate a random password"""
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for i in range(length))
+    return password
+
+def send_simple_message2(email_to, username, password):
+    res = requests.post(
+        "https://api.mailgun.net/v3/sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org/messages",
+        auth=("api", "f84636086a29129757b0d540ca1317a1-b02bcf9f-ea05b8d8"),
+        data={"from": "AIPHABTC 고객응대 <mailgun@sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org>",
+              "to": [email_to],
+              "subject": "AIPHABTC - 비밀번호 찾기의 임시 비밀번호 전달 드립니다.",
+              "template": "findpassword",
+              "h:X-Mailgun-Variables": json.dumps({"username": username, "password": password}, ensure_ascii=False)
+              })
+    print("!!!================= findpassword   ", res)
+    return True
+
+
+def find_password_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('userid')
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(username=username, email=email)  # Find user by ID and email
+            new_password = generate_password()  # Generate a new password
+            user.password = make_password(new_password)  # Hash and set the new password
+            user.save()  # Save the user object to update the password in the database
+            send_simple_message2(user.email, user.username, new_password)  # Send email with the new password
+            messages.success(request, "이메일이 발송 되었습니다.")
+        except ObjectDoesNotExist:
+            messages.error(request, "해당 유저가 존재 하지 않습니다.")
+            return redirect('aiphabtc:index')
+        return redirect('aiphabtc:index')  # Redirect back to the find ID page or to a success page
+    else:
+        # If not a POST request, simply render the Find Password page
+        return render(request, 'common/findpassword.html')

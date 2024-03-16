@@ -5,12 +5,22 @@ from common.models import Profile
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django import forms
+from django.core.exceptions import ValidationError
 
 class UserForm(UserCreationForm):
-    email = forms.EmailField(label="이메일")
+    email = forms.EmailField(label=_("이메일"), required=True)
+
     class Meta:
         model = User
         fields = ("username", "email")
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError(_("이미 존재하는 이메일입니다!"))
+        return email
 
 # Adding new form for introduction + social profile links
 class ProfileForm(forms.ModelForm):

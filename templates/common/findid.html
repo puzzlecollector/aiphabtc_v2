@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<style>
+    .auth-form {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        margin-top: 50px;
+        max-width: 500px;
+    }
+    .form-auth .form-control {
+        border-radius: 20px;
+        padding: 15px 20px;
+    }
+    .btn-auth {
+        background-color: #3897f0;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 15px;
+        width: 100%;
+    }
+    .btn-auth:hover, .btn-auth:active { background-color: #2878b5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="auth-form">
+                <h2 class="text-center">아이디 찾기</h2>
+                <form method="post" class="form-auth">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="email" name="email" class="form-control" placeholder="이메일" required>
+                    </div>
+                    <button type="submit" class="btn-auth">이메일로 아이디 받기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+{% endblock %}
