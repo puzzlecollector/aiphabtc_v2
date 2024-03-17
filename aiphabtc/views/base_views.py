@@ -33,7 +33,17 @@ from xgboost import XGBClassifier
 import lightgbm as lgb
 from common.models import PointTokenTransaction
 from django.db.models import Q
+from django.core.cache import cache
 
+# return percentage
+def latest_voting_data(request):
+    options = VotingOption.objects.annotate(vote_count=Count('votes'))
+    total_votes = sum(option.vote_count for option in options)
+    data = {
+        'labels': [option.name for option in options],
+        'data': [(option.vote_count / total_votes * 100) if total_votes > 0 else 0 for option in options],
+    }
+    return JsonResponse(data)
 
 # it says bitget, but we are using coinbase data
 # rule: korean exchange - upbit, american exchange - coinbase
@@ -349,6 +359,16 @@ def get_predictions_rf(test_input):
     short, long = rf_prob[0], rf_prob[1]
     return short * 100.0, long * 100.0
 
+def should_update_prediction():
+    kst = pytz.timezone('Asia/Seoul')
+    now = datetime.now(kst)
+    last_update = cache.get('last_prediction_update', now - timedelta(days=1))
+    # Check if it's past 9 AM and if the last update was before today's 9 AM
+    today_9am = now.replace(hour=9, minute=0, second=0, microsecond=0)
+    if last_update < today_9am and now >= today_9am:
+        return True
+    return False
+
 def index(request):
     boards = Board.objects.all()
     board_posts = {}
@@ -356,20 +376,19 @@ def index(request):
         # Fetch the top 3 posts for each board
         posts = Question.objects.filter(board=board).order_by('-create_date')[:3]
         board_posts[board] = posts
-        
+
     url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
     response_fng = requests.get(url_fng)
     data_fng = response_fng.json().get('data', [])
-    
+
     url_global = "https://api.coinlore.net/api/global/"
     response_global = requests.get(url_global)
     data_global = response_global.json()
 
     kimchi_data = get_kimchi_data()
 
-    sentiment_voting_options = VotingOption.objects.all()
-    sentiment_votes = VotingOption.objects.annotate(vote_count=Count("votes")).order_by("-vote_count")
-    sentiment_votes_with_percentages = calculate_vote_percentages(sentiment_votes)
+    sentiment_voting_options = VotingOption.objects.annotate(vote_count=Count('votes'))
+    sentiment_votes_with_percentages = calculate_vote_percentages(sentiment_voting_options)
     sentiment_data = {
         "labels": [option.name for option in sentiment_voting_options],
         "data": [percentage for _, percentage in sentiment_votes_with_percentages]
@@ -377,35 +396,55 @@ def index(request):
 
     pearson, spearman, kendall = get_correlation()
 
-    df = pyupbit.get_ohlcv("KRW-BTC", interval="day")
-    previous_btc_close = df["close"].values[-2]
-    preprocessed_df = preprocess_function(df)
-    clf_test_input = preprocessed_df.iloc[-2].values.reshape((1, -1))
+    if should_update_prediction() or not cache.get('predictions'):
+        print("calculating as we cannot use previously cached value")
+        df = pyupbit.get_ohlcv("KRW-BTC", interval="day")
+        previous_btc_close = df["close"].values[-2]
+        preprocessed_df = preprocess_function(df)
+        clf_test_input = preprocessed_df.iloc[-2].values.reshape((1, -1))
 
-    # ARIMA prediction
-    btc_sequence = df["close"].values[:-1]
-    arima_prediction = get_predictions_arima(btc_sequence)
-    arima_percentage_change = (arima_prediction - previous_btc_close) / previous_btc_close * 100.0
+        # ARIMA prediction
+        btc_sequence = df["close"].values[:-1]
+        arima_prediction = get_predictions_arima(btc_sequence)
+        arima_percentage_change = (arima_prediction - previous_btc_close) / previous_btc_close * 100.0
 
-    # MLP prediction
-    mlp_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
-    mlp_prediction = get_predictions_mlp(mlp_test_input)
-    mlp_percentage_change = (mlp_prediction - previous_btc_close) / previous_btc_close * 100.0
+        # MLP prediction
+        mlp_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
+        mlp_prediction = get_predictions_mlp(mlp_test_input)
+        mlp_percentage_change = (mlp_prediction - previous_btc_close) / previous_btc_close * 100.0
 
-    # ElasticNet prediction
-    elasticnet_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
-    elasticnet_prediction = get_predictions_elasticnet(elasticnet_test_input)
-    elasticnet_percentage_change = (elasticnet_prediction - previous_btc_close) / previous_btc_close * 100.0
+        # ElasticNet prediction
+        elasticnet_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
+        elasticnet_prediction = get_predictions_elasticnet(elasticnet_test_input)
+        elasticnet_percentage_change = (elasticnet_prediction - previous_btc_close) / previous_btc_close * 100.0
 
-    # XGBoost prediction
-    xgb_short, xgb_long = get_predictions_xgboost(clf_test_input)
+        # XGBoost prediction
+        xgb_short, xgb_long = get_predictions_xgboost(clf_test_input)
 
-    # LightGBM prediction
-    lgb_short, lgb_long = get_predictions_lightgbm(clf_test_input)
+        # LightGBM prediction
+        lgb_short, lgb_long = get_predictions_lightgbm(clf_test_input)
 
-    # RandomForest prediction
-    rf_short, rf_long = get_predictions_rf(clf_test_input)
+        # RandomForest prediction
+        rf_short, rf_long = get_predictions_rf(clf_test_input)
 
+        predictions = {
+            "arima_prediction": arima_prediction,
+            "arima_percentage_change": arima_percentage_change,
+            "mlp_prediction": mlp_prediction,
+            "mlp_percentage_change": mlp_percentage_change,
+            "elasticnet_prediction": elasticnet_prediction,
+            "elasticnet_percentage_change": elasticnet_percentage_change,
+            "xgb_short": xgb_short,
+            "xgb_long": xgb_long,
+            "lgb_short": lgb_short,
+            "lgb_long": lgb_long,
+            "rf_short": rf_short,
+            "rf_long": rf_long,
+        }
+        cache.set('predictions', predictions, 86400)
+        cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
+
+    prediction_contexts = cache.get('predictions')
     context = {
         "board_posts": board_posts,
         "data_fng": data_fng,
@@ -416,20 +455,11 @@ def index(request):
         "pearson": pearson,
         "spearman": spearman,
         "kendall": kendall,
-        "arima_prediction": arima_prediction,
-        "arima_percentage_change": arima_percentage_change,
-        "mlp_prediction": mlp_prediction,
-        "mlp_percentage_change": mlp_percentage_change,
-        "elasticnet_prediction": elasticnet_prediction,
-        "elasticnet_percentage_change": elasticnet_percentage_change,
-        "xgb_short": xgb_short,
-        "xgb_long": xgb_long,
-        "lgb_short": lgb_short,
-        "lgb_long": lgb_long,
-        "rf_short": rf_short,
-        "rf_long": rf_long,
     }
+    # merge context and prediction_contexts then return it as context
+    context = {**context, **prediction_contexts}
     return render(request, 'index.html', context)
+
 
 def index_orig(request, board_name="free_board"):
     page = request.GET.get('page', '1')

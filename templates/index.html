@@ -196,6 +196,8 @@
         border-top: 1px solid #ddd; /* Add a top border line */
         margin-top: 20px; /* Add some space above the footer */
     }
+
+
 </style>
 {% endblock %}
 
@@ -724,32 +726,42 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchTechnicalAIResponse();
     });
 
-    // Handle the form submission
     document.querySelector('.voting-container form').addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
-        const formData = new FormData(this); // 'this' refers to the form element
+        e.preventDefault();
+        const formData = new FormData(this);
 
-        fetch("{% url 'aiphabtc:submit_sentiment_vote' %}", {
+        fetch("/aiphabtc/submit_sentiment_vote/", {
             method: 'POST',
-            credentials: 'include', // Needed for including cookies (CSRF token)
+            credentials: 'include',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest', // Indicates an AJAX request
+                'X-Requested-With': 'XMLHttpRequest',
             },
         })
-        .then(response => response.json())
-        .then(data => {
-            // Display the success/error message
-            alert(data.message); // For simplicity, using an alert
-            // You might want to update the DOM instead of showing an alert
-            updatePieChart(data);
+        .then(response => {
+            if (!response.ok) {
+                // This block handles the scenario where the user is not logged in.
+                // Since we cannot directly detect a 302 redirect here, you need another way to identify unauthenticated requests.
+                // Consider implementing a custom response header in your Django view that you can check here.
+                throw new Error('User not authenticated');
+            }
+            return response.json();
         })
-        .catch(error => console.error('Error:', error));
+        .then(data => {
+            alert(data.message);
+            fetchAndUpdatePieChart();
+        })
+        .catch(error => {
+            // Redirect the user to the login page with the index page set as the next URL.
+            window.location.href = "/common/login/?next=/" + encodeURIComponent('aiphabtc/');
+        });
     });
+
 
     // Initialize the pie chart here to ensure the DOM is fully loaded
     // Moved the chart initialization to a separate function for clarity
-    initializePieChart();
+    // initializePieChart();
+    fetchAndUpdatePieChart();
 });
 
 function fetchNewsAndSentiment() {
@@ -838,30 +850,51 @@ function fetchTechnicalAIResponse() {
     });
 }
 
-function initializePieChart() {
-    // Assuming 'sns_data' and 'sentiment_data' are available and properly formatted
-    var ctxSentiment = document.getElementById("sentimentPieChart").getContext("2d");
-    // Ensure the data is correctly formatted and passed here
-    var sentimentData = {
-        datasets: [{
-            data: {{ sentiment_data.data|safe }}, // Assuming sns_data.data is an array of numbers
-            backgroundColor: [
-                'darkgreen', // Dark Green
-                'green',     // Green
-                'red',       // Red
-                'darkred',    // Dark Red
-                'grey',      // Grey
-            ],
-        }],
-        labels: {{ sentiment_data.labels|safe }}, // Assuming sentiment_data.labels is an array of strings
-    };
 
-    new Chart(ctxSentiment, {
-        type: "pie",
-        data: sentimentData,
+function fetchAndUpdatePieChart() {
+    fetch("{% url 'aiphabtc:latest_voting_data' %}", {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Assuming initializePieChart() can take data as a parameter and update the chart
+        initializePieChart(data); // Modify initializePieChart as needed
+    })
+    .catch(error => console.error('Error fetching latest voting data:', error));
+}
+
+function initializePieChart(data) {
+    var ctx = document.getElementById("sentimentPieChart").getContext("2d");
+    // Ensure previous chart instance is destroyed before creating a new one
+    if (window.myPieChart) window.myPieChart.destroy();
+
+    // Define background colors for sentiments
+    const backgroundColors = [
+        'darkgreen', 'green', 'red', 'darkred', 'grey',
+    ];
+
+    window.myPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.data,
+                backgroundColor: backgroundColors,
+                borderColor: '#ffffff', // White borders for each slice
+                borderWidth: 2, // Border width
+            }],
+        },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // Adjusted for better responsiveness
+            legend: {
+                position: 'top',
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
         }
     });
 }

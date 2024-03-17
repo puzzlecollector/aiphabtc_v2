@@ -49,4 +49,7 @@ urlpatterns = [
 
     # view community guideline
     path('guidelines/', base_views.community_guideline, name="guideline"),
+
+    # dynamically update votes
+    path('latest_voting_data/', base_views.latest_voting_data, name='latest_voting_data'),
 ]
