@@ -20,22 +20,75 @@
     <!-- aiphabtc CSS -->
     <!-- <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"> -->
     <title>AIPHABTC: AI와 함께 비트코인 공부하자</title>
+    <!-- Spinner CSS -->
+    <style>
+        /* Spinner Overlay */
+        #spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top: 4px solid #000;
+            width: 50px;
+            height: 50px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
     {% block head %}
     {% endblock %}
 </head>
 <body>
-{% include "navbar.html" %}
-<!-- 기본 템플릿 안에 삽입될 내용 Start -->
-{% block content %}
-{% endblock %}
-<!-- 기본 템플릿 안에 삽입될 내용 End -->
-<!-- jQuery JS -->
-<script src="{% static 'jquery-3.4.1.min.js' %}"></script>
-<!-- Bootstrap JS -->
-<script src="{% static 'bootstrap.min.js' %}"></script>
-{% block script %}
-{% endblock %}
-{% block javascript %}
-{% endblock %}
+    <!-- Spinner Overlay -->
+    <div id="spinner-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+
+    {% include "navbar.html" %}
+    <!-- 기본 템플릿 안에 삽입될 내용 Start -->
+    {% block content %}
+    {% endblock %}
+    <!-- 기본 템플릿 안에 삽입될 내용 End -->
+    <!-- jQuery JS -->
+    <script src="{% static 'jquery-3.4.1.min.js' %}"></script>
+    <!-- Bootstrap JS -->
+    <script src="{% static 'bootstrap.min.js' %}"></script>
+    <!-- Spinner JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide the spinner once the page is fully loaded
+            document.getElementById('spinner-overlay').style.display = 'none';
+        });
+
+        window.addEventListener('beforeunload', function() {
+            // Show the spinner when starting to navigate away/refresh the page
+            document.getElementById('spinner-overlay').style.display = 'flex';
+        });
+    </script>
+    {% block script %}
+    {% endblock %}
+    {% block javascript %}
+    {% endblock %}
 </body>
 </html>
