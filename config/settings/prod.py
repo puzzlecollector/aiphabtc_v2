@@ -1,6 +1,6 @@
 from .base import *
 
-ALLOWED_HOSTS = ["43.200.37.42", "aiphabtc-v2.com"]
+ALLOWED_HOSTS = ["43.200.37.42", "aiphabtc-v2.com", "www.aiphabtc-v2.com"]
 
 STATIC_ROOT = BASE_DIR / "static/"
 STATICFILES_DIRS = []
