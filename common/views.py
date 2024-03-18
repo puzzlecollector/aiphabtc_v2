@@ -284,10 +284,11 @@ def find_id_view(request):
 
 
 def send_simple_message(email_to, username):
+    mailgun_api_key = os.environ.get("MAILGUN_API_KEY")
     res = requests.post(
-        "https://api.mailgun.net/v3/sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org/messages",
-        auth=("api", "f84636086a29129757b0d540ca1317a1-b02bcf9f-ea05b8d8"),
-        data={"from": "AIPHABTC 고객응대 <mailgun@sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org>",
+        "https://api.mailgun.net/v3/mail.aiphabtc-v2.com/messages",
+        auth=("api", mailgun_api_key),
+        data={"from": "AIPHABTC 고객응대 <mailgun@mail.aiphabtc-v2.com>",
               "to": [email_to],
               "subject": "AIPHABTC - 아이디찾기 아이디 전달 드립니다.",
               "template": "findid",
@@ -306,10 +307,11 @@ def generate_password(length=12):
     return password
 
 def send_simple_message2(email_to, username, password):
+    mailgun_api_key = os.environ.get("MAILGUN_API_KEY")
     res = requests.post(
-        "https://api.mailgun.net/v3/sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org/messages",
-        auth=("api", "f84636086a29129757b0d540ca1317a1-b02bcf9f-ea05b8d8"),
-        data={"from": "AIPHABTC 고객응대 <mailgun@sandbox2dc239f7b5ba43a5b8924916df289746.mailgun.org>",
+        "https://api.mailgun.net/v3/mail.aiphabtc-v2.com/messages",
+        auth=("api", mailgun_api_key),
+        data={"from": "AIPHABTC 고객응대 <mailgun@mail.aiphabtc-v2.com>",
               "to": [email_to],
               "subject": "AIPHABTC - 비밀번호 찾기의 임시 비밀번호 전달 드립니다.",
               "template": "findpassword",
