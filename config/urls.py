@@ -8,7 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls), 
     path('aiphabtc/', include('aiphabtc.urls')),
     path('common/', include('common.urls')),
-    path('', base_views.index, name='index')
+    path('', base_views.loading, name='loading')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

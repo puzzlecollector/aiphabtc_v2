@@ -35,6 +35,10 @@ from common.models import PointTokenTransaction
 from django.db.models import Q
 from django.core.cache import cache
 
+
+def loading(request): 
+    return render(request, "loading.html")
+
 # return percentage
 def latest_voting_data(request):
     options = VotingOption.objects.annotate(vote_count=Count('votes'))

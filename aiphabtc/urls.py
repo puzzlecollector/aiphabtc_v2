@@ -5,7 +5,8 @@ app_name = 'aiphabtc'
 
 urlpatterns = [
     # base_views.py
-    path("", base_views.index, name="index"), # for all quetions
+    #path("", base_views.loading, name="loading"),
+    path("", base_views.index, name="index"), # main landing page
     path("<int:question_id>/", base_views.detail, name="detail"),
     path("board/<str:board_name>/", base_views.index_orig, name="board_filtered"),
     path("news-sentiment/", base_views.get_news_and_sentiment, name="get_news_and_sentiment"),
