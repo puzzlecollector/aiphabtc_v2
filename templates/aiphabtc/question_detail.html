@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+    .card-text img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
 <div class="container my-3">
     <!-- 사용자 오류 표시 -->
     {% if messages %}
