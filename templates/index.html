@@ -785,8 +785,11 @@ function fetchNewsAndSentiment() {
         scraped_data.forEach(item => {
             const newsRow = document.createElement('div');
             newsRow.className = 'news-row';
+
+            // Escape double quotation marks in the content
+            const escapedContent = item.contents.replace(/"/g, '&quot;');
             newsRow.innerHTML = `
-                <div class="news-cell title-cell" data-tooltip="${item.contents}">
+                <div class="news-cell title-cell" data-tooltip="${escapedContent}">
                     <span class="news-title">${item.titles}</span>
                 </div>
                 <div class="news-cell datetime-cell">
