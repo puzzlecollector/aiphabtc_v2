@@ -131,7 +131,8 @@ def scrape_tokenpost():
 
 def scrape_coinness_xhr():
     url = 'https://api.coinness.com/feed/v1/news'
-    response = requests.get(url)
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    response = requests.get(url, headers=headers)
     titles, contents, datetimes_arr = [], [], []
     # Check if the request was successful
     if response.status_code == 200:
