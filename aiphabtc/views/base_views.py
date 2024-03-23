@@ -129,6 +129,28 @@ def scrape_tokenpost():
 
     return pd.DataFrame({'titles': all_titles, 'contents': all_contents, 'datetimes': all_full_times})
 
+def scrape_coinness_xhr():
+    url = 'https://api.coinness.com/feed/v1/news'
+    response = requests.get(url)
+    titles, contents, datetimes_arr = [], [], []
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Parse the JSON response
+        news_data = response.json()
+
+        # Loop through each news item in the response
+        for news_item in news_data:
+            title = news_item.get('title')
+            content = news_item.get('content')
+            publish_at = news_item.get('publishAt')
+
+            titles.append(title)
+            contents.append(content)
+            datetimes_arr.append(publish_at)
+    else:
+        print(f"Failed to fetch news data. Status code: {response.status_code}")
+    return pd.DataFrame({'titles': titles, 'contents': contents, 'datetimes': datetimes_arr})
+
 def get_sentiment_scores(df):
     titles = df["titles"].values
     contents = df["contents"].values
@@ -149,7 +171,7 @@ def get_sentiment_scores(df):
 
 def get_news_and_sentiment(request):
     # Your news scraping and sentiment analysis logic here
-    df = scrape_tokenpost()
+    df = scrape_coinness_xhr()
     scraped_data = df.to_dict(orient="records")  # converts DataFrame to list of dicts
     avg_sentiment_scores = get_sentiment_scores(df)
     avg_sentiment_scores_percentage = [round(score * 100, 2) for score in avg_sentiment_scores]
