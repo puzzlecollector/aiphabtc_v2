@@ -34,6 +34,7 @@ import lightgbm as lgb
 from common.models import PointTokenTransaction
 from django.db.models import Q
 from django.core.cache import cache
+import backoff
 
 
 def loading(request): 
@@ -129,15 +130,26 @@ def scrape_tokenpost():
 
     return pd.DataFrame({'titles': all_titles, 'contents': all_contents, 'datetimes': all_full_times})
 
+
+# Define a function to give up on after a certain number of retries
+# or only retry on certain status codes
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException,
+                      max_tries=8,
+                      giveup=lambda e: e.response is not None and e.response.status_code < 500)
+def fetch_with_retry(url, headers):
+    print(f"Trying {url}")
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()  # Will trigger retry on 4xx and 5xx errors
+    return response.json()
+
 def scrape_coinness_xhr():
     url = 'https://api.coinness.com/feed/v1/news'
     headers = {'User-Agent': 'Mozilla/5.0'}
-    response = requests.get(url, headers=headers)
     titles, contents, datetimes_arr = [], [], []
-    # Check if the request was successful
-    if response.status_code == 200:
-        # Parse the JSON response
-        news_data = response.json()
+
+    try:
+        news_data = fetch_with_retry(url, headers)
 
         # Loop through each news item in the response
         for news_item in news_data:
@@ -148,8 +160,14 @@ def scrape_coinness_xhr():
             titles.append(title)
             contents.append(content)
             datetimes_arr.append(publish_at)
-    else:
-        print(f"Failed to fetch news data. Status code: {response.status_code}")
+
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e.response.status_code}")
+        return pd.DataFrame()  # Return an empty DataFrame on failure
+    except requests.exceptions.RequestException as e:
+        print("Networking error, giving up.")
+        return pd.DataFrame()  # Return an empty DataFrame on failure
+
     return pd.DataFrame({'titles': titles, 'contents': contents, 'datetimes': datetimes_arr})
 
 def get_sentiment_scores(df):
