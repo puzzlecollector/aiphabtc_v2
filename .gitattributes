@@ -1,2 +1,6 @@
 *.bin filter=lfs diff=lfs merge=lfs -text
 aiphabtc/kr-cryptodeberta/pytorch_model.bin filter=lfs diff=lfs merge=lfs -text
+candidate_texts_0325.pkl filter=lfs diff=lfs merge=lfs -text
+coinness_embeddings_0325.pt filter=lfs diff=lfs merge=lfs -text
+coinness_faiss_index_0325.index filter=lfs diff=lfs merge=lfs -text
+upbit_chart_data_0325.csv filter=lfs diff=lfs merge=lfs -text
