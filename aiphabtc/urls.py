@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import base_views, question_views, answer_views, comment_views, vote_views, profile_click_views
+from .views import base_views, question_views, answer_views, comment_views, vote_views, profile_click_views, pattern_matching_views
 
 app_name = 'aiphabtc'
 
@@ -53,4 +53,10 @@ urlpatterns = [
 
     # dynamically update votes
     path('latest_voting_data/', base_views.latest_voting_data, name='latest_voting_data'),
+
+    # pattern matching view
+    path('pattern_matching_tools/', pattern_matching_views.pattern_matching_views, name="pattern_matching"),
+
+    # news similarity
+    path('news_similarity/', pattern_matching_views.search_news, name="news_similarity"),
 ]

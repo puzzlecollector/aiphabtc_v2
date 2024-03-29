@@ -297,9 +297,9 @@
                     </button>
                 </div>
                 <p><strong> 딥러닝 언어모델 비트코인 감성 점수 </strong></p>
-                <small>최근 코인니스 속보들이 비트코인 가격에 얼만큼 호재, 악재, 중립성을 띄고 있는지 CryptoDeBERTa 언어모델이 분석한 결과입니다. 알파비트 인공지능 연구팀이 개발한 감성분류 언어모델을 기반으로 수치가 계산되었습니다.</small>
+                <small>최근 코인니스 속보들이 비트코인 가격에 얼만큼 호재, 악재, 중립성을 띄고 있는지 CryptoDeBERTa 언어모델이 분석한 결과입니다. 아이파비트 인공지능 연구팀이 개발한 감성분류 언어모델을 기반으로 수치가 계산되었습니다.</small>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
-                        <a href="https://huggingface.co/LDKSolutions/KR-cryptodeberta-v2-base"><img src="{% static 'huggingface.png' %}" alt="settings" style="height:40px; margin-right: 5px;">알파비트 크립토 언어모델</a>
+                        <a href="https://huggingface.co/LDKSolutions/KR-cryptodeberta-v2-base"><img src="{% static 'huggingface.png' %}" alt="settings" style="height:40px; margin-right: 5px;">아이파비트 크립토 언어모델</a>
                 </button>
                 <div class="sentiment-scores">
                     {% for score in avg_sentiment_scores_percentage %}
@@ -625,8 +625,8 @@
             <hr>
             <h3>머신러닝 비트코인 가격 예측 지표</h3>
             <p>업비트 차트를 기반으로 가벼운 머신러닝 예측을 수행했습니다. 다양한 시간대를 포함한 보다 <strong>강력한</strong> 현물/선물 머신러닝 지표와 투자 봇에 대해서는 아래 페이지들을 참조해 주세요!</p>
-            <p><a href="#">➡️알파비트 인공지능 및 통계기반 비트코인 투자봇 지표📈📈 (coming soon)</a></p>
-            <p><a href="#">➡️알파비트 인공지능 기반 비트코인 패턴매칭 지표📈📈 (coming soon)</a></p>
+            <p><a href="#">➡️아이파비트 인공지능 및 통계기반 비트코인 투자봇 지표📈📈 (coming soon)</a></p>
+            <p><a href="{% url 'aiphabtc:pattern_matching' %}">➡️아이파비트 인공지능 기반 비트코인 패턴매칭 지표📈📈 (coming soon)</a></p>
             <p>
                 <h5>단기 방향성 예측 지표</h5>
                 <small>오늘 오전 9시 종가를 기준으로 내일 오전 9시 종가 방향성의 확률을 예측합니다. 튜닝이 되지 않은 가벼운 모델이니 참고만 해주세요. "내린다" 또는 "오른다" 위에 마우스를 올리면 모델이 예측한 각각의 확률을 볼 수 있습니다.</small>
@@ -703,8 +703,8 @@
     </div>
 </div>
 <div class="footer">
-    <p>상호명: 알파비트 | 대표: 김민석 | 이메일: aiphabtcbusiness11235@gmail.com</p>
-    <p>알파비트는 인공지능과 비트코인 정보를 공유하는 전문 플랫폼입니다. 제공되는 지표와 봇은 투자 권유 목적이 아님을 알려드립니다. 모든 투자 결정은 사용자의 신중한 판단 하에 이루어져야 합니다.</p>
+    <p>상호명: 아이파비트 | 대표: 김민석 | 이메일: aiphabtcbusiness11235@gmail.com</p>
+    <p>아이파비트는 인공지능과 비트코인 정보를 공유하는 전문 플랫폼입니다. 제공되는 지표와 봇은 투자 권유 목적이 아님을 알려드립니다. 모든 투자 결정은 사용자의 신중한 판단 하에 이루어져야 합니다.</p>
     <p><a href="https://blog.naver.com/aiphabtc11235"><img src="{% static 'naver.png' %}" alt="naver logo" style="height: 30px; margin-right: 5px;">AIPHABTC 블로그</a></p>
 </div>
 {% endblock %}

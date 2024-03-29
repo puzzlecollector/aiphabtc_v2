@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">AIPHABTC 비트코인 패턴매칭 분석 대시보드</h2>
+    <div class="alert alert-info" role="alert">
+        알파비트 인공지능 팀이 개발한 AI는 입력된 뉴스 제목과 내용에 문맥적으로 유사한 과거 뉴스를 추천하고, 해당 과거 뉴스가 발표된 시점의 차트 데이터를 보여줍니다.
+    </div>
+    <div class="mb-3">
+        <label for="topKRange" class="form-label">조회할 상위 결과 수 (5-20):</label>
+        <input type="range" class="form-range" id="topKRange" name="topK" min="5" max="20" value="5">
+        <span id="topKValue" class="badge bg-secondary">5</span>
+    </div>
+    <div class="mb-4">
+        <textarea id="newsText" name="news_text" class="form-control" rows="4" placeholder="뉴스 제목과 내용을 입력하세요."></textarea>
+        <button type="button" id="searchButton" class="btn btn-primary mt-3">검색</button>
+        <div id="loading" class="text-center my-3" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
+        <div id="results" class="mt-4"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script type="text/javascript">
+    var chartDataStorage = {};
+    document.getElementById("searchButton").addEventListener("click", function() {
+        document.getElementById("loading").style.display = "block";
+        var newsText = document.getElementById("newsText").value;
+        var topK = document.getElementById("topKRange").value;
+
+        // Update the fetch URL to match your Django URL configuration
+        var searchNewsUrl = "{% url 'aiphabtc:news_similarity' %}";
+
+        // Get the CSRF token from the cookie
+        var csrfToken = getCookie('csrftoken');
+
+        fetch(searchNewsUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken  // Include the CSRF token in the headers
+            },
+            body: JSON.stringify({ news_text: newsText, top_k: topK }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            var resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = '';  // Clear previous results
+
+            data.results.forEach(function(result, index) {
+                // Store chart data in the global object
+                chartDataStorage[index] = result.chart_data_1d;  // Assuming this is the chart data you want to plot
+
+                var resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = `
+                    <h5> Rank ${index + 1} </h5>
+                    <p>${result.text}</p>
+                    <p><strong>문맥형 유사도:</strong> ${result.similarity}%</p>
+                    <p><strong>날짜:</strong> ${result.date}</p>
+                    <div class="chart" id="chart${index}"></div>
+                `;
+                resultsContainer.appendChild(resultDiv);
+
+                // Plot the chart
+                updateChart(`chart${index}`, index);
+            });
+            document.getElementById("loading").style.display = "none";
+        })
+        .catch(error => {
+            console.error("Error fetching news similarity results:", error);
+            document.getElementById("loading").style.display = "none";
+        });
+    });
+
+    function updateChart(chartId, index) {
+        var chartData = chartDataStorage[index];  // Get the correct chart data from the global object
+
+        var chartDiv = document.getElementById(chartId);
+        Plotly.newPlot(chartDiv, [
+            {
+                type: 'scatter',
+                mode: 'lines',
+                x: chartData.x,
+                y: chartData.y,
+            },
+        ], {
+            title: 'Bitcoin Price Chart',
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'USDT' },
+        });
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Add an event listener to update the displayed value when the slider changes
+    document.getElementById("topKRange").addEventListener("input", function() {
+        document.getElementById("topKValue").innerText = this.value;
+    });
+</script>
+{% endblock %}
