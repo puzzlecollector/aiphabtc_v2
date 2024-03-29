@@ -38,3 +38,23 @@ from django.core.cache import cache
 import backoff
 import faiss
 
+# prepare model and tokenizer
+tokenizer = AlbertTokenizer.from_pretrained("aiphabtc/kr-cryptodeberta")
+embedding_model = AutoModel.from_pretrained("aiphabtc/kr-cryptodeberta")
+config = AutoConfig.from_pretrained("aiphabtc/kr-cryptodeberta")
+device = torch.device("cpu") # default to CPU
+
+# read candidate texts
+with open('aiphabtc/candidate_texts_0325.pkl', 'rb') as f:
+    candidate_texts = pickle.load(f)
+
+# read published dates for candidate texts
+
+
+# get faiss index
+index = faiss.read_index('aiphabtc/coinness_faiss_index_0325.index')
+
+# get chart data
+chart_df = pd.read_csv("aiphabtc/upbit_chart_data_0325.csv")
+
+
