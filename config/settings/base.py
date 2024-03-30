@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE' # temporary fix for conflicting FAISS and pytorch OpenMP
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
