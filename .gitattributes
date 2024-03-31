@@ -7,3 +7,4 @@ upbit_chart_data_0325.csv filter=lfs diff=lfs merge=lfs -text
 published_datetimes_0325.pkl filter=lfs diff=lfs merge=lfs -text
 coinness_annoy_30.index filter=lfs diff=lfs merge=lfs -text
 coinness_annoy_30_ubuntu.index filter=lfs diff=lfs merge=lfs -text
+upbit_chart_data_0325_v2.csv filter=lfs diff=lfs merge=lfs -text
