@@ -60,8 +60,11 @@ def inner_product_to_percentage(inner_product):
 
 # get annoy index
 u = AnnoyIndex(768, 'angular')
-# Load the saved index
-u.load('aiphabtc/coinness_annoy_30.index')  # Path to saved index
+try:
+    # Load the saved index
+    u.load('aiphabtc/coinness_annoy_30.index')  # Path to saved index
+except Exception as e:
+    print(f"Failed to load annoy index")
 
 def get_query_embedding(query):
     encoded_query = tokenizer(query, max_length=512, padding="max_length", truncation=True, return_tensors="pt")
