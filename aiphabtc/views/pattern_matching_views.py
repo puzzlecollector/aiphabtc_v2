@@ -62,7 +62,7 @@ def inner_product_to_percentage(inner_product):
 u = AnnoyIndex(768, 'angular')
 try:
     # Load the saved index
-    u.load('aiphabtc/coinness_annoy_30.index')  # Path to saved index
+    u.load('aiphabtc/coinness_annoy_30_ubuntu.index')  # Path to saved index
 except Exception as e:
     print(f"Failed to load annoy index")
 
