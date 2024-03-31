@@ -54,6 +54,8 @@ with open('aiphabtc/published_datetimes_0325.pkl', 'rb') as f:
 
 # get chart data
 chart_df = pd.read_csv("aiphabtc/upbit_chart_data_0325_v2.csv")
+print(chart_df.head())
+print('='*100)
 
 def inner_product_to_percentage(inner_product):
     return (inner_product + 1) / 2 * 100
