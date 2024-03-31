@@ -78,7 +78,7 @@ def get_query_embedding(query):
 
 def get_relevant_chart_segment1d(chart_df, datestr):
     print(chart_df)
-    chart_df.set_index(pd.DatetimeIndex(chart_df["dates"]), inplace=True)
+    # chart_df.set_index(pd.DatetimeIndex(chart_df["dates"]), inplace=True)
     df1d_idx = -1
     cur_date = chart_df["dates"].values  # Ensure this column contains date and time
     news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S") 
