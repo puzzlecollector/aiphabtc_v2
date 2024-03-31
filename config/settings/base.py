@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import logging
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE' # temporary fix for conflicting FAISS and pytorch OpenMP
 
