@@ -54,8 +54,9 @@ with open('aiphabtc/published_datetimes_0325.pkl', 'rb') as f:
 
 # get chart data
 chart_df = pd.read_csv("aiphabtc/chart_data.csv", encoding='utf-8')
-print(chart_df.head())
-print(chart_df.columns)
+
+chart_df_30m = pd.read_csv("aiphabtc/chart_data_30m.csv", encoding="utf-8")
+
 def inner_product_to_percentage(inner_product):
     return (inner_product + 1) / 2 * 100
 
@@ -74,6 +75,24 @@ def get_query_embedding(query):
       query_embedding = embedding_model(**encoded_query)[0][:, 0, :]
       query_embedding = query_embedding.numpy()
     return query_embedding
+
+def get_relevant_chart_segment30m(chart_df_30m, datestr):
+    df1d_idx = -1
+    cur_date = chart_df_30m["dates"].values  # Ensure this column contains date and time
+    news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S")
+    for i in range(len(cur_date) - 1):
+        # Convert numpy.datetime64 to string and then to datetime
+        current_date_str = cur_date[i]
+        # current_date_str = current_date_str.split('T')[0] + ' ' + current_date_str.split('T')[1].split('.')[0]
+        current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S")
+        next_date_str = cur_date[i + 1]
+        # next_date_str = next_date_str.split('T')[0] + ' ' + next_date_str.split('T')[1].split('.')[0]
+        next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S")
+        if news_datestr >= current_date and news_datestr < next_date:
+            df1d_idx = i
+            break
+    return df1d_idx
+
 
 def get_relevant_chart_segment1d(chart_df, datestr):
     df1d_idx = -1
@@ -116,8 +135,17 @@ def search_news(request):
             text = text.replace("\n", "<br>")
             similarity = round(percentages[i], 3)
             date = published_datetimes[indices[i]]
+
+            relevant_chart_idx_30m = get_relevant_chart_segment30m(chart_df_30m, date)
+            relevant_chart_segment30m = chart_df_30m.iloc[relevant_chart_idx_30m:relevant_chart_idx_30m + 48] # relevant chart data for the next day
+
             relevant_chart_idx_1d = get_relevant_chart_segment1d(chart_df, date)
             relevant_chart_segment_1d = chart_df.iloc[relevant_chart_idx_1d:relevant_chart_idx_1d + 30] # relevant chart data for the next 1 month
+
+            chart_data_30m = {
+                'x': relevant_chart_segment30m.index.tolist(),
+                'y': relevant_chart_segment30m['close'].tolist(),
+            }
 
             chart_data_1d = {
                 'x': relevant_chart_segment_1d.index.tolist(),
@@ -128,6 +156,7 @@ def search_news(request):
                 "text": text,
                 "similarity": similarity,
                 "date": date,
+                "chart_data_30m": chart_data_30m,
                 "chart_data_1d": chart_data_1d,
             })
 

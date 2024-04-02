@@ -3,9 +3,9 @@
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="text-center mb-4">AIPHABTC 비트코인 패턴매칭 분석 대시보드</h2>
+    <h2 class="text-center mb-4">AIPHABTC 뉴스 기반 비트코인 패턴매칭 분석 툴</h2>
     <div class="alert alert-info" role="alert">
-        알파비트 인공지능 팀이 개발한 AI는 입력된 뉴스 제목과 내용에 문맥적으로 유사한 과거 뉴스를 추천하고, 해당 과거 뉴스가 발표된 시점의 차트 데이터를 보여줍니다.
+        알파비트 인공지능 팀이 개발한 AI는 입력된 뉴스 제목과 내용에 문맥적으로 유사한 과거 뉴스를 추천하고, 해당 과거 뉴스가 발표된 시점으로부터의 비트코인 차트 데이터 (BTC-KRW)를 보여줍니다. 과거 뉴스 데이터는 주기적으로 업데이트 됩니다. 디폴트로 일봉 차트 데이터가 보여지고 30분봉 차트 데이터로 토글도 가능합니다.
     </div>
     <div class="mb-3">
         <label for="topKRange" class="form-label">조회할 상위 결과 수 (5-20):</label>
@@ -55,7 +55,10 @@
 
             data.results.forEach(function(result, index) {
                 // Store chart data in the global object
-                chartDataStorage[index] = result.chart_data_1d;  // Assuming this is the chart data you want to plot
+                chartDataStorage[index] = {
+                    chart_data_30m: result.chart_data_30m,
+                    chart_data_1d: result.chart_data_1d,
+                }
 
                 var resultDiv = document.createElement('div');
                 resultDiv.className = 'result';
@@ -64,12 +67,14 @@
                     <p>${result.text}</p>
                     <p><strong>문맥형 유사도:</strong> ${result.similarity}%</p>
                     <p><strong>날짜:</strong> ${result.date}</p>
+                    <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m')">30m Chart</button>
+                    <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d')">1d Chart</button>
                     <div class="chart" id="chart${index}"></div>
                 `;
                 resultsContainer.appendChild(resultDiv);
 
-                // Plot the chart
-                updateChart(`chart${index}`, index);
+                // Plot the chart: Default plot 1d chart
+                updateChart(`chart${index}`, 'chart_data_1d');
             });
             document.getElementById("loading").style.display = "none";
         })
@@ -79,8 +84,9 @@
         });
     });
 
-    function updateChart(chartId, index) {
-        var chartData = chartDataStorage[index];  // Get the correct chart data from the global object
+    function updateChart(chartId, chartDataType) {
+        var index = chartId.replace('chart', ''); // Extract index from chartId
+        var chartData = chartDataStorage[index][chartDataType];  // Get the correct chart data from the global object
 
         var chartDiv = document.getElementById(chartId);
         Plotly.newPlot(chartDiv, [
