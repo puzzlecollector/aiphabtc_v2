@@ -53,10 +53,9 @@ with open('aiphabtc/published_datetimes_0325.pkl', 'rb') as f:
     published_datetimes = pickle.load(f)
 
 # get chart data
-chart_df = pd.read_csv("aiphabtc/upbit_chart_data_0325_v2.csv")
+chart_df = pd.read_csv("aiphabtc/chart_data.csv", encoding='utf-8')
 print(chart_df.head())
-print('='*100)
-
+print(chart_df.columns)
 def inner_product_to_percentage(inner_product):
     return (inner_product + 1) / 2 * 100
 
@@ -77,11 +76,9 @@ def get_query_embedding(query):
     return query_embedding
 
 def get_relevant_chart_segment1d(chart_df, datestr):
-    print(chart_df)
-    # chart_df.set_index(pd.DatetimeIndex(chart_df["dates"]), inplace=True)
     df1d_idx = -1
     cur_date = chart_df["dates"].values  # Ensure this column contains date and time
-    news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S") 
+    news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S")
     for i in range(len(cur_date) - 1):
         # Convert numpy.datetime64 to string and then to datetime
         current_date_str = cur_date[i]
