@@ -22,6 +22,41 @@
         </div>
         <div id="results" class="mt-4"></div>
     </div>
+
+    <h2 class="text-center mb-4">AIPHABTC 종가 기반 비트코인 패턴매칭 분석 툴</h2>
+    <div class="alert alert-info" role="alert">
+        Dynamic Time Warping (DTW) 방법의 차트 패턴 매칭 방법으로 현재 일봉 혹은 30분봉 구간과 가장 유사한 과거 일봉 혹은 30분봉을 계산해서 보여줍니다.
+    </div>
+    <!-- Add a toggle for 1D and 30M chart data -->
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="chartType" id="oneDayChart" value="1d" checked>
+      <label class="form-check-label" for="oneDayChart">일봉</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="chartType" id="thirtyMinChart" value="30m">
+      <label class="form-check-label" for="thirtyMinChart">30분봉</label>
+    </div>
+    <div>
+        <label for="topKChartRange">조회할 상위 차트 결과 수 (5-20): </label>
+        <input type="range" id="topKChartRange" name="topKChart" min="5" max="20" value="5">
+        <span id="topKChartValue">5</span>
+    </div>
+    <div>
+        <div style="text-align: center;"> <!-- Added inline CSS for center alignment -->
+            <p><strong>현재 차트 종가 움직임</strong></p>
+        </div>
+        <div id="currentPatternInfo"></div>
+        <div class="chart" id="currentPatternChart"></div>
+    </div>
+    <div>
+        <button type="button" id="searchChartButton" class="btn btn-primary">검색</button>
+    </div>
+    <div id="chartLoading" class="text-center my-3" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden"></span>
+        </div>
+    </div>
+    <div id="chartResults"></div>
 </div>
 {% endblock %}
 
@@ -102,6 +137,111 @@
             yaxis: { title: 'BTC-KRW' },
         });
     }
+
+
+    document.getElementById("searchChartButton").addEventListener("click", function() {
+        document.getElementById("chartLoading").style.display = "block";
+
+        var topK = document.getElementById("topKChartRange").value;
+        var chartType = document.querySelector('input[name="chartType"]:checked').value;
+        // Construct the URL dynamically based on the selected chart type
+        var searchChartUrl = `/aiphabtc/chart_similarity/${chartType}/`;
+        var csrfToken = getCookie("csrftoken");
+
+        fetch(searchChartUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({ top_k: topK }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            var resultsContainer = document.getElementById("chartResults");
+            resultsContainer.innerHTML = '';
+            data.results.forEach(function(result, index) {
+                var chartIdStart = `chartPatternStart${index}`;
+                var chartIdEnd = `chartPatternEnd${index}`;
+
+                var resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = `
+                    <br><br>
+                    <h5> DTW Based Pattern Rank ${index + 1} </h5>
+                    <div>DTW 유사 차트 패턴 구간:</div>
+                    <div class="chart" id="${chartIdStart}"></div>
+                    <div>DTW 유사 차트 패턴 구간 이후 움직임:</div>
+                    <div class="chart" id="${chartIdEnd}"></div>
+                `;
+                resultsContainer.appendChild(resultDiv);
+
+                plotChartPattern(chartIdStart, result.date_start, result.chart_data_start, 'rgba(255, 99, 132, 1)');
+                plotChartPattern(chartIdEnd, result.date_end, result.chart_data_end, 'rgba(75, 192, 192, 1)');
+            });
+
+            document.getElementById("chartLoading").style.display = "none";
+        })
+        .catch(error => {
+            console.error("Error fetching chart pattern matching results:", error);
+            document.getElementById("chartLoading").style.display = "none";
+        });
+    });
+
+    function plotChartPattern(chartId, xData, yData, lineColor) {
+        var chartDiv = document.getElementById(chartId);
+        Plotly.newPlot(chartDiv, [
+            {
+                type: 'scatter',
+                mode: 'lines',
+                x: xData,
+                y: yData,
+                line: { color: lineColor }
+            }
+        ], {
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'BTC-KRW' }
+        });
+    }
+
+    // Function to fetch and plot current chart pattern
+    function fetchAndPlotCurrentPattern() {
+        var chartType = document.querySelector('input[name="chartType"]:checked').value;
+        var csrfToken = getCookie("csrftoken");
+
+        fetch(`/aiphabtc/get_current_chart_pattern/`, {  // Adjust the URL as necessary
+            method: "GET",
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Choose the dataset based on the selected chart type
+            var currentPatternData = chartType === '1d' ? data.current_pattern_1d : data.current_pattern_30m;
+            plotChartPattern("currentPatternChart", currentPatternData.dates, currentPatternData.close, 'rgba(0, 123, 255, 1)');
+        })
+        .catch(error => {
+            console.error("Error fetching current chart pattern:", error);
+        });
+    }
+
+    window.onload = function() {
+        fetchAndPlotCurrentPattern();
+    };
+
+
+    // Listen for changes to the chart type radio buttons and re-plot the current chart pattern
+    document.querySelectorAll('input[name="chartType"]').forEach((elem) => {
+        elem.addEventListener('change', function() {
+            fetchAndPlotCurrentPattern();
+        });
+    });
+
+    // Add an event listener to update the displayed value when the slider changes
+    document.getElementById("topKChartRange").addEventListener("input", function() {
+        document.getElementById("topKChartValue").innerText = this.value;
+    });
 
     // Function to get CSRF token from cookies
     function getCookie(name) {

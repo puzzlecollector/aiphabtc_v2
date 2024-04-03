@@ -59,4 +59,11 @@ urlpatterns = [
 
     # news similarity
     path('news_similarity/', pattern_matching_views.search_news, name="news_similarity"),
+
+    # chart similarity
+    #path('chart_similarity', pattern_matching_views.search_chart_pattern1d, name="chart_similarity"),
+    path('chart_similarity/<chart_type>/', pattern_matching_views.search_chart_pattern, name="chart_similarity"),
+
+    # current chart pattern
+    path('get_current_chart_pattern/', pattern_matching_views.get_current_chart_pattern, name='get_current_chart_pattern'),
 ]
