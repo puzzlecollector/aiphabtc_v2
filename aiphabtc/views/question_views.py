@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import pyupbit
 from common.models import PointTokenTransaction
+import pytz
 
 @login_required(login_url="common:login")
 def question_create(request, board_name):
@@ -22,7 +23,9 @@ def question_create(request, board_name):
         if form.is_valid():
             question = form.save(commit=False)
             question.author = request.user
-            question.create_date = timezone.now()
+            seoul_timezone = pytz.timezone("Asia/Seoul")
+            question.create_date = timezone.now().astimezone(seoul_timezone)
+            print(question.create_date)
             question.board = board
 
             # Handle perceptive_board specific logic
@@ -84,7 +87,8 @@ def question_modify(request, question_id):
         if form.is_valid():
             question = form.save(commit=False)
             question.author = request.user
-            question.modify_date = timezone.now()
+            seoul_timezone = pytz.timezone("Asia/Seoul")
+            question.modify_date = timezone.now().astimezone(seoul_timezone)
             question.save()
             return redirect("aiphabtc:detail", question_id=question.id)
     else:
