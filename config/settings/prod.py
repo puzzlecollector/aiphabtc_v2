@@ -6,3 +6,14 @@ STATIC_ROOT = BASE_DIR / "static/"
 STATICFILES_DIRS = []
 DEBUG = True
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'aiphabtc',
+        'USER': 'dbmasteruser',
+        'PASSWORD': '^HOJ{H}6Q4G{Zbr`#d3J?Nqwy][nsG:p',
+        'HOST': 'ls-f43abde185ef373bcd6253588b8b9e0dd3bdafc2.cdca0i6ucaaq.ap-northeast-2.rds.amazonaws.com',
+        'PORT': '5432',
+    }
+}
+
