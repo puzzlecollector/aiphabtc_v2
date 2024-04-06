@@ -8,7 +8,7 @@ DEBUG = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'aiphabtc',
         'USER': 'dbmasteruser',
         'PASSWORD': '^HOJ{H}6Q4G{Zbr`#d3J?Nqwy][nsG:p',
