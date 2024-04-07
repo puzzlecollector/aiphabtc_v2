@@ -203,7 +203,15 @@
                             <tr>
                                 <td>{{ comment.content|truncatewords:10 }}</td>
                                 <td>{{ comment.create_date|date:"Y-m-d H:i" }}</td>
-                                <td><a href="{% url 'aiphabtc:detail' comment.question.id %}">{{ comment.question }}</a></td>
+                                <td>
+                                {% if comment.question %}
+                                    <a href="{% url 'aiphabtc:detail' comment.question.id %}">{{ comment.question.subject }}</a>
+                                {% elif comment.answer %}
+                                    <a href="{% url 'aiphabtc:detail' comment.answer.question.id %}">{{ comment.answer.question.subject }}</a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                                </td>
                             </tr>
                             {% empty %}
                             <tr>
