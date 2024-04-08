@@ -35,6 +35,9 @@ from common.models import PointTokenTransaction
 from django.db.models import Q
 from django.core.cache import cache
 import backoff
+import asyncio
+import nest_asyncio
+from telethon import TelegramClient, errors
 
 
 def loading(request): 
@@ -414,6 +417,45 @@ def should_update_prediction():
         return True
     return False
 
+api_id="20687093"
+api_hash="d9874ce308721be91945118da0cc80d2"
+# Function to get messages from a specified Telegram channel
+async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increase limit if needed
+    try:
+        async with TelegramClient('anon', api_id, api_hash) as client:
+            messages = await client.get_messages(channel, limit=limit)
+            return [(msg.date, msg.message) for msg in messages]
+    except errors.RPCError as e:
+        print(f"An error occurred while fetching messages from {channel}: {e}")
+        return []
+
+async def return_telegram_messages(api_id, api_hash):
+    channels = ['@crypto_gazua'] # ['@whalealertkorean', '@whaleliq', '@crypto_gazua']
+    results = {}
+    seoul_tz = pytz.timezone('Asia/Seoul')
+    for channel in channels:
+        try:
+            messages = await get_telegram_messages(api_id, api_hash, channel)
+            processed_texts = []
+            for date, text in messages:
+                date_seoul = date.astimezone(seoul_tz).strftime("%Y-%m-%d %H:%M:%S %Z")
+                processed_text = text + "\n" + date_seoul
+                processed_texts.append(processed_text)
+                if len(processed_texts) == 5:
+                    break
+            results[channel] = processed_texts
+        except Exception as e:
+            print(f"An error occurred while processing messages from {channel}: {e}")
+    return results
+
+# Synchronous wrapper for async call
+def get_telegram_messages_sync(api_id, api_hash):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    results = loop.run_until_complete(return_telegram_messages(api_id, api_hash))
+    loop.close()
+    return results
+
 def index(request):
     boards = Board.objects.all()
     board_posts = {}
@@ -440,6 +482,10 @@ def index(request):
     }
 
     pearson, spearman, kendall = get_correlation()
+
+    telegram_messages = get_telegram_messages_sync(api_id, api_hash)
+
+    # print(telegram_messages)
 
     if should_update_prediction() or not cache.get('predictions'):
         print("calculating as we cannot use previously cached value")
@@ -500,6 +546,7 @@ def index(request):
         "pearson": pearson,
         "spearman": spearman,
         "kendall": kendall,
+        "telegram_messages": telegram_messages,
     }
     # merge context and prediction_contexts then return it as context
     context = {**context, **prediction_contexts}

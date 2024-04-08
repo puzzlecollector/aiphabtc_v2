@@ -686,6 +686,33 @@
                     </p>
                 </div>
             </p>
+            <p>
+                <div class="container mt-4">
+                    <a href="https://t.me/s/crypto_gazua" target="_blank" style="text-decoration: none; color: inherit;">
+                        <img src="{% static 'crypto_gazua.png' %}" alt="crypto_gazua Icon" style="vertical-align: middle; margin-right: 5px; height: 30px;">
+                    </a>
+                    <strong class="mb-4">최근 거래소 상장 알림</strong>
+                    {% for channel, messages in telegram_messages.items %}
+                        {% if messages %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        {% for message in messages %}
+                                            <tr>
+                                                <td>{{ message }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p>정보를 긁어오는데 실패했습니다.</p>
+                        {% endif %}
+                    {% empty %}
+                        <p>텔레그램 메시지 정보를 불러올 수 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </p>
             <!-- add advertisement banners here -->
             <div class="row">
                 <div class="col-md-6 advertisement-container">
