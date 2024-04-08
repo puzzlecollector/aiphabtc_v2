@@ -417,8 +417,8 @@ def should_update_prediction():
         return True
     return False
 
-api_id="20687093"
-api_hash="d9874ce308721be91945118da0cc80d2"
+api_id=settings.TELEGRAM_ID
+api_hash=settings.TELEGRAM_HASH
 # Function to get messages from a specified Telegram channel
 async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increase limit if needed
     try:
@@ -482,10 +482,10 @@ def index(request):
     }
 
     pearson, spearman, kendall = get_correlation()
-
-    telegram_messages = get_telegram_messages_sync(api_id, api_hash)
-
-    # print(telegram_messages)
+    try:
+        telegram_messages = get_telegram_messages_sync(api_id, api_hash)
+    except Exception as e:
+        print(e)
 
     if should_update_prediction() or not cache.get('predictions'):
         print("calculating as we cannot use previously cached value")
