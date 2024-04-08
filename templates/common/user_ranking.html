@@ -1,6 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .admin-badge {
+        background-color: #dc3545; /* Bootstrap danger color for contrast */
+        color: white;
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        margin-left: 0.5rem; /* Ensure some space between the username and the badge */
+        vertical-align: middle;
+    }
+
+    /* Custom styling for the table rows for better readability */
+    .ranking-table th, .ranking-table td {
+        vertical-align: middle;
+    }
+
+    .ranking-table a {
+        text-decoration: none; /* Optional: removes underline from links */
+        color: inherit; /* Ensures the link color matches the text color */
+    }
+    /* You can add more custom styles here */
+</style>
+
+
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>User Rankings</h2>
@@ -12,7 +37,7 @@
         </form>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover ranking-table">
             <thead class="table-dark">
                 <tr>
                     <th scope="col">#</th>
@@ -25,7 +50,14 @@
                 {% for profile in page_obj %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
-                    <td><a href="{% url 'aiphabtc:profile_detail' profile.user.id %}">{{ profile.user.username }}</a></td>
+                    <td>
+                        <a href="{% url 'aiphabtc:profile_detail' profile.user.id %}">
+                            {{ profile.user.username }}
+                            {% if profile.user.is_staff or profile.user.is_superuser %}
+                                <span class="badge bg-primary ms-2">Admin</span>
+                            {% endif %}
+                        </a>
+                    </td>
                     <td>{{ profile.score }}</td>
                     <td>{{ profile.get_tier }}</td>
                 </tr>

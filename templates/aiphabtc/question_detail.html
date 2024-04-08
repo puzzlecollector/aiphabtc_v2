@@ -68,7 +68,14 @@
                         </div>
                         {% endif %}
                         <div class="badge badge-light p-2 text-left">
-                            <div class="mb-2"><a href="{% url 'aiphabtc:profile_detail' question.author.id %}">{{ question.author.username }}</a></div>
+                            <div class="mb-2">
+                                <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
+                                    {{ question.author.username }}
+                                    {% if question.author.is_staff or question.author.is_superuser %}
+                                        <span class="badge bg-success ms-2" style="color: black;">Admin</span>
+                                    {% endif %}
+                                </a>
+                            </div>
                             <div>{{ question.create_date }}</div>
                         </div>
                     </div>
@@ -86,7 +93,12 @@
                         <div class="comment py-2 text-muted">
                             <span style="white-space: pre-line; font-size: 18px;">{{ comment.content }}</span>
                             <span>
-                                - <a href="{% url 'aiphabtc:profile_detail' comment.author.id %}">{{ comment.author }}</a>, {{ comment.create_date }}
+                                - <a href="{% url 'aiphabtc:profile_detail' comment.author.id %}">
+                                    {{ comment.author }}
+                                    {% if comment.author.is_staff or comment.author.is_superuser %}
+                                        <span class="badge bg-success ms-2" style="color: black;">Admin</span>
+                                    {% endif %}
+                                </a>, {{ comment.create_date }}
                                 {% if comment.modify_date %}
                                 (수정:{{ comment.modify_date }})
                                 {% endif %}
@@ -133,7 +145,14 @@
                         </div>
                         {% endif %}
                         <div class="badge badge-light p-2 text-left">
-                            <div class="mb-2"><a href="{% url 'aiphabtc:profile_detail' answer.author.id %}">{{ answer.author.username }}</a></div>
+                            <div class="mb-2">
+                                <a href="{% url 'aiphabtc:profile_detail' answer.author.id %}">
+                                    {{ answer.author.username }}
+                                    {% if answer.author.is_staff or answer.author.is_superuser %}
+                                        <span class="badge bg-success ms-2" style="color: black;">Admin</span>
+                                    {% endif %}
+                                </a>
+                            </div>
                             <div>{{ answer.create_date }}</div>
                         </div>
                     </div>
@@ -151,7 +170,12 @@
                         <div class="comment py-2 text-muted">
                             <span style="white-space: pre-line; font-size: 18px;">{{ comment.content }}</span>
                             <span>
-                                - <a href="{% url 'aiphabtc:profile_detail' comment.author.id %}">{{ comment.author }}</a>, {{ comment.create_date }}
+                                - <a href="{% url 'aiphabtc:profile_detail' comment.author.id %}">
+                                {{ comment.author }}
+                                {% if comment.author.is_staff or comment.author.is_superuser %}
+                                    <span class="badge bg-success ms-2" style="color: black;">Admin</span>
+                                {% endif %}
+                                </a>, {{ comment.create_date }}
                                 {% if comment.modify_date %}
                                 (수정:{{ comment.modify_date }})
                                 {% endif %}
