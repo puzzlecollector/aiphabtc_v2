@@ -36,7 +36,6 @@ from django.db.models import Q
 from django.core.cache import cache
 import backoff
 import asyncio
-import nest_asyncio
 from telethon import TelegramClient, errors
 
 
