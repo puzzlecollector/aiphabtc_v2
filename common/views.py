@@ -158,6 +158,15 @@ def signup(request):
 def page_not_found(request, exception):
     return render(request, 'common/404.html', {})
 
+def csrf_failure(request, reason=""):
+    # Optionally, you can use 'reason' to provide more details about the failure
+    context = {
+        "reason": reason,
+    }
+    # Render your custom CSRF failure template with the context
+    return render(request, "common/csrf_failure.html", context, status=403)
+
+
 
 def user_ranking(request):
     search_query = request.GET.get("search", "")
