@@ -472,6 +472,65 @@
                     <span style="font-size: 11px;color: #333333;text-decoration: none;">외환 포털 <a href="https://kr.Investing.com/" rel="nofollow" target="_blank" style="font-size: 11px;color: #06529D; font-weight: bold;" class="underline_link">Investing.com 한국어</a>.</span>
                 </div>
             </div>
+            <p>
+                <div class="container mt-4">
+                    <h5 class="mb-4">최근 거래소 상장 및 공지 알림</h5>
+                    <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'crypto_gazua.png' %}" alt="crypto_gazua Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/s/crypto_gazua">@crypto_gazua</a>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'shrimp_notice.png' %}" alt="shrimp_notice Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/s/shrimp_notice">@shrimp_notice</a>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'coinkokr.png' %}" alt="coinkokr Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/s/coinkokr">@coinkokr</a>
+                        </button>
+                    </div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" id="myTab2" role="tablist">
+                        {% for channel, messages in telegram_messages.items %}
+                            {% if channel|exclude_channels:'@whalealertkorean,@whaleliq' %}
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-exchange' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-exchange' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-exchange' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                        {{ channel }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Tab content -->
+                    <div class="tab-content" id="myTabContent2">
+                        {% for channel, messages in telegram_messages.items %}
+                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-exchange' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-exchange' }}">
+                                {% if messages %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Message</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for message in messages %}
+                                                    <tr>
+                                                        <td>{{ message }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p>정보를 긁어오는데 실패했습니다.</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </p>
         </div>
         <div class="col-lg-6">
             <h3>커뮤니티 게시판</h3>
@@ -733,65 +792,6 @@
                 </div>
             </p>
             <hr>
-            <p>
-                <div class="container mt-4">
-                    <h5 class="mb-4">최근 거래소 상장 및 공지 알림</h5>
-                    <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'crypto_gazua.png' %}" alt="crypto_gazua Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/s/crypto_gazua">@crypto_gazua</a>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'shrimp_notice.png' %}" alt="shrimp_notice Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/s/shrimp_notice">@shrimp_notice</a>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'coinkokr.png' %}" alt="coinkokr Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/s/coinkokr">@coinkokr</a>
-                        </button>
-                    </div>
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs" id="myTab2" role="tablist">
-                        {% for channel, messages in telegram_messages.items %}
-                            {% if channel|exclude_channels:'@whalealertkorean,@whaleliq' %}
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-exchange' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-exchange' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-exchange' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                                        {{ channel }}
-                                    </a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-
-                    <!-- Tab content -->
-                    <div class="tab-content" id="myTabContent2">
-                        {% for channel, messages in telegram_messages.items %}
-                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-exchange' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-exchange' }}">
-                                {% if messages %}
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Message</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for message in messages %}
-                                                    <tr>
-                                                        <td>{{ message }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <p>정보를 긁어오는데 실패했습니다.</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </p>
             <!-- add advertisement banners here -->
             <div class="row">
                 <div class="col-md-6 advertisement-container">
