@@ -55,18 +55,40 @@ def latest_voting_data(request):
 # it says bitget, but we are using coinbase data
 # rule: korean exchange - upbit, american exchange - coinbase
 def get_kimchi_data():
-    coinbasepro = ccxt.coinbasepro()
-    data = {}
-    seoul_timezone = pytz.timezone("Asia/Seoul")
-    current_time_seoul = datetime.now(seoul_timezone)
-    data["current_time"] = current_time_seoul.strftime("%Y-%m-%d %H:%M:%S")
-    USDKRW = yf.Ticker("USDKRW=X")
-    history = USDKRW.history(period="1d")
-    data["now_usd_krw"] = history["Close"].iloc[0]
-    data["now_upbit_price"] = pyupbit.get_current_price("KRW-BTC")
-    data["now_bitget_price"] = coinbasepro.fetch_ticker("BTC/USDT")["close"]
-    data["kp"] = round((data["now_upbit_price"] * 100 / (data["now_bitget_price"] * data["now_usd_krw"])) - 100, 3)
-    return data
+    try:
+        coinbasepro = ccxt.coinbasepro()
+        data = {}
+        seoul_timezone = pytz.timezone("Asia/Seoul")
+        current_time_seoul = datetime.now(seoul_timezone)
+        data["current_time"] = current_time_seoul.strftime("%Y-%m-%d %H:%M:%S")
+
+        try:
+            USDKRW = yf.Ticker("USDKRW=X")
+            history = USDKRW.history(period="1d")
+            data["now_usd_krw"] = history["Close"].iloc[0]
+        except Exception:
+            data["now_usd_krw"] = None  # Handle missing data gracefully
+
+        try:
+            data["now_upbit_price"] = pyupbit.get_current_price("KRW-BTC")
+        except Exception:
+            data["now_upbit_price"] = None  # Handle missing data gracefully
+
+        try:
+            data["now_bitget_price"] = coinbasepro.fetch_ticker("BTC/USDT")["close"]
+        except Exception:
+            data["now_bitget_price"] = None  # Handle missing data gracefully
+
+        if all(value is not None for value in [data["now_upbit_price"], data["now_bitget_price"], data["now_usd_krw"]]):
+            data["kp"] = round((data["now_upbit_price"] * 100 / (data["now_bitget_price"] * data["now_usd_krw"])) - 100,
+                               3)
+        else:
+            data["kp"] = "Data unavailable"
+
+        return data
+    except Exception as e:
+        print(f"Failed to fetch kimchi data: {e}")
+        return {"error": "Failed to fetch data"}
 
 # for coinness data scraping
 def get_articles(headers, url):
@@ -429,7 +451,7 @@ async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increas
         return []
 
 async def return_telegram_messages(api_id, api_hash):
-    channels = ['@crypto_gazua'] # ['@whalealertkorean', '@whaleliq', '@crypto_gazua']
+    channels = ['@crypto_gazua', '@shrimp_notice', '@coinkokr', '@whaleliq', '@whalealertkorean']
     results = {}
     seoul_tz = pytz.timezone('Asia/Seoul')
     for channel in channels:
@@ -463,15 +485,24 @@ def index(request):
         posts = Question.objects.filter(board=board).order_by('-create_date')[:3]
         board_posts[board] = posts
 
-    url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
-    response_fng = requests.get(url_fng)
-    data_fng = response_fng.json().get('data', [])
+    try:
+        url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
+        response_fng = requests.get(url_fng)
+        data_fng = response_fng.json().get('data', [])
+    except Exception as e:
+        print(f"Failed to fetch FNG data: {e}")
+        data_fng = []
 
-    url_global = "https://api.coinlore.net/api/global/"
-    response_global = requests.get(url_global)
-    data_global = response_global.json()
+    try:
+        url_global = "https://api.coinlore.net/api/global/"
+        response_global = requests.get(url_global)
+        data_global = response_global.json()
+    except Exception as e:
+        print(f"Failed to fetch global data: {e}")
+        data_global = {}
 
     kimchi_data = get_kimchi_data()
+    print(kimchi_data)
 
     sentiment_voting_options = VotingOption.objects.annotate(vote_count=Count('votes'))
     sentiment_votes_with_percentages = calculate_vote_percentages(sentiment_voting_options)
@@ -481,6 +512,7 @@ def index(request):
     }
 
     pearson, spearman, kendall = get_correlation()
+
     try:
         telegram_messages = get_telegram_messages_sync(api_id, api_hash)
     except Exception as e:

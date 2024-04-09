@@ -19,3 +19,19 @@ def to_float(value):
         return float(value)
     except ValueError:
         return 0.0
+
+
+@register.filter(name='exclude_channels')
+def exclude_channels(value, arg):
+    """
+    Custom template filter to exclude specific channels.
+
+    Args:
+        value (str): The channel to check.
+        arg (str): A string of comma-separated channels to exclude.
+
+    Returns:
+        bool: True if the channel is not in the list to exclude, False otherwise.
+    """
+    exclude_list = arg.split(',')
+    return value not in exclude_list
