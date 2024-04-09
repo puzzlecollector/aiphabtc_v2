@@ -144,8 +144,8 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # OPENAI_API_KEY = "<MASKED>"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY") # because openai removes it if exposed
-TELEGRAM_ID = "20687093"#os.environ.get("telegram_api_id")
-TELEGRAM_HASH = "d9874ce308721be91945118da0cc80d2"#os.environ.get("telegram_api_hash")
+TELEGRAM_ID = os.environ.get("telegram_api_id")
+TELEGRAM_HASH = os.environ.get("telegram_api_hash")
 
 CACHES = {
     'default': {
