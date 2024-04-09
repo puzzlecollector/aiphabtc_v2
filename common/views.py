@@ -25,6 +25,9 @@ from django.contrib.auth.views import LoginView
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import make_password
 import os
+from django.http import HttpResponseForbidden
+from django.middleware.csrf import CsrfViewMiddleware
+
 
 @login_required(login_url='common:login')
 def base(request):
