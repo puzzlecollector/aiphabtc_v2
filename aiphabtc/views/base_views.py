@@ -443,7 +443,7 @@ api_hash=settings.TELEGRAM_HASH
 # Function to get messages from a specified Telegram channel
 async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increase limit if needed
     try:
-        async with TelegramClient('anon', api_id, api_hash) as client:
+        async with TelegramClient('/home/ubuntu/venvs/anon_prod.session', api_id, api_hash) as client:
             messages = await client.get_messages(channel, limit=limit)
             return [(msg.date, msg.message) for msg in messages]
     except errors.RPCError as e:
