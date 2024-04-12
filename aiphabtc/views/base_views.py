@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST, require_http_methods
 import requests
 import pyupbit
 import ccxt
-import time 
+import time
 import yfinance as yf
 import pytz
 from datetime import datetime, timedelta, timezone
@@ -39,8 +39,9 @@ import asyncio
 from telethon import TelegramClient, errors
 
 
-def loading(request): 
+def loading(request):
     return render(request, "loading.html")
+
 
 # return percentage
 def latest_voting_data(request):
@@ -51,6 +52,7 @@ def latest_voting_data(request):
         'data': [(option.vote_count / total_votes * 100) if total_votes > 0 else 0 for option in options],
     }
     return JsonResponse(data)
+
 
 # it says bitget, but we are using coinbase data
 # rule: korean exchange - upbit, american exchange - coinbase
@@ -90,6 +92,7 @@ def get_kimchi_data():
         print(f"Failed to fetch kimchi data: {e}")
         return {"error": "Failed to fetch data"}
 
+
 # for coinness data scraping
 def get_articles(headers, url):
     news_req = requests.get(url, headers=headers)
@@ -112,6 +115,7 @@ def get_articles(headers, url):
     else:
         content = "No content found in the specified structure."
     return title, content
+
 
 def scrape_tokenpost():
     all_titles, all_contents, all_full_times = [], [], []
@@ -167,6 +171,7 @@ def fetch_with_retry(url, headers):
     response.raise_for_status()  # Will trigger retry on 4xx and 5xx errors
     return response.json()
 
+
 def scrape_coinness_xhr():
     url = 'https://api.coinness.com/feed/v1/news'
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -194,6 +199,7 @@ def scrape_coinness_xhr():
 
     return pd.DataFrame({'titles': titles, 'contents': contents, 'datetimes': datetimes_arr})
 
+
 def get_sentiment_scores(df):
     titles = df["titles"].values
     contents = df["contents"].values
@@ -212,6 +218,7 @@ def get_sentiment_scores(df):
     print(scores)
     return scores  # average scores
 
+
 def get_news_and_sentiment(request):
     # Your news scraping and sentiment analysis logic here
     df = scrape_coinness_xhr()
@@ -226,6 +233,7 @@ def get_news_and_sentiment(request):
         "sentiment_labels": sentiment_labels,
     }
     return JsonResponse(data)
+
 
 def get_technical_indicators(timeframe="day"):
     df = pyupbit.get_ohlcv("KRW-BTC", interval=timeframe)
@@ -256,6 +264,7 @@ def get_technical_indicators(timeframe="day"):
     data = {"output_str": sample_str}
     return data
 
+
 def fetch_ai_technical1d(request):
     technical_data = get_technical_indicators(timeframe="day")
     technical_output = technical_data["output_str"]
@@ -267,11 +276,12 @@ def fetch_ai_technical1d(request):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role":"user", "content":message}
+            {"role": "user", "content": message}
         ]
     )
     chat_message = response["choices"][0]["message"]["content"]
     return JsonResponse({"chat_message": chat_message})
+
 
 @login_required(login_url="common:login")
 @require_http_methods(["POST"])  # Ensures that this view can only be accessed with a POST request
@@ -289,10 +299,11 @@ def submit_sentiment_vote(request):
     # Fallback for non-AJAX requests if necessary
     return redirect("index")
 
+
 def calculate_vote_percentages(voting_options):
     total_votes = sum(option.vote_count for option in voting_options)
     if total_votes == 0:
-        return [(option, 0) for option in voting_options] # avoid division by zero
+        return [(option, 0) for option in voting_options]  # avoid division by zero
     return [(option, (option.vote_count / total_votes) * 100) for option in voting_options]
 
 
@@ -333,6 +344,7 @@ def get_correlation():
         print(f"Error occurred: {e}")
     return pearson, spearman, kendall
 
+
 def get_predictions_arima(btc_sequence, p=1, d=1, q=1, steps_ahead=1):
     try:
         # Differencing
@@ -351,17 +363,20 @@ def get_predictions_arima(btc_sequence, p=1, d=1, q=1, steps_ahead=1):
         print(f"Model fitting failed: {str(e)}")
         return np.zeros((steps_ahead,))
 
+
 def get_predictions_mlp(test_input):
     with open('aiphabtc/mlp_regressor.pkl', 'rb') as model_file:
         loaded_mlp = pickle.load(model_file)
     prediction = loaded_mlp.predict(test_input)
     return prediction
 
+
 def get_predictions_elasticnet(test_input):
     with open("aiphabtc/elastic_net.pkl", "rb") as model_file:
-        loaded_elasticnet = pickle.load(model_file) 
-    prediction = loaded_elasticnet.predict(test_input) 
+        loaded_elasticnet = pickle.load(model_file)
+    prediction = loaded_elasticnet.predict(test_input)
     return prediction
+
 
 def preprocess_function(chart_df):
     days, months = [], []
@@ -409,17 +424,20 @@ def preprocess_function(chart_df):
     chart_df.dropna(inplace=True)
     return chart_df
 
+
 def get_predictions_xgboost(test_input):
     loaded_model = XGBClassifier()
     loaded_model.load_model("aiphabtc/xgb_clf_mainlanding")
     xgb_prob = loaded_model.predict_proba(test_input)[0]
-    return xgb_prob[0]*100.0, xgb_prob[1]*100.0 # short, long
+    return xgb_prob[0] * 100.0, xgb_prob[1] * 100.0  # short, long
+
 
 def get_predictions_lightgbm(test_input):
     test_lgb = lgb.Booster(model_file="aiphabtc/lightgbm_model.txt")
-    lgb_prob = test_lgb.predict(test_input, num_iteration=test_lgb.best_iteration)[0] # long probability
+    lgb_prob = test_lgb.predict(test_input, num_iteration=test_lgb.best_iteration)[0]  # long probability
     short = 1 - lgb_prob
     return short * 100.0, lgb_prob * 100.0
+
 
 def get_predictions_rf(test_input):
     with open("aiphabtc/rf_model.pkl", "rb") as file:
@@ -427,6 +445,7 @@ def get_predictions_rf(test_input):
     rf_prob = loaded_rf.predict_proba(test_input)[0]
     short, long = rf_prob[0], rf_prob[1]
     return short * 100.0, long * 100.0
+
 
 def should_update_prediction():
     kst = pytz.timezone('Asia/Seoul')
@@ -438,8 +457,11 @@ def should_update_prediction():
         return True
     return False
 
-api_id=settings.TELEGRAM_ID
-api_hash=settings.TELEGRAM_HASH
+
+api_id = settings.TELEGRAM_ID
+api_hash = settings.TELEGRAM_HASH
+
+
 # Function to get messages from a specified Telegram channel
 async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increase limit if needed
     try:
@@ -449,6 +471,7 @@ async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increas
     except errors.RPCError as e:
         print(f"An error occurred while fetching messages from {channel}: {e}")
         return []
+
 
 async def return_telegram_messages(api_id, api_hash):
     channels = ['@crypto_gazua', '@shrimp_notice', '@coinkokr', '@whaleliq', '@whalealertkorean']
@@ -469,6 +492,7 @@ async def return_telegram_messages(api_id, api_hash):
             print(f"An error occurred while processing messages from {channel}: {e}")
     return results
 
+
 # Synchronous wrapper for async call
 def get_telegram_messages_sync(api_id, api_hash):
     loop = asyncio.new_event_loop()
@@ -476,6 +500,26 @@ def get_telegram_messages_sync(api_id, api_hash):
     results = loop.run_until_complete(return_telegram_messages(api_id, api_hash))
     loop.close()
     return results
+
+def fetch_fng_data():
+    try:
+        url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
+        response_fng = requests.get(url_fng)
+        data_fng = response_fng.json().get('data', [])
+    except Exception as e:
+        print(f"Failed to fetch FNG data: {e}")
+        data_fng = []
+    return data_fng
+
+def fetch_global_data():
+    try:
+        url_global = "https://api.coinlore.net/api/global/"
+        response_global = requests.get(url_global)
+        data_global = response_global.json()
+    except Exception as e:
+        print(f"Failed to fetch global data: {e}")
+        data_global = {}
+    return data_global
 
 def index(request):
     boards = Board.objects.all()
@@ -485,6 +529,7 @@ def index(request):
         posts = Question.objects.filter(board=board).order_by('-create_date')[:3]
         board_posts[board] = posts
 
+    '''
     try:
         url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
         response_fng = requests.get(url_fng)
@@ -500,6 +545,7 @@ def index(request):
     except Exception as e:
         print(f"Failed to fetch global data: {e}")
         data_global = {}
+    '''
 
     kimchi_data = get_kimchi_data()
     print(kimchi_data)
@@ -511,15 +557,21 @@ def index(request):
         "data": [percentage for _, percentage in sentiment_votes_with_percentages]
     }
 
-    pearson, spearman, kendall = get_correlation()
+    # pearson, spearman, kendall = get_correlation()
 
     try:
         telegram_messages = get_telegram_messages_sync(api_id, api_hash)
     except Exception as e:
         print(e)
+        telegram_messages = {}
 
     if should_update_prediction() or not cache.get('predictions'):
         print("calculating as we cannot use previously cached value")
+
+        data_fng = fetch_fng_data()
+        data_global = fetch_global_data()
+        pearson, spearman, kendall = get_correlation()
+
         df = pyupbit.get_ohlcv("KRW-BTC", interval="day")
         previous_btc_close = df["close"].values[-2]
         preprocessed_df = preprocess_function(df)
@@ -564,9 +616,20 @@ def index(request):
             "rf_long": rf_long,
         }
         cache.set('predictions', predictions, 86400)
+        cache.set('data_fng', data_fng, 86400)
+        cache.set('data_global', data_global, 86400)  # Expire after one day
+        cache.set('pearson', pearson, 86400), 
+        cache.set('spearman', spearman, 86400), 
+        cache.set('kendall', kendall, 86400),
         cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
 
     prediction_contexts = cache.get('predictions')
+    data_fng = cache.get('data_fng', [])
+    data_global = cache.get('data_global', {})
+    pearson = cache.get('pearson')
+    spearman = cache.get('spearman')
+    kendall = cache.get('kendall')
+
     context = {
         "board_posts": board_posts,
         "data_fng": data_fng,
@@ -615,7 +678,7 @@ def index_orig(request, board_name="free_board"):
 
     paginator = Paginator(question_list, 10)
     page_obj = paginator.get_page(page)
-    
+
     context = {
         "board": board,  # Include the board in context
         "question_list": page_obj,
@@ -625,13 +688,16 @@ def index_orig(request, board_name="free_board"):
     }
     return render(request, 'aiphabtc/question_list.html', context)
 
+
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     context = {"question": question}
     return render(request, 'aiphabtc/question_detail.html', context)
 
+
 def community_guideline(request):
     return render(request, "guidelines.html", {})
+
 
 # for perceptive board
 def get_current_price(request, ticker):
@@ -641,6 +707,7 @@ def get_current_price(request, ticker):
     except Exception as e:
         # Handle errors or the case where the price cannot be fetched
         return JsonResponse({'error': str(e)}, status=400)
+
 
 def search_results(request):
     query = request.GET.get('q')
