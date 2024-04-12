@@ -57,6 +57,13 @@ def latest_voting_data(request):
 # it says bitget, but we are using coinbase data
 # rule: korean exchange - upbit, american exchange - coinbase
 def get_kimchi_data():
+    # Attempt to get cached data
+    data = cache.get('kimchi_data')
+    if data is not None:
+        print("data exists")
+        return data
+
+    print("no current cached kimchi premium data")
     try:
         coinbasepro = ccxt.coinbasepro()
         data = {}
@@ -87,6 +94,8 @@ def get_kimchi_data():
         else:
             data["kp"] = "Data unavailable"
 
+        # Cache the data for next time
+        cache.set('kimchi_data', data, 3600)  # Cache for 1 hour
         return data
     except Exception as e:
         print(f"Failed to fetch kimchi data: {e}")
