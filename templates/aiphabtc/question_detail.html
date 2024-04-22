@@ -48,7 +48,7 @@
 
     <h2 class="border-bottom py-2">{{ question.subject|safe }}</h2>
     <div class="row my-3">
-        <div class="col-1.4">
+        <div class="col-1.2">
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">
                 {{ question.voter.count }}
             </div>
@@ -125,7 +125,7 @@
     {% for answer in question.answer_set.all %}
     <a name="answer_{{ answer.id }}"></a>
     <div class="row my-3">
-        <div class="col-1.4">
+        <div class="col-1.2">
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">
                 {{ answer.voter.count }}
             </div>
