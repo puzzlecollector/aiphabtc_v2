@@ -150,21 +150,27 @@
 
     .investment-calendar-container {
         text-align: center;
+        padding: 20px;
+        background-color: #fff; /* Light background for the container */
+        border: 1px solid #ccc; /* Subtle border */
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
         margin: 20px auto;
-        max-width: 650px; /* Adjust based on your layout's max width */
+        width: 100%; /* Full width to accommodate smaller screens */
+        max-width: 960px; /* Maximum width to maintain aesthetics */
     }
 
     .investment-calendar-container iframe {
-        width: 100%;
-        border: none; /* Remove border */
-        margin-bottom: 10px; /* Space between iframe and attribution */
+        width: 100%; /* Responsive width */
+        height: 450px; /* Height adjustment for better visibility */
+        border: none; /* Removing the default border */
     }
 
     .poweredBy {
-        font-size: 0.9rem;
-        color: #666;
-        text-align: center;
+        font-size: 0.75rem; /* Smaller font size for the attribution */
+        color: #666; /* Subdued color for less attention */
         margin-top: 10px;
+        text-align: center;
     }
 
     .advertisement-container {
@@ -266,7 +272,7 @@
     {% endif %}
     <div class="row">
         <div class="col-lg-6">
-            <h3>비트코인 시황 대시보드</h3>
+            <h3><img src="{% static 'aiphabtc_robot_pic.png' %}" alt="Robot Assistant Icon" style="height: 30px; margin-right: 5px;">비트코인 시황 대시보드</h3>
             <hr>
             <!-- Dashboard content here -->
             <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
@@ -310,14 +316,13 @@
                       </script>
                   </div>
             </div>
-            <br><br>
             <div style="text-align: left; margin-top: 10px; margin-botton: 10px;">
                 <button id="fetchTechnicalAIResponse" class="btn btn-primary">AI 일봉 추세 분석 보기</button>
                 <div id="TechnicalLoading" style="display:none;">AI가 분석중... 시간이 조금만 기다려주세요!</div>
             </div>
             <!-- GPT 일봉 추세 분석 -->
             <p id="TechnicalAIResponse">{{ technical_chat_message }}</p>
-            <hr style="height: 3px; background-color: green;">
+            <hr style="height: 5px; background-color: green;">
             <p>
                 <a href="https://www.coinness.com" target="_blank" style="text-decoration: none; color: inherit;">
                     <img src="{% static 'coinness.png' %}" alt="Coinness Icon" style="vertical-align: middle; margin-right: 5px; height: 30px;">
@@ -338,6 +343,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                <!--
                 <small>더 다양한 미디어 소스에서 최신 코인 시장 뉴스를 확인해보세요!</small>
                 <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
                     <button type="button" class="btn btn-outline-secondary btn-sm">
@@ -350,8 +356,10 @@
                         <a href="https://bloomingbit.io/?tab=real"><img src="{% static 'bloomingbit.png' %}" alt="settings" style="height:30px; margin-right: 5px;">블루밍비트</a>
                     </button>
                 </div>
-                <p><strong> 딥러닝 언어모델 비트코인 감성 점수 </strong></p>
-                <small>최근 코인니스 속보들이 비트코인 가격에 얼만큼 호재, 악재, 중립성을 띄고 있는지 CryptoDeBERTa 언어모델이 분석한 결과입니다. 아이파비트 인공지능 연구팀이 개발한 감성분류 언어모델을 기반으로 수치가 계산되었습니다.</small>
+                -->
+                <br>
+                <strong> 딥러닝 언어모델 비트코인 감성 점수 </strong>
+                <p><small>최근 코인니스 속보들이 비트코인 가격에 얼만큼 호재, 악재, 중립성을 띄고 있는지 CryptoDeBERTa 언어모델이 분석한 결과입니다. 아이파비트 인공지능 연구팀이 개발한 감성분류 언어모델을 기반으로 수치가 계산되었습니다.</small></p>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                         <a href="https://huggingface.co/LDKSolutions/KR-cryptodeberta-v2-base"><img src="{% static 'huggingface.png' %}" alt="settings" style="height:40px; margin-right: 5px;">아이파비트 크립토 언어모델</a>
                 </button>
@@ -365,7 +373,7 @@
                     {% endfor %}
                 </div>
             </p>
-            <hr style="height: 3px; background-color: green;">
+            <hr style="height: 5px; background-color: green;">
             <p>
                 <strong>크립토 공포 탐욕 지수</strong>
                 <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="크립토 공포와 탐욕 지수는 투자자들의 시장에 대한 감정을 나타내는 지표 중 하나로 사용됩니다. 이 지수는 0에서 100 사이의 값을 가지며, 0에 가까울수록 투자자들이 두려움을 느끼고 있음을, 100에 가까울수록 탐욕적임을 나타냅니다. 이 지수는 주로 시장의 극단적인 감정 상태를 포착해 반대 방향으로의 변화를 예측하는데 사용됩니다. 지수가 탐욕으로 옮겨가면 비트코인 가격이 오를 가능성이 있지만, 이는 또한 가격이 과열되어 조정을 받을 수 있는 시점에 접어들 수 있음을 의미합니다.">[?]</span>
@@ -390,7 +398,7 @@
                     </tbody>
                 </table>
             </p>
-            <hr style="height: 3px; background-color: green;">
+            <hr style="height: 5px; background-color: green;">
             <p>
                 <strong>글로벌 크립토 시장 정보</strong>
                 <p>암호화폐 시장의 전반적인 정보입니다 <a href="https://www.coinlore.com/ko/cryptocurrency-data-api">[참고]</a></p>
@@ -426,6 +434,7 @@
                         </tr>
                     {% endfor %}
                 </table>
+                <hr style="height: 5px; background-color: green;">
                 <div class="tradingview-widgets">
                     <div class="tradingview-widget-container">
                         <h5>BTC 도미넌스</h5>
@@ -477,8 +486,8 @@
                     </div>
                 </div>
                 <br><br>
+                <hr style="height: 5px; background-color: green;">
                 <div>
-                    <br>
                     <strong>시장 상관관계 분석</strong>
                     <p>최근 30일간 BTC-KRW와 NAS100의 가격 변동 상관관계:</p>
                     <ul>
@@ -489,7 +498,7 @@
                     <p>값이 1이나 -1에 가까울수록 강한 양 또는 음의 상관관계를 의미합니다. 상관계수 값이 -100인 경우 데이터를 가져오는데 문제가 발생했음을 의미합니다.</p>
                 </div>
             </p>
-            <hr style="height: 3px; background-color: green;">
+            <hr style="height: 5px; background-color: green;">
             <p>
                 <strong>김치 프리미엄 정보</strong>
                 <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="김치 프리미엄이란 용어는 한국의 암호화폐 가격이 해외 거래소의 가격보다 높을 때 사용됩니다. 김프가 높다는 것은 해외 거래소에서 상장된 코인의 가격이 한국 내에서 거래되는 가격보다 상대적으로 저렴하다는 의미입니다.">[?]</span>
@@ -520,6 +529,7 @@
                     </tr>
                 </table>
             </p>
+            <hr style="height: 5px; background-color: green;">
             <div class="investment-calendar-container my-4">
                 <h3>경제 캘린더</h3>
                 <iframe src="https://sslecal2.investing.com?borderColor=%2310b316&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone&countries=5,4,72,14,35,37,6,122,11,39&calType=week&timeZone=88&lang=18" width="650" height="300" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0"></iframe>
@@ -527,69 +537,12 @@
                     <span style="font-size: 11px;color: #333333;text-decoration: none;">외환 포털 <a href="https://kr.Investing.com/" rel="nofollow" target="_blank" style="font-size: 11px;color: #06529D; font-weight: bold;" class="underline_link">Investing.com 한국어</a>.</span>
                 </div>
             </div>
-            <p>
-                <div class="container mt-4">
-                    <h5 class="mb-4">최근 거래소 상장 및 공지 알림</h5>
-                    <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'crypto_gazua.png' %}" alt="crypto_gazua Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/s/crypto_gazua">@crypto_gazua</a>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'shrimp_notice.png' %}" alt="shrimp_notice Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/s/shrimp_notice">@shrimp_notice</a>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'coinkokr.png' %}" alt="coinkokr Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/s/coinkokr">@coinkokr</a>
-                        </button>
-                    </div>
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs" id="myTab2" role="tablist">
-                        {% for channel, messages in telegram_messages.items %}
-                            {% if channel|exclude_channels:'@whalealertkorean,@whaleliq' %}
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-exchange' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-exchange' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-exchange' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                                        {{ channel }}
-                                    </a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-
-                    <!-- Tab content -->
-                    <div class="tab-content" id="myTabContent2">
-                        {% for channel, messages in telegram_messages.items %}
-                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-exchange' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-exchange' }}">
-                                {% if messages %}
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Message</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for message in messages %}
-                                                    <tr>
-                                                        <td>{{ message }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <p>정보를 긁어오는데 실패했습니다.</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </p>
+            <hr style="height: 5px; background-color: green;">
         </div>
         <div class="col-lg-6">
-            <h3>커뮤니티 게시판</h3>
+            <h3><img src="{% static 'aiphabtc_robot_pic.png' %}" alt="Robot Assistant Icon" style="height: 30px; margin-right: 5px;">커뮤니티 게시판</h3>
             <hr>
+            <!--
             <small>공부를 위해 더 다양한 커뮤니티도 참고해보세요</small>
             <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
                 <button type="button" class="btn btn-outline-secondary btn-sm">
@@ -641,61 +594,7 @@
                     <a href="https://kimpga.com/">KIMPGA</a>
                 </button>
             </div>
-            <div class="container mt-4">
-                    <h5 class="mb-4">실시간 고래 정보 알림</h5>
-                    <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'whaleliq.png' %}" alt="byun Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/whaleliq">@whaleliq</a>
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm">
-                            <img src="{% static 'whalealert.png' %}" alt="whalealert Icon" style="height: 30px; margin-right: 5px;">
-                            <a href="https://t.me/whalealertkorean">@whalealertkorean</a>
-                        </button>
-                    </div>
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        {% for channel, messages in telegram_messages.items %}
-                            {% if channel|exclude_channels:'@crypto_gazua,@shrimp_notice,@coinkokr' %}
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link {% if channel == '@whaleliq' %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-whale' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-whale' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-whale' }}" aria-selected="{% if channel == '@whaleliq' %}true{% else %}false{% endif %}">
-                                        {{ channel }}
-                                    </a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-
-                    <!-- Tab content -->
-                    <div class="tab-content" id="myTabContent">
-                        {% for channel, messages in telegram_messages.items %}
-                            <div class="tab-pane fade {% if channel == '@whaleliq' %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-whale' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-whale' }}">
-                                {% if messages %}
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Message</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for message in messages %}
-                                                    <tr>
-                                                        <td>{{ message }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <p>정보를 긁어오는데 실패했습니다.</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-            </div>
-            <br>
-            <hr>
+            -->
             <!-- add search bar -->
             <div class="search-container">
                 <form action="{% url 'aiphabtc:search_results' %}" method="get" class="row gx-2">
@@ -759,6 +658,7 @@
                 </div>
                 {% endfor %}
             </div>
+            <hr style="height: 5px; background-color: green;">
             <div>
                 <strong>비트코인에 대해서 어떻게 생각하시나요?</strong>
                 <div class="voting-container">
@@ -784,34 +684,149 @@
                     </div>
                 </div>
             </div>
+            <hr style="height: 5px; background-color: green;">
+            <div class="container mt-4">
+                    <h5 class="mb-4">실시간 고래 정보 알림</h5>
+                    <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'whaleliq.png' %}" alt="byun Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/whaleliq">@whaleliq</a>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'whalealert.png' %}" alt="whalealert Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/whalealertkorean">@whalealertkorean</a>
+                        </button>
+                    </div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        {% for channel, messages in telegram_messages.items %}
+                            {% if channel|exclude_channels:'@crypto_gazua,@shrimp_notice,@coinkokr' %}
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link {% if channel == '@whaleliq' %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-whale' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-whale' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-whale' }}" aria-selected="{% if channel == '@whaleliq' %}true{% else %}false{% endif %}">
+                                        {{ channel }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Tab content -->
+                    <div class="tab-content" id="myTabContent">
+                        {% for channel, messages in telegram_messages.items %}
+                            <div class="tab-pane fade {% if channel == '@whaleliq' %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-whale' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-whale' }}">
+                                {% if messages %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Message</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for message in messages %}
+                                                    <tr>
+                                                        <td>{{ message }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p>정보를 긁어오는데 실패했습니다.</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+            </div>
+            <hr style="height: 5px; background-color: green;">
+            <p>
+                <div class="container mt-4">
+                    <h5 class="mb-4">최근 거래소 상장 및 공지 알림</h5>
+                    <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'crypto_gazua.png' %}" alt="crypto_gazua Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/s/crypto_gazua">@crypto_gazua</a>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'shrimp_notice.png' %}" alt="shrimp_notice Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/s/shrimp_notice">@shrimp_notice</a>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <img src="{% static 'coinkokr.png' %}" alt="coinkokr Icon" style="height: 30px; margin-right: 5px;">
+                            <a href="https://t.me/s/coinkokr">@coinkokr</a>
+                        </button>
+                    </div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" id="myTab2" role="tablist">
+                        {% for channel, messages in telegram_messages.items %}
+                            {% if channel|exclude_channels:'@whalealertkorean,@whaleliq' %}
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-exchange' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-exchange' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-exchange' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                        {{ channel }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Tab content -->
+                    <div class="tab-content" id="myTabContent2">
+                        {% for channel, messages in telegram_messages.items %}
+                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-exchange' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-exchange' }}">
+                                {% if messages %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Message</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for message in messages %}
+                                                    <tr>
+                                                        <td>{{ message }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p>정보를 긁어오는데 실패했습니다.</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </p>
+            <hr style="height: 5px; background-color: green;">
+            <h3><img src="{% static 'aiphabtc_robot_pic.png' %}" alt="Robot Assistant Icon" style="height: 30px; margin-right: 5px;">머신러닝 비트코인 가격 예측 지표</h3>
             <hr>
-            <h3>머신러닝 비트코인 가격 예측 지표</h3>
-            <p>업비트 차트를 기반으로 가벼운 머신러닝 예측을 수행했습니다. 다양한 시간대를 포함한 보다 <strong>강력한</strong> 현물/선물 머신러닝 지표와 투자 봇에 대해서는 아래 페이지들을 참조해 주세요!</p>
-            <p><a href="{% url 'aiphabtc:bot_indicator' %}">➡️아이파비트 인공지능 및 통계기반 비트코인 투자봇 지표📈📈 (coming soon)</a></p>
+            <p>업비트 차트를 기반으로 가벼운 머신러닝 예측을 수행했습니다. 다양한 시간대를 포함한 보다 <strong>강력한</strong> 현물/선물 머신러닝 지표와 투자 봇에 대해서는 아래 페이지들을 이용해 주세요</p>
+            <p><a href="{% url 'aiphabtc:bot_indicator' %}">➡️아이파비트 인공지능 및 통계기반 비트코인 투자봇 지표📈📈</a></p>
             <p><a href="{% url 'aiphabtc:pattern_matching' %}">➡️아이파비트 인공지능 기반 비트코인 패턴매칭 지표📈📈</a></p>
             <p>
                 <h5>단기 방향성 예측 지표</h5>
-                <small>오늘 오전 9시 종가를 기준으로 내일 오전 9시 종가 방향성의 확률을 예측합니다. 튜닝이 되지 않은 가벼운 모델이니 참고만 해주세요. "내린다" 또는 "오른다" 위에 마우스를 올리면 모델이 예측한 각각의 확률을 볼 수 있습니다.</small>
+                <small>오늘 오전 9시 종가를 기준으로 내일 오전 9시 종가 방향성의 확률을 예측합니다. 튜닝이 되지 않은 가벼운 모델이니 참고만 해주세요. "+" 또는 "-"를 누루면 모델이 예측한 각각의 확률을 볼 수 있습니다.</small>
                 <br>
                 <div class="my-4 p-3 bg-light rounded">
                     <h5 class="mb-3">XGBoost 예측</h5>
                     <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ xgb_short|floatformat:2 }}%;" aria-valuenow="{{ xgb_short|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="내린다 {{ xgb_short|floatformat:2 }}%">내린다</div>
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ xgb_long|floatformat:2 }}%;" aria-valuenow="{{ xgb_long|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="오른다 {{ xgb_long|floatformat:2 }}%">오른다</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ xgb_short|floatformat:2 }}%;" data-bs-toggle="tooltip" aria-valuenow="{{ xgb_short|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="내린다 {{ xgb_short|floatformat:2 }}%">-</div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ xgb_long|floatformat:2 }}%;" data-bs-toggle="tooltip" aria-valuenow="{{ xgb_long|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="오른다 {{ xgb_long|floatformat:2 }}%">+</div>
                     </div>
                 </div>
                 <div class="my-4 p-3 bg-light rounded">
                     <h5 class="mb-3">LightGBM 예측</h5>
                     <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ lgb_short|floatformat:2 }}%;" aria-valuenow="{{ lgb_short|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="내린다 {{ lgb_short|floatformat:2 }}%">내린다</div>
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ lgb_long|floatformat:2 }}%;" aria-valuenow="{{ lgb_long|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="오른다 {{ lgb_long|floatformat:2 }}%">오른다</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ lgb_short|floatformat:2 }}%;" data-bs-toggle="tooltip" aria-valuenow="{{ lgb_short|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="내린다 {{ lgb_short|floatformat:2 }}%">-</div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ lgb_long|floatformat:2 }}%;" data-bs-toggle="tooltip" aria-valuenow="{{ lgb_long|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="오른다 {{ lgb_long|floatformat:2 }}%">+</div>
                     </div>
                 </div>
                 <div class="my-4 p-3 bg-light rounded">
                     <h5 class="mb-3">RandomForest 예측</h5>
                     <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ rf_short|floatformat:2 }}%;" aria-valuenow="{{ rf_short|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="내린다 {{ rf_short|floatformat:2 }}%">내린다</div>
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ rf_long|floatformat:2 }}%;" aria-valuenow="{{ rf_long|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="오른다 {{ rf_long|floatformat:2 }}%">오른다</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ rf_short|floatformat:2 }}%;" data-bs-toggle="tooltip" aria-valuenow="{{ rf_short|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="내린다 {{ rf_short|floatformat:2 }}%">-</div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ rf_long|floatformat:2 }}%;" data-bs-toggle="tooltip" aria-valuenow="{{ rf_long|floatformat:2 }}" aria-valuemin="0" aria-valuemax="100" title="오른다 {{ rf_long|floatformat:2 }}%">+</div>
                     </div>
                 </div>
             </p>
@@ -846,7 +861,7 @@
                     </p>
                 </div>
             </p>
-            <hr>
+            <hr style="height: 5px; background-color: green;">
             <!-- add advertisement banners here -->
             <div class="row">
                 <div class="col-md-6 advertisement-container">
@@ -866,8 +881,8 @@
     </div>
 </div>
 <div class="footer">
-    <p>상호명: 아이파비트 | 대표: 김민석 | 이메일: aiphabtcbusiness11235@gmail.com</p>
-    <p>아이파비트는 인공지능과 비트코인 정보를 공유하는 전문 플랫폼입니다. 제공되는 지표와 봇은 투자 권유 목적이 아님을 알려드립니다. 모든 투자 결정은 사용자의 신중한 판단 하에 이루어져야 합니다.</p>
+    <p>상호명: 아이파비트 | 이메일: aiphabtcbusiness11235@gmail.com</p>
+    <p>아이파비트는 인공지능과 비트코인 정보를 공유하는 플랫폼입니다. 제공되는 지표와 봇은 투자 권유 목적이 아님을 알려드립니다.</p>
     <p><a href="https://blog.naver.com/aiphabtc11235"><img src="{% static 'naver.png' %}" alt="naver logo" style="height: 30px; margin-right: 5px;">AIPHABTC 블로그</a></p>
 </div>
 {% endblock %}

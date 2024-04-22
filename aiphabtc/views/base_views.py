@@ -494,7 +494,7 @@ async def return_telegram_messages(api_id, api_hash):
                 date_seoul = date.astimezone(seoul_tz).strftime("%Y-%m-%d %H:%M:%S %Z")
                 processed_text = text + "\n" + date_seoul
                 processed_texts.append(processed_text)
-                if len(processed_texts) == 5:
+                if len(processed_texts) == 4:
                     break
             results[channel] = processed_texts
         except Exception as e:
@@ -535,7 +535,7 @@ def index(request):
     board_posts = {}
     for board in boards:
         # Fetch the top 3 posts for each board
-        posts = Question.objects.filter(board=board).order_by('-create_date')[:3]
+        posts = Question.objects.filter(board=board).order_by('-create_date')[:4]
         board_posts[board] = posts
 
     '''
