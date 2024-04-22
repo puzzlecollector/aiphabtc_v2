@@ -5,6 +5,18 @@
         max-width: 100%;
         height: auto;
     }
+    .col-1, .col-11 {
+        padding: 0 15px;
+    }
+    @media (max-width: 768px) {
+        .col-1, .col-11 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        .col-1 {
+            margin-bottom: 1rem;
+        }
+    }
 </style>
 <div class="container my-3">
     <!-- 사용자 오류 표시 -->
