@@ -136,10 +136,17 @@
     }
 
     .tradingview-widget-container {
-        flex: 1; /* Each container takes equal width */
-        margin: 0 10px; /* Add some space between the widgets */
-        height: 350px;
+      margin: 10px auto;
+      width: 100%; /* Responsive width */
     }
+
+    .dominance-container {
+      padding: 10px;
+      border: 1px solid #ddd; /* Adds a subtle border */
+      border-radius: 8px; /* Rounded corners for better aesthetics */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    }
+
 
     .investment-calendar-container {
         text-align: center;
@@ -197,7 +204,54 @@
         margin-top: 20px; /* Add some space above the footer */
     }
 
+    @media (max-width: 768px) {
+        .container, .voting-container, .advertisement-container {
+            padding: 10px;
+            margin-top: 10px;
+        }
 
+        .news-cell {
+            display: block; /* Stacks the news cells vertically */
+            padding: 5px 0; /* Reduce padding for smaller screens */
+        }
+
+        .title-cell, .datetime-cell {
+            text-align: left; /* Aligns text to the left for consistency */
+            padding: 10px 5px; /* Adjust padding for smaller spaces */
+        }
+
+        .tradingview-widget-container {
+            margin: 0; /* Remove margins */
+            height: auto; /* Adjust height automatically */
+        }
+
+        .tradingview-widget-container__widget {
+            width: 100%; /* Full width */
+            height: auto; /* Auto height for flexibility */
+        }
+
+        .sentiment-scores, .investment-calendar-container, .voting-container, .advertisement-container {
+            margin-top: 0; /* Reduce margin to save space */
+        }
+
+        .btn-group {
+            display: block; /* Stack buttons vertically */
+            width: 100%;
+        }
+
+        .btn-group .btn {
+            margin-bottom: 5px; /* Add space between stacked buttons */
+        }
+
+        .footer {
+            padding: 10px; /* Reduce padding */
+        }
+
+        .dominance-container {
+            padding: 5px;
+            margin: 5px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -376,7 +430,7 @@
                     <div class="tradingview-widget-container">
                         <h5>BTC 도미넌스</h5>
                         <!-- TradingView Widget BEGIN -->
-                        <div class="tradingview-widget-container" style="height:100%;width:100%">
+                        <div class="tradingview-widget-container dominance-container" id="btc-dominance" style="height:100%;width:100%">
                               <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                               <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                               <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -400,7 +454,7 @@
                     <div class="tradingview-widget-container">
                         <h5>ETH 도미넌스</h5>
                         <!-- TradingView Widget BEGIN -->
-                        <div class="tradingview-widget-container" style="height:100%;width:100%">
+                        <div class="tradingview-widget-container dominance-container" id="eth-dominance" style="height:100%;width:100%">
                               <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                               <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                               <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -424,6 +478,7 @@
                 </div>
                 <br><br>
                 <div>
+                    <br>
                     <strong>시장 상관관계 분석</strong>
                     <p>최근 30일간 BTC-KRW와 NAS100의 가격 변동 상관관계:</p>
                     <ul>
