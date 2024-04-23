@@ -140,6 +140,8 @@ def password_reset(request):
 
 
 def signup(request):
+    if request.user.is_authenticated:
+        return redirect("aiphabtc:index") # redirect to the home page if the user is already logged in
     if request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
@@ -152,6 +154,15 @@ def signup(request):
     else:
         form = UserForm()
     return render(request, "common/signup.html", {"form": form})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'common/login.html'  # template we are using for login
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('aiphabtc:index')  # Adjust the redirect as needed
+        return super().get(request, *args, **kwargs)
+
 
 
 # needed for live run
