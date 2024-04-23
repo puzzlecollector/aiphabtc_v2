@@ -216,6 +216,14 @@
             margin-top: 10px;
         }
 
+        .advertisement-container {
+            width: 50%; /* Each advertisement takes up half the width */
+            display: inline-block; /* Inline-block for side-by-side layout */
+            margin: 0 0 10px 0; /* Adjust margins as needed */
+            padding: 0; /* Remove padding if necessary */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
         .news-cell {
             display: block; /* Stacks the news cells vertically */
             padding: 5px 0; /* Reduce padding for smaller screens */
@@ -236,7 +244,7 @@
             height: auto; /* Auto height for flexibility */
         }
 
-        .sentiment-scores, .investment-calendar-container, .voting-container, .advertisement-container {
+        .sentiment-scores, .investment-calendar-container, .voting-container {
             margin-top: 0; /* Reduce margin to save space */
         }
 
@@ -290,6 +298,9 @@
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://www.pionex.com/en/"><img src="{% static 'pionex.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Pionex</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://www.bydfi.com/en"><img src="{% static 'bydfi.png' %}" alt="settings" style="height:20px; margin-right: 5px;">BYDFI</a>
                 </button>
             </div>
             <br>
@@ -538,6 +549,21 @@
                 </div>
             </div>
             <hr style="height: 5px; background-color: green;">
+            <!-- add advertisement banners here -->
+            <div class="row">
+                <div class="col-md-6 advertisement-container">
+                    <div class="ad-label"><strong>추천 유튜브 채널</strong></div>
+                    <a href="https://www.youtube.com/@Coin-Issue" target="_blank">
+                        <img src="{% static 'coinissue_ad2.png' %}" class="img-fluid advertisement-image">
+                    </a>
+                </div>
+                <div class="col-md-6 advertisement-container">
+                    <div class="ad-label"><strong>추천 투자봇 교육 웹사이트</strong></div>
+                    <a href="http://quantylab.com/" target="_blank">
+                        <img src="{% static 'quantylab_ad2.png' %}" class="img-fluid advertisement-image">
+                    </a>
+                </div>
+            </div>
         </div>
         <div class="col-lg-6">
             <h3><img src="{% static 'aiphabtc_robot_pic.png' %}" alt="Robot Assistant Icon" style="height: 30px; margin-right: 5px;">커뮤니티 게시판</h3>
@@ -862,21 +888,6 @@
                 </div>
             </p>
             <hr style="height: 5px; background-color: green;">
-            <!-- add advertisement banners here -->
-            <div class="row">
-                <div class="col-md-6 advertisement-container">
-                    <div class="ad-label"><strong>광고</strong></div>
-                    <a href="https://www.youtube.com/@Coin-Issue" target="_blank">
-                        <img src="{% static 'coinissue_ad2.png' %}" class="img-fluid advertisement-image">
-                    </a>
-                </div>
-                <div class="col-md-6 advertisement-container">
-                    <div class="ad-label"><strong>광고</strong></div>
-                    <a href="https://github.com/quantylab/rltrader" target="_blank">
-                        <img src="{% static 'quantylab_ad2.png' %}" class="img-fluid advertisement-image">
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </div>
