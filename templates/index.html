@@ -266,6 +266,11 @@
             margin: 5px;
         }
     }
+
+    .list-group-item-popular {
+        background-color: #fff5f5; /* Light red background */
+        border-left: 3px solid red; /* Red line on the left side */
+    }
 </style>
 {% endblock %}
 
@@ -632,7 +637,22 @@
                     </div>
                 </form>
             </div>
-            <br>
+            <div class="container mt-3">
+                <h4 class="mb-3"><span style="color: red;">🔥 인기글 🔥</span></h4>
+                            <ul class="list-group list-group-flush">
+                    {% for post in popular_posts %}
+                    <li class="list-group-item list-group-item-popular">
+                        <a href="{% url 'aiphabtc:detail' post.id %}">
+                            {{ post.subject }}
+                        </a>
+                        <span class="badge bg-danger float-end">{{ post.create_date|date:"Y-m-d" }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item">인기글이 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <br> <!-- end of popular posts section -->
             <div class="row">
                 {% for board, posts in board_posts.items %}
                 <div class="col-6 mb-4">
@@ -858,34 +878,33 @@
             </p>
             <p>
                 <h5>단기 시계열 예측 지표</h5>
-                <small>오늘 오전 9시 종가를 기준으로 내일 오전 9시 종가를 예측해봅니다.</small>
-                <div class="my-4 p-3 bg-light rounded">
-                    <h5 class="mb-3">ElasticNet 회귀</h5>
-                    <p>BTC-KRW 내일 종가 예측값: <strong>{{ elasticnet_prediction|floatformat:2|intcomma }} KRW</strong></p>
-                    <p>예측한 변화율:
-                        <strong class="{% if elasticnet_percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">
-                            {% if elasticnet_percentage_change >= 0 %}+{% endif %}{{ elasticnet_percentage_change|floatformat:2 }}%
-                        </strong>
-                    </p>
-                </div>
-                <div class="my-4 p-3 bg-light rounded">
-                    <h5 class="mb-3">ARIMA</h5>
-                    <p>BTC-KRW 내일 종가 예측값: <strong>{{ arima_prediction|floatformat:2|intcomma }} KRW</strong></p>
-                    <p>예측한 변화율:
-                        <strong class="{% if arima_percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">
-                            {% if arima_percentage_change >= 0 %}+{% endif %}{{ arima_percentage_change|floatformat:2 }}%
-                        </strong>
-                    </p>
-                </div>
-                <div class="my-4 p-3 bg-light rounded">
-                    <h5 class="mb-3">다층 퍼셉트론</h5>
-                    <p>BTC-KRW 내일 종가 예측값: <strong>{{ mlp_prediction|floatformat:2|intcomma }} KRW</strong></p>
-                    <p>예측한 변화율:
-                        <strong class="{% if mlp_percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">
-                            {% if mlp_percentage_change >= 0 %}+{% endif %}{{ mlp_percentage_change|floatformat:2 }}%
-                        </strong>
-                    </p>
-                </div>
+                <p>오늘 오전 9시 종가를 기준으로 내일 오전 9시 종가를 예측해봅니다.</p>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Method</th>
+                      <th>Predicted Price</th>
+                      <th>Change Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>ElasticNet 회귀</td>
+                      <td><strong>{{ elasticnet_prediction|floatformat:2|intcomma }} KRW</strong></td>
+                      <td><strong class="{% if elasticnet_percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">{% if elasticnet_percentage_change >= 0 %}+{% endif %}{{ elasticnet_percentage_change|floatformat:2 }}%</strong></td>
+                    </tr>
+                    <tr>
+                      <td>ARIMA</td>
+                      <td><strong>{{ arima_prediction|floatformat:2|intcomma }} KRW</strong></td>
+                      <td><strong class="{% if arima_percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">{% if arima_percentage_change >= 0 %}+{% endif %}{{ arima_percentage_change|floatformat:2 }}%</strong></td>
+                    </tr>
+                    <tr>
+                      <td>다층 퍼셉트론</td>
+                      <td><strong>{{ mlp_prediction|floatformat:2|intcomma }} KRW</strong></td>
+                      <td><strong class="{% if mlp_percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">{% if mlp_percentage_change >= 0 %}+{% endif %}{{ mlp_percentage_change|floatformat:2 }}%</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
             </p>
             <hr style="height: 5px; background-color: green;">
         </div>

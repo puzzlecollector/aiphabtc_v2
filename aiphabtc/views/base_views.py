@@ -538,23 +538,11 @@ def index(request):
         posts = Question.objects.filter(board=board).order_by('-create_date')[:4]
         board_posts[board] = posts
 
-    '''
-    try:
-        url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
-        response_fng = requests.get(url_fng)
-        data_fng = response_fng.json().get('data', [])
-    except Exception as e:
-        print(f"Failed to fetch FNG data: {e}")
-        data_fng = []
-
-    try:
-        url_global = "https://api.coinlore.net/api/global/"
-        response_global = requests.get(url_global)
-        data_global = response_global.json()
-    except Exception as e:
-        print(f"Failed to fetch global data: {e}")
-        data_global = {}
-    '''
+    # Get top 4 popular questions
+    popular_posts = Question.objects.annotate(
+        num_answer=Count("answer"),
+        num_voter=Count('voter')
+    ).order_by("-num_answer", "-num_voter", "-create_date")[:5]
 
     kimchi_data = get_kimchi_data()
     print(kimchi_data)
@@ -641,6 +629,7 @@ def index(request):
 
     context = {
         "board_posts": board_posts,
+        "popular_posts": popular_posts,
         "data_fng": data_fng,
         "data_global": data_global,
         "kimchi_data": kimchi_data,
