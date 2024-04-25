@@ -48,6 +48,8 @@
             to { opacity: 1; }
         }
     </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8407897247207083"
+     crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="spinner-container">
@@ -58,10 +60,29 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            $(window).on('beforeunload', function() {
+                // Hide spinner when leaving the page
+                $('.spinner-container').hide();
+            });
+
+            $(window).on('pageshow', function(event) {
+                // Check if the event was persisted (cached in bfcache)
+                if (event.originalEvent.persisted) {
+                    // Page is loaded from bfcache, reset the spinner state
+                    $('.spinner-container').hide();
+                }
+            });
+
             setTimeout(function() {
                 window.location.href = '/aiphabtc/'; // Ensure this URL is correct for your main content
-            }, 1000); // This time can be adjusted based on your needs
+            }, 10000); // This time can be adjusted based on your needs
         });
+
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
     </script>
 </body>
 </html>
