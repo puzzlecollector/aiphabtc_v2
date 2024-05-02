@@ -39,6 +39,9 @@ urlpatterns = [
     # ai technical response
     path("fetch-gpt-analysis/", base_views.fetch_ai_technical1d, name="fetch_gpt_analysis"),
 
+    # ai technical response 1m
+    path("fetch-gpt-analysis-1m/", base_views.fetch_ai_technical1m, name="fetch_gpt_analysis_1m"),
+
     # sentiment votes
     path("submit_sentiment_vote/", base_views.submit_sentiment_vote, name="submit_sentiment_vote"),
 

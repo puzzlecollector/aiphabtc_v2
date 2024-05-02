@@ -243,6 +243,32 @@ def get_news_and_sentiment(request):
     }
     return JsonResponse(data)
 
+def get_technical_indicators_1m(timeframe="month"):
+    df = pyupbit.get_ohlcv("KRW-BTC", interval=timeframe)
+    delta = df["close"].diff()
+    gain = (delta.where(delta > 0, 0)).fillna(0)
+    loss = (-delta.where(delta < 0, 0)).fillna(0)
+    avg_gain = gain.rolling(window=14).mean()
+    avg_loss = loss.rolling(window=14).mean()
+    rs = avg_gain / avg_loss
+    df['RSI'] = 100 - (100 / (1 + rs))
+    df['SMA_20'] = df['close'].rolling(window=20).mean()
+    df['STD_20'] = df['close'].rolling(window=20).std()
+    df['Upper_Bollinger'] = df['SMA_20'] + (df['STD_20'] * 2)
+    df['Lower_Bollinger'] = df['SMA_20'] - (df['STD_20'] * 2)
+    short_ema = df['close'].ewm(span=12, adjust=False).mean()
+    long_ema = df['close'].ewm(span=26, adjust=False).mean()
+    df['MACD'] = short_ema - long_ema
+    df['Signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
+    low_14 = df['low'].rolling(window=14).min()
+    high_14 = df['high'].rolling(window=14).max()
+    df['%K'] = 100 * ((df['close'] - low_14) / (high_14 - low_14))
+    df['%D'] = df['%K'].rolling(window=3).mean()
+    # get last six rows
+    sample = df.iloc[-6:, 1:]
+    sample_str = sample.to_string(index=False)
+    data = {"output_str": sample_str}
+    return data
 
 def get_technical_indicators(timeframe="day"):
     df = pyupbit.get_ohlcv("KRW-BTC", interval=timeframe)
@@ -272,6 +298,23 @@ def get_technical_indicators(timeframe="day"):
     sample_str = sample.to_string(index=False)
     data = {"output_str": sample_str}
     return data
+
+def fetch_ai_technical1m(request):
+    technical_data = get_technical_indicators_1m(timeframe="month")
+    technical_output = technical_data["output_str"]
+    message = ("다음과 같은 월봉 비트코인 데이터가 주어졌을때:\n\n"
+               "{}\n\n"
+               "비트코인 가격 추세를 분석하고 총평을 해줘."
+               ).format(technical_output)
+    openai.api_key = settings.OPENAI_API_KEY
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": message}
+        ]
+    )
+    chat_message = response["choices"][0]["message"]["content"]
+    return JsonResponse({"chat_message": chat_message})
 
 
 def fetch_ai_technical1d(request):
@@ -512,7 +555,7 @@ def get_telegram_messages_sync(api_id, api_hash):
 
 def fetch_fng_data():
     try:
-        url_fng = "https://api.alternative.me/fng/?limit=7&date_format=kr"
+        url_fng = "https://api.alternative.me/fng/?limit=5&date_format=kr"
         response_fng = requests.get(url_fng)
         data_fng = response_fng.json().get('data', [])
     except Exception as e:
@@ -542,7 +585,7 @@ def index(request):
     popular_posts = Question.objects.annotate(
         num_answer=Count("answer"),
         num_voter=Count('voter')
-    ).order_by("-num_answer", "-num_voter", "-create_date")[:5]
+    ).order_by("-num_answer", "-num_voter", "-create_date")[:10]
 
     kimchi_data = get_kimchi_data()
     print(kimchi_data)
@@ -562,57 +605,12 @@ def index(request):
         print(e)
         telegram_messages = {}
 
-    if should_update_prediction() or not cache.get('predictions'):
+    if should_update_prediction():
         print("calculating as we cannot use previously cached value")
 
         data_fng = fetch_fng_data()
         data_global = fetch_global_data()
         pearson, spearman, kendall = get_correlation()
-
-        df = pyupbit.get_ohlcv("KRW-BTC", interval="day")
-        previous_btc_close = df["close"].values[-2]
-        preprocessed_df = preprocess_function(df)
-        clf_test_input = preprocessed_df.iloc[-2].values.reshape((1, -1))
-
-        # ARIMA prediction
-        btc_sequence = df["close"].values[:-1]
-        arima_prediction = get_predictions_arima(btc_sequence)
-        arima_percentage_change = (arima_prediction - previous_btc_close) / previous_btc_close * 100.0
-
-        # MLP prediction
-        mlp_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
-        mlp_prediction = get_predictions_mlp(mlp_test_input)
-        mlp_percentage_change = (mlp_prediction - previous_btc_close) / previous_btc_close * 100.0
-
-        # ElasticNet prediction
-        elasticnet_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
-        elasticnet_prediction = get_predictions_elasticnet(elasticnet_test_input)
-        elasticnet_percentage_change = (elasticnet_prediction - previous_btc_close) / previous_btc_close * 100.0
-
-        # XGBoost prediction
-        xgb_short, xgb_long = get_predictions_xgboost(clf_test_input)
-
-        # LightGBM prediction
-        lgb_short, lgb_long = get_predictions_lightgbm(clf_test_input)
-
-        # RandomForest prediction
-        rf_short, rf_long = get_predictions_rf(clf_test_input)
-
-        predictions = {
-            "arima_prediction": arima_prediction,
-            "arima_percentage_change": arima_percentage_change,
-            "mlp_prediction": mlp_prediction,
-            "mlp_percentage_change": mlp_percentage_change,
-            "elasticnet_prediction": elasticnet_prediction,
-            "elasticnet_percentage_change": elasticnet_percentage_change,
-            "xgb_short": xgb_short,
-            "xgb_long": xgb_long,
-            "lgb_short": lgb_short,
-            "lgb_long": lgb_long,
-            "rf_short": rf_short,
-            "rf_long": rf_long,
-        }
-        cache.set('predictions', predictions, 86400)
         cache.set('data_fng', data_fng, 86400)
         cache.set('data_global', data_global, 86400)  # Expire after one day
         cache.set('pearson', pearson, 86400), 
@@ -620,7 +618,6 @@ def index(request):
         cache.set('kendall', kendall, 86400),
         cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
 
-    prediction_contexts = cache.get('predictions')
     data_fng = cache.get('data_fng', [])
     data_global = cache.get('data_global', {})
     pearson = cache.get('pearson')
@@ -641,7 +638,7 @@ def index(request):
         "telegram_messages": telegram_messages,
     }
     # merge context and prediction_contexts then return it as context
-    context = {**context, **prediction_contexts}
+    # context = {**context, **prediction_contexts}
     return render(request, 'index.html', context)
 
 
