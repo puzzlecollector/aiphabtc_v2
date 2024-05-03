@@ -11,6 +11,7 @@ urlpatterns = [
                   path('aiphabtc/', include('aiphabtc.urls')),
                   path('common/', include('common.urls')),
                   path('', base_views.loading, name='loading'),
+                  path('ads.txt', ads_views.ads_txt, name="ads_txt"),
                   path('ads.txt/', ads_views.ads_txt, name="ads_txt"),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
