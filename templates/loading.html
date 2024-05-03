@@ -10,42 +10,52 @@
         body, html {
             height: 100%;
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
         .spinner-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
         .spinner {
             border: 4px solid rgba(0,0,0,.1);
             border-radius: 50%;
             border-top: 4px solid #3498db; /* Blue spinner */
-            width: 50px;
-            height: 50px;
-            -webkit-animation: spin 1s linear infinite;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
         }
         p {
             margin-top: 20px;
-            font-size: 1.25rem;
+            font-size: 1rem;
             color: #333;
-            opacity: 0;
-            animation: fadeIn 1.5s ease-out forwards;
-        }
-        @-webkit-keyframes spin {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
+            animation: fadeIn 2s ease-out;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         @keyframes fadeIn {
+            from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        /* Responsive adjustments for larger screens */
+        @media (min-width: 768px) {
+            .spinner {
+                width: 50px;
+                height: 50px;
+            }
+            p {
+                font-size: 1.25rem;
+            }
         }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8407897247207083"
@@ -75,7 +85,7 @@
 
             setTimeout(function() {
                 window.location.href = '/aiphabtc/'; // Ensure this URL is correct for your main content
-            }, 10000); // This time can be adjusted based on your needs
+            }, 3000); // This time can be adjusted based on your needs
         });
 
         window.onpageshow = function(event) {

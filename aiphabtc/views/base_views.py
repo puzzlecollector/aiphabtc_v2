@@ -57,50 +57,45 @@ def latest_voting_data(request):
 # it says bitget, but we are using coinbase data
 # rule: korean exchange - upbit, american exchange - coinbase
 def get_kimchi_data():
-    # Attempt to get cached data
+    # Check cache first
     data = cache.get('kimchi_data')
     if data is not None:
-        print("data exists")
+        print("Cached data exists")
         return data
 
-    print("no current cached kimchi premium data")
+    print("No current cached kimchi premium data")
+    data = {}
+    seoul_timezone = pytz.timezone("Asia/Seoul")
+    current_time_seoul = datetime.now(seoul_timezone)
+    data["current_time"] = current_time_seoul.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Initialize API clients
+    coinbasepro = ccxt.coinbasepro()
+
+    # Fetch data using external APIs
     try:
-        coinbasepro = ccxt.coinbasepro()
-        data = {}
-        seoul_timezone = pytz.timezone("Asia/Seoul")
-        current_time_seoul = datetime.now(seoul_timezone)
-        data["current_time"] = current_time_seoul.strftime("%Y-%m-%d %H:%M:%S")
+        # Fetch USD to KRW exchange rate
+        USDKRW = yf.Ticker("USDKRW=X")
+        history = USDKRW.history(period="1d")
+        data["now_usd_krw"] = history["Close"].iloc[0]
 
-        try:
-            USDKRW = yf.Ticker("USDKRW=X")
-            history = USDKRW.history(period="1d")
-            data["now_usd_krw"] = history["Close"].iloc[0]
-        except Exception:
-            data["now_usd_krw"] = None  # Handle missing data gracefully
+        # Fetch Bitcoin prices from Upbit and Coinbase
+        data["now_upbit_price"] = pyupbit.get_current_price("KRW-BTC")
+        data["now_bitget_price"] = coinbasepro.fetch_ticker("BTC/USDT")["close"]
 
-        try:
-            data["now_upbit_price"] = pyupbit.get_current_price("KRW-BTC")
-        except Exception:
-            data["now_upbit_price"] = None  # Handle missing data gracefully
-
-        try:
-            data["now_bitget_price"] = coinbasepro.fetch_ticker("BTC/USDT")["close"]
-        except Exception:
-            data["now_bitget_price"] = None  # Handle missing data gracefully
-
-        if all(value is not None for value in [data["now_upbit_price"], data["now_bitget_price"], data["now_usd_krw"]]):
-            data["kp"] = round((data["now_upbit_price"] * 100 / (data["now_bitget_price"] * data["now_usd_krw"])) - 100,
-                               3)
+        # Calculate the Kimchi Premium if all values are available
+        if None not in (data["now_usd_krw"], data["now_upbit_price"], data["now_bitget_price"]):
+            data["kp"] = round((data["now_upbit_price"] * 100 / (data["now_bitget_price"] * data["now_usd_krw"])) - 100, 3)
         else:
             data["kp"] = "Data unavailable"
 
-        # Cache the data for next time
-        cache.set('kimchi_data', data, 3600)  # Cache for 1 hour
-        return data
     except Exception as e:
-        print(f"Failed to fetch kimchi data: {e}")
-        return {"error": "Failed to fetch data"}
+        print(f"Failed to fetch kimchi data due to: {e}")
+        data = {"error": "Failed to fetch data"}
 
+    # Cache the data for 1 hour if fetched successfully
+    cache.set('kimchi_data', data, 3600)
+    return data
 
 # for coinness data scraping
 def get_articles(headers, url):
@@ -397,108 +392,6 @@ def get_correlation():
     return pearson, spearman, kendall
 
 
-def get_predictions_arima(btc_sequence, p=1, d=1, q=1, steps_ahead=1):
-    try:
-        # Differencing
-        btc_diff = np.diff(btc_sequence, n=d)
-        # Fit ARIMA model
-        model = ARIMA(btc_diff, order=(p, 0, q))
-        fitted_model = model.fit()
-        # Forecast
-        forecast_diff = fitted_model.forecast(steps=steps_ahead)
-        # Invert differencing
-        forecast = [btc_sequence[-1]]
-        for diff in forecast_diff:
-            forecast.append(forecast[-1] + diff)
-        return forecast[1:][0]
-    except Exception as e:
-        print(f"Model fitting failed: {str(e)}")
-        return np.zeros((steps_ahead,))
-
-
-def get_predictions_mlp(test_input):
-    with open('aiphabtc/mlp_regressor.pkl', 'rb') as model_file:
-        loaded_mlp = pickle.load(model_file)
-    prediction = loaded_mlp.predict(test_input)
-    return prediction
-
-
-def get_predictions_elasticnet(test_input):
-    with open("aiphabtc/elastic_net.pkl", "rb") as model_file:
-        loaded_elasticnet = pickle.load(model_file)
-    prediction = loaded_elasticnet.predict(test_input)
-    return prediction
-
-
-def preprocess_function(chart_df):
-    days, months = [], []
-    for dt in tqdm(chart_df.index):
-        day = pd.to_datetime(dt).day
-        month = pd.to_datetime(dt).month
-        days.append(day)
-        months.append(month)
-    chart_df["day"] = days
-    chart_df["months"] = months
-
-    delta = chart_df["close"].diff()
-    gain = (delta.where(delta > 0, 0)).fillna(0)
-    loss = (-delta.where(delta < 0, 0)).fillna(0)
-    avg_gain = gain.rolling(window=14).mean()
-    avg_loss = loss.rolling(window=14).mean()
-    rs = avg_gain / avg_loss
-    chart_df['RSI'] = 100 - (100 / (1 + rs))
-
-    chart_df['SMA_20'] = chart_df['close'].rolling(window=20).mean()
-    chart_df['STD_20'] = chart_df['close'].rolling(window=20).std()
-    chart_df['Upper_Bollinger'] = chart_df['SMA_20'] + (chart_df['STD_20'] * 2)
-    chart_df['Lower_Bollinger'] = chart_df['SMA_20'] - (chart_df['STD_20'] * 2)
-    short_ema = chart_df['close'].ewm(span=12, adjust=False).mean()
-    long_ema = chart_df['close'].ewm(span=26, adjust=False).mean()
-    chart_df['MACD'] = short_ema - long_ema
-    chart_df['Signal'] = chart_df['MACD'].ewm(span=9, adjust=False).mean()
-    low_14 = chart_df['low'].rolling(window=14).min()
-    high_14 = chart_df['high'].rolling(window=14).max()
-    chart_df['%K'] = 100 * ((chart_df['close'] - low_14) / (high_14 - low_14))
-    chart_df['%D'] = chart_df['%K'].rolling(window=3).mean()
-
-    for l in tqdm(range(1, 4), position=0, leave=True):
-        for col in ["high", "low", "volume"]:
-            val = chart_df[col].values
-            val_ret = [None for _ in range(l)]
-            for i in range(l, len(val)):
-                if val[i - l] == 0:
-                    ret = 1
-                else:
-                    ret = val[i] / val[i - l]
-                val_ret.append(ret)
-            chart_df["{}_change_{}".format(col, l)] = val_ret
-
-    chart_df.dropna(inplace=True)
-    return chart_df
-
-
-def get_predictions_xgboost(test_input):
-    loaded_model = XGBClassifier()
-    loaded_model.load_model("aiphabtc/xgb_clf_mainlanding")
-    xgb_prob = loaded_model.predict_proba(test_input)[0]
-    return xgb_prob[0] * 100.0, xgb_prob[1] * 100.0  # short, long
-
-
-def get_predictions_lightgbm(test_input):
-    test_lgb = lgb.Booster(model_file="aiphabtc/lightgbm_model.txt")
-    lgb_prob = test_lgb.predict(test_input, num_iteration=test_lgb.best_iteration)[0]  # long probability
-    short = 1 - lgb_prob
-    return short * 100.0, lgb_prob * 100.0
-
-
-def get_predictions_rf(test_input):
-    with open("aiphabtc/rf_model.pkl", "rb") as file:
-        loaded_rf = pickle.load(file)
-    rf_prob = loaded_rf.predict_proba(test_input)[0]
-    short, long = rf_prob[0], rf_prob[1]
-    return short * 100.0, long * 100.0
-
-
 def should_update_prediction():
     kst = pytz.timezone('Asia/Seoul')
     now = datetime.now(kst)
@@ -596,8 +489,6 @@ def index(request):
         "labels": [option.name for option in sentiment_voting_options],
         "data": [percentage for _, percentage in sentiment_votes_with_percentages]
     }
-
-    # pearson, spearman, kendall = get_correlation()
 
     try:
         telegram_messages = get_telegram_messages_sync(api_id, api_hash)
