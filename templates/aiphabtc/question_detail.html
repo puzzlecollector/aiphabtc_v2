@@ -56,13 +56,13 @@
 
     <h2 class="border-bottom py-2">{{ question.subject|safe }}</h2>
     <div class="row my-3">
-        <div class="col-2 text-center">
+        <div class="col-3 text-center">
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">
                 {{ question.voter.count }}
             </div>
             <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
         </div>
-        <div class="col-10">
+        <div class="col-9">
             <div class="card">
                 <div class="card-body">
                     <div class="card-text" style="white-space: pre-line;">
@@ -133,13 +133,13 @@
     {% for answer in question.answer_set.all %}
     <a name="answer_{{ answer.id }}"></a>
     <div class="row my-3">
-        <div class="col-2">
+        <div class="col-3">
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">
                 {{ answer.voter.count }}
             </div>
             <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
         </div>
-        <div class="col-10">
+        <div class="col-9">
             <div class="card">
                <div class="card-body">
                     <div class="card-text" style="white-space: pre-line;">
