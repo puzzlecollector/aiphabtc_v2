@@ -408,7 +408,7 @@ api_hash = settings.TELEGRAM_HASH
 
 
 # Function to get messages from a specified Telegram channel
-async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increase limit if needed
+async def get_telegram_messages(api_id, api_hash, channel, limit=4):  # Increase limit if needed
     try:
         async with TelegramClient('/home/ubuntu/venvs/anon_prod.session', api_id, api_hash) as client:
             messages = await client.get_messages(channel, limit=limit)
@@ -419,7 +419,7 @@ async def get_telegram_messages(api_id, api_hash, channel, limit=10):  # Increas
 
 
 async def return_telegram_messages(api_id, api_hash):
-    channels = ['@crypto_gazua', '@shrimp_notice', '@coinkokr', '@whaleliq', '@whalealertkorean']
+    channels = ['@crypto_gazua', '@shrimp_notice', '@whaleliq', '@whalealertkorean']
     results = {}
     seoul_tz = pytz.timezone('Asia/Seoul')
     for channel in channels:
@@ -430,7 +430,7 @@ async def return_telegram_messages(api_id, api_hash):
                 date_seoul = date.astimezone(seoul_tz).strftime("%Y-%m-%d %H:%M:%S %Z")
                 processed_text = text + "\n" + date_seoul
                 processed_texts.append(processed_text)
-                if len(processed_texts) == 4:
+                if len(processed_texts) == 3:
                     break
             results[channel] = processed_texts
         except Exception as e:
