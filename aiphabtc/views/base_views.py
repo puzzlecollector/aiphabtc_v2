@@ -354,44 +354,6 @@ def calculate_vote_percentages(voting_options):
     return [(option, (option.vote_count / total_votes) * 100) for option in voting_options]
 
 
-def get_correlation():
-    pearson = spearman = kendall = -100
-    try:
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
-
-        # Attempt to fetch NAS100 data
-        NAS100 = yf.download('^NDX', start=start_date, end=end_date)['Close']
-
-        # Attempt to fetch Bitcoin data
-        df = pyupbit.get_ohlcv("KRW-BTC", count=30, interval="day")
-        btc_close = df["close"].values
-
-        # Ensure both datasets were fetched successfully
-        if len(NAS100) > 0 and len(btc_close) > 0:
-            min_length = min(len(btc_close), len(NAS100))  # Match their length
-
-            # Align data
-            btc_close_aligned = btc_close[-min_length:]
-            NAS100_aligned = NAS100[-min_length:]
-
-            data_aligned = pd.DataFrame({"btc": btc_close_aligned, "nas": NAS100_aligned})
-
-            # Calculate correlations
-            pearson_corr = data_aligned.corr(method='pearson')
-            spearman_corr = data_aligned.corr(method='spearman')
-            kendall_corr = data_aligned.corr(method='kendall')
-
-            pearson = pearson_corr.iloc[0, 1]
-            spearman = spearman_corr.iloc[0, 1]
-            kendall = kendall_corr.iloc[0, 1]
-            return pearson, spearman, kendall
-    except Exception as e:
-        # Handle any exception by logging or printing error message
-        print(f"Error occurred: {e}")
-    return pearson, spearman, kendall
-
-
 def should_update_prediction():
     kst = pytz.timezone('Asia/Seoul')
     now = datetime.now(kst)
@@ -408,7 +370,7 @@ api_hash = settings.TELEGRAM_HASH
 
 
 # Function to get messages from a specified Telegram channel
-async def get_telegram_messages(api_id, api_hash, channel, limit=4):  # Increase limit if needed
+async def get_telegram_messages(api_id, api_hash, channel, limit=3):  # Increase limit if needed
     try:
         async with TelegramClient('/home/ubuntu/venvs/anon_prod.session', api_id, api_hash) as client:
             messages = await client.get_messages(channel, limit=limit)
@@ -430,8 +392,8 @@ async def return_telegram_messages(api_id, api_hash):
                 date_seoul = date.astimezone(seoul_tz).strftime("%Y-%m-%d %H:%M:%S %Z")
                 processed_text = text + "\n" + date_seoul
                 processed_texts.append(processed_text)
-                if len(processed_texts) == 3:
-                    break
+                #if len(processed_texts) == 3:
+                #    break
             results[channel] = processed_texts
         except Exception as e:
             print(f"An error occurred while processing messages from {channel}: {e}")
@@ -501,19 +463,19 @@ def index(request):
 
         data_fng = fetch_fng_data()
         data_global = fetch_global_data()
-        pearson, spearman, kendall = get_correlation()
+        #pearson, spearman, kendall = get_correlation()
         cache.set('data_fng', data_fng, 86400)
         cache.set('data_global', data_global, 86400)  # Expire after one day
-        cache.set('pearson', pearson, 86400), 
-        cache.set('spearman', spearman, 86400), 
-        cache.set('kendall', kendall, 86400),
+        #cache.set('pearson', pearson, 86400),
+        #cache.set('spearman', spearman, 86400),
+        #cache.set('kendall', kendall, 86400),
         cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
 
     data_fng = cache.get('data_fng', [])
     data_global = cache.get('data_global', {})
-    pearson = cache.get('pearson')
-    spearman = cache.get('spearman')
-    kendall = cache.get('kendall')
+    #pearson = cache.get('pearson')
+    #spearman = cache.get('spearman')
+    #kendall = cache.get('kendall')
 
     context = {
         "board_posts": board_posts,
@@ -523,9 +485,9 @@ def index(request):
         "kimchi_data": kimchi_data,
         "sentiment_voting_options": sentiment_voting_options,
         "sentiment_data": sentiment_data,
-        "pearson": pearson,
-        "spearman": spearman,
-        "kendall": kendall,
+        #"pearson": pearson,
+        #"spearman": spearman,
+        #"kendall": kendall,
         "telegram_messages": telegram_messages,
     }
     # merge context and prediction_contexts then return it as context

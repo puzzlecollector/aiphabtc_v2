@@ -81,12 +81,10 @@
     <!-- Spinner JS -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Hide the spinner once the page is fully loaded
             document.getElementById('spinner-overlay').style.display = 'none';
         });
 
         window.addEventListener('beforeunload', function() {
-            // Show the spinner when starting to navigate away/refresh the page
             document.getElementById('spinner-overlay').style.display = 'flex';
         });
     </script>
