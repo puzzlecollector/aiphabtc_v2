@@ -368,7 +368,6 @@ def should_update_prediction():
 api_id = settings.TELEGRAM_ID
 api_hash = settings.TELEGRAM_HASH
 
-
 # Function to get messages from a specified Telegram channel
 async def get_telegram_messages(client, channel, limit=3):
     try:
@@ -394,7 +393,8 @@ async def return_telegram_messages(api_id, api_hash):
     return results
 
 def get_telegram_messages_sync(api_id, api_hash):
-    asyncio.run(return_telegram_messages(api_id, api_hash))
+    results = asyncio.run(return_telegram_messages(api_id, api_hash))
+    return results
 
 
 def fetch_fng_data():
