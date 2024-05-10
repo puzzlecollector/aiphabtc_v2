@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+    .ql-align-center {
+        text-align: center;
+    }
+
+    .ql-align-right {
+        text-align: right;
+    }
+
+    .ql-align-justify {
+        text-align: justify;
+    }
     .vote-section {
         display: flex;
         align-items: center;
@@ -39,6 +50,10 @@
             padding-left: 0;
             margin-left: 0;
         }
+        .badge.bg-success {
+            display: inline-block; /* Make the admin badge inline */
+            width: auto; /* Prevent the badge from stretching */
+        }
     }
     /* Add the image style */
     .card-text img {
@@ -66,6 +81,14 @@
         text-overflow: ellipsis; /* Show ellipsis if text is cut */
         max-width: 100%; /* Ensure maximum width is not exceeded */
         box-sizing: border-box;
+    }
+
+    .responsive-video {
+        width: 100%;
+        height: 450px; /* For video tags, ensures proper aspect ratio */
+        max-width: 800px; /* Optional: limits video size */
+        display: block;
+        margin: auto;
     }
 </style>
 <div class="container my-3">
@@ -117,8 +140,8 @@
                         {{ question.content|safe }}
                     </div>
                     <div class="vote-section">
-                        <span class="vote-count">👍: {{ question.voter.count }}</span>
-                        <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary vote-button">추천</a>
+                        <span class="vote-count" id="vote-count-question-{{ question.id }}">👍: {{ question.voter.count }}</span>
+                        <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="question" data-id="{{ question.id }}">추천</a>
                     </div>
                     <br>
                     <div class="d-flex justify-content-end">
@@ -193,8 +216,8 @@
                         {{ answer.content|safe }}
                     </div>
                     <div class="vote-section">
-                        <span class="vote-count">👍: {{ answer.voter.count }}</span>
-                        <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary vote-button">추천</a>
+                        <span class="vote-count" id="vote-count-answer-{{ answer.id }}">👍: {{ answer.voter.count }}</span>
+                        <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="answer" data-id="{{ answer.id }}">추천</a>
                     </div>
                     <br>
                     <div class="d-flex justify-content-end">
@@ -308,6 +331,29 @@
       }
     });
 
+    var BlockEmbed = Quill.import('blots/block/embed');
+
+    class ResponsiveVideoBlot extends BlockEmbed {
+        static create(url) {
+            let node = super.create();
+            node.setAttribute('src', url);
+            node.setAttribute('frameborder', '0');
+            node.setAttribute('allowfullscreen', 'true');
+            node.setAttribute('class', 'responsive-video'); // Use this class to style your videos
+            node.style.width = '100%'; // Ensures it takes full container width
+            node.style.height = '500px'; // Set a larger fixed height or use CSS for responsive styles
+            return node;
+        }
+
+        static value(node) {
+            return node.getAttribute('src');
+        }
+    }
+
+    ResponsiveVideoBlot.blotName = 'video';
+    ResponsiveVideoBlot.tagName = 'iframe';
+    Quill.register(ResponsiveVideoBlot);
+
     // When the form is submitted, populate the hidden textarea with the content from the Quill editor
     document.querySelector('form').onsubmit = function() {
       var content = document.querySelector('textarea[name="content"]');
@@ -323,17 +369,41 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $(".delete").on("click", function() {
-            if(confirm("정말로 삭제하시겠습니까?")) {
+            if (confirm("정말로 삭제하시겠습니까?")) {
                 location.href = $(this).data("uri");
             }
         });
-    });
 
-    $(".recommend").on("click", function() {
-        if(confirm("정말로 추천하시겠습니까?")) {
-            location.href = $(this).data("uri");
-        }
-    });
+        // Handle voting with AJAX
+        $(".recommend").on("click", function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var target = button.data('target');  // 'question' or 'answer'
+            var id = button.data('id');
+            var uri = button.data('uri');
+            var countSelector = `#vote-count-${target}-${id}`;
+            var isRecommended = button.hasClass('recommended');
 
+            $.ajax({
+                type: 'POST',
+                url: uri,
+                data: {
+                    'id': id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(countSelector).text(`👍: ${response.total_votes}`);
+                    } else {
+                        alert(response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Voting failed:', status, error);
+                    alert("본인의 글은 추천할 수 없습니다.");
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}

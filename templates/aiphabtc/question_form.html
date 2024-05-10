@@ -3,6 +3,17 @@
 {% block head %}
 {{ block.super }}
 <style>
+    .ql-align-center {
+        text-align: center;
+    }
+
+    .ql-align-right {
+        text-align: right;
+    }
+
+    .ql-align-justify {
+        text-align: justify;
+    }
     .custom-form-label { font-weight: bold; }
     .form-control { border-radius: 0.25rem; }
     .btn-primary { background-color: #007bff; border-color: #007bff; }
@@ -17,6 +28,13 @@
     .duration-range, .price-range { display: flex; gap: 10px; align-items: center; }
     .final-verdict { display: flex; gap: 20px; align-items: center; }
     .final-verdict input { margin-top: 0; }
+    .responsive-video {
+        width: 100%;
+        height: 450px; /* For video tags, ensures proper aspect ratio */
+        max-width: 800px; /* Optional: limits video size */
+        display: block;
+        margin: auto;
+    }
 </style>
 {% endblock %}
 
@@ -88,67 +106,96 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var quill = new Quill('#editor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
-          [{ 'header': 1 }, { 'header': 2 }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'direction': 'rtl' }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'font': [] }],
-          [{ 'align': [] }],
-          ['clean'],
-          ['link', 'image', 'video'],
-          ['formula'],
-        ],
-        formula: true // Enable formula mode here
-      }
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'header': 1 }, { 'header': 2 }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'direction': 'rtl' }],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'font': [] }],
+                [{ 'align': [] }],
+                ['clean'],
+                ['link', 'image', {'video': insertVideo}], // Change here to call custom function for video
+                ['formula'],
+            ],
+            formula: true // Enable formula mode here
+        }
     });
+
+    // Function to prompt for video URL and insert video
+    function insertVideo() {
+        const videoUrl = prompt('Enter the video URL:');
+        if (videoUrl) {
+            const range = quill.getSelection();
+            quill.insertEmbed(range.index, 'video', videoUrl, Quill.sources.USER);
+        }
+    }
+
+    // Import and extend the BlockEmbed for a custom video blot
+    var BlockEmbed = Quill.import('blots/block/embed');
+    class VideoBlot extends BlockEmbed {
+        static create(url) {
+            let node;
+            if (url.startsWith('http') && (url.includes('youtube') || url.includes('vimeo'))) {
+                node = document.createElement('iframe');
+                node.setAttribute('src', url);
+                node.setAttribute('frameborder', '0');
+                node.setAttribute('allowfullscreen', true);
+            } else {
+                node = document.createElement('video');
+                node.setAttribute('src', url);
+                node.setAttribute('controls', true);
+            }
+            node.setAttribute('class', 'responsive-video');
+            return node;
+        }
+
+        static value(node) {
+            return node.getAttribute('src');
+        }
+    }
+    VideoBlot.blotName = 'video';
+    VideoBlot.tagName = 'video';
+    Quill.register(VideoBlot);
 
     // When the form is submitted, populate the textarea with the content from the editor
     document.querySelector('form').onsubmit = function(e) {
-      var content = document.querySelector('textarea[name="content"]');
-      if (content) {
-        content.value = quill.root.innerHTML; // Ensure the innerHTML of the editor is assigned to the textarea
-      }
+        var content = document.querySelector('textarea[name="content"]');
+        if (content) {
+            content.value = quill.root.innerHTML;
+        }
     };
 
-    // Function to format numbers with commas
+    // Fetching and displaying the current price
     function numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     function fetchCurrentPrice(market) {
-      // Set a default ticker if none is selected
-      const defaultMarket = "KRW-BTC";
-      market = market || defaultMarket;
-
-      // Update this URL to use your Django app's URL for getting the current price
-      fetch('/aiphabtc/get-current-price/' + market)
-        .then(response => response.json())
-        .then(data => {
-          // Format the price with commas and update the text content of the 'currentPrice' element
-          document.getElementById('currentPrice').textContent = '현재 가격: ' + numberWithCommas(data.price) + '원';
-        })
-        .catch(error => console.error('Error fetching current price:', error));
+        const defaultMarket = "KRW-BTC";
+        market = market || defaultMarket;
+        fetch('/aiphabtc/get-current-price/' + market)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('currentPrice').textContent = '현재 가격: ' + numberWithCommas(data.price) + '원';
+            })
+            .catch(error => console.error('Error fetching current price:', error));
     }
 
-    // Initially fetch price for the default market
     fetchCurrentPrice();
-
-    // Listen for changes on the market dropdown
-    var marketDropdown = document.querySelector('#id_market'); // Make sure this selector matches your form field's ID
+    var marketDropdown = document.querySelector('#id_market');
     marketDropdown.addEventListener('change', function() {
-      var selectedMarket = marketDropdown.value;
-      fetchCurrentPrice(selectedMarket);
+        var selectedMarket = marketDropdown.value;
+        fetchCurrentPrice(selectedMarket);
     });
-  });
+});
 </script>
 {% endblock %}
 

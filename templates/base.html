@@ -81,13 +81,12 @@
     <script src="{% static 'bootstrap.min.js' %}"></script>
     <!-- Spinner JS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onload = function() {
             document.getElementById('spinner-overlay').style.display = 'none';
-        });
-
-        window.addEventListener('beforeunload', function() {
+        };
+        window.onbeforeunload = function() {
             document.getElementById('spinner-overlay').style.display = 'flex';
-        });
+        };
     </script>
     {% block script %}
     {% endblock %}
