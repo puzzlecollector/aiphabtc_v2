@@ -76,6 +76,14 @@
         justify-content: center; /* Center the content horizontally */
         margin-bottom: 20px; /* Space below the image */
     }
+
+    .color-beginner { color: #0000ff; } /* Sky Blue */
+    .color-bronze { color: #cd7f32; } /* Bronze */
+    .color-silver { color: #c0c0c0; } /* Silver */
+    .color-gold { color: #ffd700; } /* Gold */
+    .color-platinum { color: #6a0dad; } /* Purple */
+    .color-master { color: #008000; } /* Green */
+    .color-grandmaster { color: #ff0000; } /* Red */
 </style>
 
 <div class="container">
@@ -106,6 +114,9 @@
 
                     <label for="score" class="profile_label">Points</label>
                     <p id="score" class="profile_info">{{ user.profile.score }}</p>
+
+                    <label for="tier" class="profile_label">등급</label>
+                    <p id="tier" class="profile_info {{ 'color-'|add:user.profile.get_tier|lower }}">{{ user.profile.get_tier }}</p>
 
                     <div id="social_links" style="text-align: left;">
                         {% if profile.instagram_url %}

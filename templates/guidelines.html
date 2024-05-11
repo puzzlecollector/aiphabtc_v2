@@ -41,6 +41,14 @@
     li {
         margin-bottom: 10px;
     }
+
+    .color-beginner { color: #0000ff; } /* Blue */
+    .color-bronze { color: #cd7f32; } /* Bronze */
+    .color-silver { color: #c0c0c0; } /* Silver */
+    .color-gold { color: #ffd700; } /* Gold */
+    .color-platinum { color: #6a0dad; } /* Purple */
+    .color-master { color: #008000; } /* Green */
+    .color-grandmaster { color: #ff0000; } /* Red */
 </style>
 {% endblock %}
 
@@ -76,7 +84,7 @@
 
     <div class="points-system">
         <h3>커뮤니티 포인트제도 및 가이드라인</h3>
-        <p>커뮤니티 활동을 통해 포인트를 적립하고 랭킹을 높여 나갈 수 있습니다. 커뮤니티 활동을 통한 포인트 적립 외에도 유저의 관점 정확도를 평가하여 표출하는 기능을 도입할 예정입니다. 이를 통해 유저 간 DM 및 소통이 가능하도록 할 계획입니다.</p>
+        <p>커뮤니티 활동을 통해 포인트를 적립하고 랭킹을 높여 나갈 수 있습니다. 포인트를 쌓으면 받을 수 있는 혜택들도 구상중입니다!</p>
         <ul>
             <li>출석체크: 4점</li>
             <li>자유게시판 글 작성: 2점</li>
@@ -94,13 +102,13 @@
         <h3>등급 시스템</h3>
         <p>포인트에 따라 다음과 같은 등급이 부여됩니다</p>
         <ul>
-            <li>0-99점: Beginner</li>
-            <li>100-199점: Bronze</li>
-            <li>200-299점: Silver</li>
-            <li>300-999점: Gold</li>
-            <li>1000-1999점: Platinum</li>
-            <li>2000-9999점: Master</li>
-            <li>10000점 이상: Grandmaster</li>
+            <li>0-99점: <span class="color-beginner">Beginner</span></li>
+            <li>100-199점: <span class="color-bronze">Bronze</span></li>
+            <li>200-299점: <span class="color-silver">Silver</span></li>
+            <li>300-999점: <span class="color-gold">Gold</span></li>
+            <li>1000-1999점: <span class="color-platinum">Platinum</span></li>
+            <li>2000-9999점: <span class="color-master">Master</span></li>
+            <li>10000점 이상: <span class="color-grandmaster">Grandmaster</span></li>
         </ul>
         <p>아이파비트에서 활발한 활동을 통해 코인 및 인공지능에 대한 학습이 보다 유익하길 바랍니다. 같이 성장해 나갑시다 :)</p>
     </div>

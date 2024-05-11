@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load aiphabtc_filter %}
 {% block content %}
 <style>
     .admin-badge {
@@ -23,6 +23,14 @@
         color: inherit; /* Ensures the link color matches the text color */
     }
     /* You can add more custom styles here */
+
+    .color-beginner { color: #0000ff; } /* Sky Blue */
+    .color-bronze { color: #cd7f32; } /* Bronze */
+    .color-silver { color: #c0c0c0; } /* Silver */
+    .color-gold { color: #ffd700; } /* Gold */
+    .color-platinum { color: #6a0dad; } /* Purple */
+    .color-master { color: #008000; } /* Green */
+    .color-grandmaster { color: #ff0000; } /* Red */
 </style>
 
 
@@ -49,7 +57,9 @@
             <tbody>
                 {% for profile in page_obj %}
                 <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
+                    <th scope="row">
+                        {{ page_obj.start_index|add:forloop.counter0 }}
+                    </th>
                     <td>
                         <a href="{% url 'aiphabtc:profile_detail' profile.user.id %}">
                             {{ profile.user.username }}
@@ -59,7 +69,7 @@
                         </a>
                     </td>
                     <td>{{ profile.score }}</td>
-                    <td>{{ profile.get_tier }}</td>
+                    <td class="tier {{ 'color-'|add:profile.get_tier|lower }}">{{ profile.get_tier }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
