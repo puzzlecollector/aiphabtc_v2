@@ -45,7 +45,7 @@
                 <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
             </select>
         </div>
-        <div class="col-4 input-group">
+        <div class="col-8 input-group">
             <input type="text" class="form-control kw" value="{{ kw|default_if_none:'' }}">
             <div class="input-group-append">
                 <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
@@ -55,11 +55,8 @@
     <table class="table">
         <thead>
         <tr class="text-center thead-dark">
-            <th>번호</th>
-            <th>추천</th>
-            <th style="width:50%">제목</th>
-            <th>글쓴이</th>
-            <th>작성일시</th>
+            <th>ID</th>
+            <th>제목</th>
         </tr>
         </thead>
         <tbody>
@@ -67,32 +64,19 @@
         {% for question in question_list %}
         <tr class="text-center">
             <td>{{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}</td>
-            <td>
-                {% if question.voter.all.count > 0 %}
-                <span class="badge badge-warning px-2 py-1">
-                    {{ question.voter.all.count }}
-                </span>
-                {% endif %}
-            </td>
             <td class="text-left">
                 <a href="{% url 'aiphabtc:detail' question.id %}">
                     {{ question.subject|safe }}
-                </a>
-                {% if question.answer_set.count > 0 %}
-                <span class="text-danger small ml-2">
-                    {{ question.answer_set.count }}
-                </span>
-                {% endif %}
+                </a> [{{ question.answer_set.count }}]
+                <br>
+                <small>
+                    추천: {{ question.voter.count }},
+                    글쓴이: <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
+                                {{ question.author.username }}
+                            </a>,
+                    작성일시: {{ question.create_date }}
+                </small>
             </td>
-            <td>
-                <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
-                    {{ question.author.username }}
-                    {% if question.author.is_staff or question.author.is_superuser %}
-                        <span class="badge bg-success ms-2" style="color: black;">Admin</span>
-                    {% endif %}
-                </a>
-            </td>
-            <td>{{ question.create_date }}</td>
         </tr>
         {% endfor %}
         {% else %}

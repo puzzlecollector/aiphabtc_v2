@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load aiphabtc_filter %}
 {% block content %}
 <style>
     .ql-align-center {
@@ -53,6 +54,30 @@
         .badge.bg-success {
             display: inline-block; /* Make the admin badge inline */
             width: auto; /* Prevent the badge from stretching */
+        }
+
+        .input-group { /* Improve input group sizing on smaller screens */
+            flex-direction: column-reverse; /* Reverse the direction */
+            width: 100%;
+        }
+
+        .input-group .form-control,
+        .input-group .btn { /* Full width for input and button on smaller screens */
+            width: 100%;
+            margin-top: 5px; /* Ensure spacing is consistent */
+        }
+
+        .input-group .form-control {
+            order: 1; /* Ensure input field is above the button */
+        }
+
+        .input-group .btn {
+            order: 2; /* Ensure button is below the input field */
+        }
+
+        .col-md-3, .col-4 { /* Adjust the filter dropdown to full width */
+            width: 100%;
+            margin-bottom: 10px;
         }
     }
     /* Add the image style */
@@ -335,14 +360,14 @@
         </nav>
 
         <div class="row justify-content-between my-3">
-            <div class="col-md-3 col-4">
+            <div class="col-md-3 col-12">
                 <select class="form-control so" onchange="submitSearchForm();">
                     <option value="recent" {% if so == 'recent' %}selected{% endif %}>최신순</option>
                     <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>추천순</option>
                     <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
                 </select>
             </div>
-            <div class="col-4 input-group">
+            <div class="col-8 input-group">
                 <input type="text" class="form-control kw" placeholder="Search questions" value="{{ kw|default_if_none:'' }}">
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary" type="button" onclick="submitSearchForm();">Search</button>
@@ -354,29 +379,27 @@
         <table class="table">
             <thead>
                 <tr class="text-center thead-dark">
-                    <th>번호</th>
-                    <th>추천</th>
+                    <th>ID</th>
                     <th>제목</th>
-                    <th>글쓴이</th>
-                    <th>작성일시</th>
                 </tr>
             </thead>
             <tbody>
                 {% for question in question_list %}
                 <tr class="text-center">
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ question.voter.count }}</td>
+                    <td>{{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}</td>
                     <td class="text-left">
                         <a href="{% url 'aiphabtc:detail' question.id %}">
-                            {{ question.subject }}
-                        </a>
+                            {{ question.subject|safe }}
+                        </a> [{{ question.answer_set.count }}]
+                        <br>
+                        <small>
+                            추천: {{ question.voter.count }},
+                            글쓴이: <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
+                                        {{ question.author.username }}
+                                    </a>,
+                            작성일시: {{ question.create_date }}
+                        </small>
                     </td>
-                    <td>
-                        <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
-                            {{ question.author.username }}
-                        </a>
-                    </td>
-                    <td>{{ question.create_date }}</td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -521,18 +544,22 @@ $(document).ready(function() {
         }
     });
 
-    $('#content-anchor').on('click', '.recommend', function(e) {
+    $('.recommend').on('click', function(e) {
         e.preventDefault();
         var button = $(this);
         var target = button.data('target');
         var id = button.data('id');
         var uri = button.data('uri');
         var countSelector = `#vote-count-${target}-${id}`;
+        var isRecommend = button.hasClass('recommended');
 
         $.ajax({
             type: 'POST',
             url: uri,
-            data: { 'id': id, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+            data: {
+                'id': id,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
             success: function(response) {
                 if (response.success) {
                     $(countSelector).text(`👍: ${response.total_votes}`);
