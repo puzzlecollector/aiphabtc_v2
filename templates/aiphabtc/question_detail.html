@@ -302,108 +302,251 @@
         </div>
         <input type="submit" value="답변 등록" class="btn btn-primary">
     </form>
+
+    <!-- Questions from the same board -->
+    <div class="container my-3" id="content-anchor">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'aiphabtc:board_filtered' question.board.name %}">
+                        아이파비트 (AIPHABTC) -
+                        {% if question.board.name == "free_board" %}
+                            자유게시판
+                        {% elif question.board.name == "trading" %}
+                            트레이딩
+                        {% elif question.board.name == "AI" %}
+                            인공지능
+                        {% elif question.board.name == "general_qa" %}
+                            질문과 답변
+                        {% elif question.board.name == "blockchain" %}
+                            블록체인
+                        {% elif question.board.name == "perceptive_board" %}
+                            관점공유 게시판
+                        {% elif question.board.name == "economics" %}
+                            경제 및 시황
+                        {% elif question.board.name == "creator_reviews" %}
+                            방송과 책 리뷰
+                        {% else %}
+                            {{ question.board.name }}
+                        {% endif %}
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="row justify-content-between my-3">
+            <div class="col-md-3 col-4">
+                <select class="form-control so" onchange="submitSearchForm();">
+                    <option value="recent" {% if so == 'recent' %}selected{% endif %}>최신순</option>
+                    <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>추천순</option>
+                    <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
+                </select>
+            </div>
+            <div class="col-4 input-group">
+                <input type="text" class="form-control kw" placeholder="Search questions" value="{{ kw|default_if_none:'' }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="submitSearchForm();">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Table -->
+        <table class="table">
+            <thead>
+                <tr class="text-center thead-dark">
+                    <th>번호</th>
+                    <th>추천</th>
+                    <th>제목</th>
+                    <th>글쓴이</th>
+                    <th>작성일시</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in question_list %}
+                <tr class="text-center">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ question.voter.count }}</td>
+                    <td class="text-left">
+                        <a href="{% url 'aiphabtc:detail' question.id %}">
+                            {{ question.subject }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
+                            {{ question.author.username }}
+                        </a>
+                    </td>
+                    <td>{{ question.create_date }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No questions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Links -->
+        <ul class="pagination justify-content-center">
+            {% if question_list.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ question_list.previous_page_number }}&amp;kw={{ kw }}&amp;so={{ so }}">Previous</a>
+            </li>
+            {% endif %}
+            {% for num in question_list.paginator.page_range %}
+            <li class="page-item {% if num == question_list.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&amp;kw={{ kw }}&amp;so={{ so }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if question_list.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ question_list.next_page_number }}&amp;kw={{ kw }}&amp;so={{ so }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
 </div>
-
+{% endblock %}
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Quill for the answer section
-    var quillAnswer = new Quill('#answer-editor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
-          [{ 'header': 1 }, { 'header': 2 }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'direction': 'rtl' }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'font': [] }],
-          [{ 'align': [] }],
-          ['clean'],
-          ['link', 'image', 'video'],
-          ['formula']
-        ],
-        formula: true // Enable formula mode here
-      }
-    });
+$(document).ready(function() {
+    var quillEditor; // Global variable to hold the Quill instance
 
-    var BlockEmbed = Quill.import('blots/block/embed');
+    function initializeQuill() {
+        if (!quillEditor) {
+            quillEditor = new Quill('#answer-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image', 'video'],
+                        ['formula']
+                    ],
+                    formula: true
+                }
+            });
 
-    class ResponsiveVideoBlot extends BlockEmbed {
-        static create(url) {
-            let node = super.create();
-            node.setAttribute('src', url);
-            node.setAttribute('frameborder', '0');
-            node.setAttribute('allowfullscreen', 'true');
-            node.setAttribute('class', 'responsive-video'); // Use this class to style your videos
-            node.style.width = '100%'; // Ensures it takes full container width
-            node.style.height = '500px'; // Set a larger fixed height or use CSS for responsive styles
-            return node;
-        }
+            var BlockEmbed = Quill.import('blots/block/embed');
+            class ResponsiveVideoBlot extends BlockEmbed {
+                static create(url) {
+                    let node = super.create();
+                    node.setAttribute('src', url);
+                    node.setAttribute('frameborder', '0');
+                    node.setAttribute('allowfullscreen', 'true');
+                    node.setAttribute('class', 'responsive-video');
+                    node.style.width = '100%';
+                    node.style.height = '500px';
+                    return node;
+                }
 
-        static value(node) {
-            return node.getAttribute('src');
+                static value(node) {
+                    return node.getAttribute('src');
+                }
+            }
+            ResponsiveVideoBlot.blotName = 'video';
+            ResponsiveVideoBlot.tagName = 'iframe';
+            Quill.register(ResponsiveVideoBlot);
         }
     }
 
-    ResponsiveVideoBlot.blotName = 'video';
-    ResponsiveVideoBlot.tagName = 'iframe';
-    Quill.register(ResponsiveVideoBlot);
+    initializeQuill(); // Initialize Quill at document ready
 
-    // When the form is submitted, populate the hidden textarea with the content from the Quill editor
     document.querySelector('form').onsubmit = function() {
       var content = document.querySelector('textarea[name="content"]');
       if (content) {
-        content.value = quillAnswer.root.innerHTML;
+        content.value = quillEditor.root.innerHTML;
       }
     };
-  });
-</script>
-{% endblock %}
 
-{% block script %}
-<script type="text/javascript">
-    $(document).ready(function(){
-        $(".delete").on("click", function() {
-            if (confirm("정말로 삭제하시겠습니까?")) {
-                location.href = $(this).data("uri");
-            }
+    bindEvents(); // Bind all necessary events
+
+    function bindEvents() {
+        // Attach events to form elements within the content-anchor to ensure they are bound even after AJAX updates
+        $('#content-anchor').on('change', '.so', function() {
+            submitSearchForm();
         });
 
-        // Handle voting with AJAX
-        $(".recommend").on("click", function(e) {
-            e.preventDefault();
-            var button = $(this);
-            var target = button.data('target');  // 'question' or 'answer'
-            var id = button.data('id');
-            var uri = button.data('uri');
-            var countSelector = `#vote-count-${target}-${id}`;
-            var isRecommended = button.hasClass('recommended');
+        // Corrected: Specific targeting and correct event handler for the search button
+        $('.btn-outline-secondary').off().on('click', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+            submitSearchForm();
+        });
+
+        // Attach event for pagination links using AJAX
+        $('#content-anchor').on('click', '.pagination a', function(e) {
+            e.preventDefault(); // Prevent the default action
+            var pageUrl = $(this).attr('href');
+            submitSearchForm(pageUrl);
+        });
+
+        function submitSearchForm(url) {
+            var kwValue = $('.kw').val();
+            var soValue = $('.so').val();
+            url = url || `?kw=${encodeURIComponent(kwValue)}&so=${soValue}`; // Use provided URL or build from inputs
 
             $.ajax({
-                type: 'POST',
-                url: uri,
-                data: {
-                    'id': id,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
+                url: url,
+                type: 'GET',
                 success: function(response) {
-                    if (response.success) {
-                        $(countSelector).text(`👍: ${response.total_votes}`);
-                    } else {
-                        alert(response.error);
-                    }
+                    $('#content-anchor').html($(response).find('#content-anchor').html());
+                    window.history.pushState({ path: url }, '', url);
+                    initializeQuill(); // Reinitialize Quill to ensure it is functional after DOM update
+                    bindEvents(); // Re-bind events as DOM elements might have been replaced
                 },
                 error: function(xhr, status, error) {
-                    console.error('Voting failed:', status, error);
-                    alert("본인의 글은 추천할 수 없습니다.");
+                    alert("An error occurred while fetching data. Please try again.");
                 }
             });
+            return false; // Prevent default action
+        }
+    }
+
+    // Event handlers for dynamic elements like delete and recommend buttons
+    $('#content-anchor').on('click', '.delete', function() {
+        if (confirm("정말로 삭제하시겠습니까?")) {
+            location.href = $(this).data("uri");
+        }
+    });
+
+    $('#content-anchor').on('click', '.recommend', function(e) {
+        e.preventDefault();
+        var button = $(this);
+        var target = button.data('target');
+        var id = button.data('id');
+        var uri = button.data('uri');
+        var countSelector = `#vote-count-${target}-${id}`;
+
+        $.ajax({
+            type: 'POST',
+            url: uri,
+            data: { 'id': id, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+            success: function(response) {
+                if (response.success) {
+                    $(countSelector).text(`👍: ${response.total_votes}`);
+                } else {
+                    alert(response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Voting failed:', status, error);
+                alert("본인의 글은 추천할 수 없습니다.");
+            }
         });
     });
+});
 </script>
 {% endblock %}
+
