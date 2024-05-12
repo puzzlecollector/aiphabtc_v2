@@ -13,6 +13,7 @@ urlpatterns = [
                   path('', base_views.loading, name='loading'),
                   path('ads.txt', ads_views.ads_txt, name="ads_txt"),
                   path('ads.txt/', ads_views.ads_txt, name="ads_txt"),
+                  path('custom-413-error/', base_views.custom_413_error, name='custom_413_error'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'common.views.page_not_found'

@@ -75,4 +75,7 @@ urlpatterns = [
 
     # ads url
     path('ads.txt', ads_views.ads_txt, name='ads_txt'),
+
+    # custom 413 error
+    path('custom-413-error/', base_views.custom_413_error, name="custom_413_error"),
 ]

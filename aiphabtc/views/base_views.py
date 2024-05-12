@@ -601,3 +601,8 @@ def search_results(request):
         'comments': comments,
     }
     return render(request, 'aiphabtc/search_results.html', context)
+
+
+
+def custom_413_error(request):
+    return render(request, "aiphabtc/custom_413.html", status=413)
