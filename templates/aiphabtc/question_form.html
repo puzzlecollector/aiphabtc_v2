@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function fetchCurrentPrice(market) {
         const defaultMarket = "KRW-BTC";
         market = market || defaultMarket;
-        fetch('/aiphabtc/get-current-price/' + market)
+        fetch('/aiphabtc/get-current-price/' + market + '/')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('currentPrice').textContent = '현재 가격: ' + numberWithCommas(data.price) + '원';

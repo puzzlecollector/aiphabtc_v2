@@ -577,6 +577,7 @@ def community_guideline(request):
 def get_current_price(request, ticker):
     try:
         price = pyupbit.get_current_price(ticker)
+        print(price)
         return JsonResponse({'price': price})
     except Exception as e:
         # Handle errors or the case where the price cannot be fetched
