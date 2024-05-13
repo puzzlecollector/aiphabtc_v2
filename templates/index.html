@@ -399,53 +399,55 @@
             <hr style="height: 5px; background-color: green;">
                 <div class="row">
                     {% for board, posts in board_posts.items %}
-                    <div class="col-12 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5>
-                                    {% if board.name == 'free_board' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'free_board' %}">자유게시판</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="자유롭게 아무 주제에 대한 글을 작성해주세요">[?]</span>
-                                    {% elif board.name == 'AI' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'AI' %}">인공지능</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="인공지능과 어떻게 머신러닝, 딥러닝을 코인 트레이딩에 접목시킬 수 있는지에 관한 정보글을 공유하는 곳입니다">[?]</span>
-                                    {% elif board.name == 'general_qa' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'general_qa' %}">질문과 답변</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="질문과 답변으로 정보공유를 하는 게시판입니다">[?]</span>
-                                    {% elif board.name == 'trading' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'trading' %}">트레이딩</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="암호화폐 트레이딩에 관련된 정보를 공유하는 곳입니다">[?]</span>
-                                    {% elif board.name == 'perceptive_board' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'perceptive_board' %}">관점공유 게시판</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="비트코인 및 업비트에 상장된 알트코인에 대한 관점을 자유롭게 작성하는 공간입니다">[?]</span>
-                                    {% elif board.name == 'blockchain' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'blockchain' %}">블록체인</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="블록체인 기술에 관련된 정보를 공유하는 곳입니다">[?]</span>
-                                    {% elif board.name == 'economics' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'economics' %}">경제 및 시황</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="최근 경제와 시황이 어떻게 비트코인과 암호화폐에 영향을 미칠지에 대해 논의하고 경제 공부와 정보공유를 하는 곳입니다">[?]</span>
-                                    {% elif board.name == 'creator_reviews' %}
-                                    <a href="{% url 'aiphabtc:board_filtered' 'creator_reviews' %}">방송과 책 리뷰</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="코인 방송 크리에이터와 관련 서적에 관한 리뷰 및 정보를 공유하는 곳입니다">[?]</span>
-                                    {% else %}
-                                    {{ board.name }}
-                                    {% endif %}
-                                </h5>
+                        {% if board.name != 'blockchain' and board.name != 'economics' and board.name != 'general_qa' %}
+                            <div class="col-12 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h5>
+                                            {% if board.name == 'free_board' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'free_board' %}">자유게시판</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="자유롭게 아무 주제에 대한 글을 작성해주세요">[?]</span>
+                                            {% elif board.name == 'AI' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'AI' %}">인공지능</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="인공지능과 어떻게 머신러닝, 딥러닝을 코인 트레이딩에 접목시킬 수 있는지에 관한 정보글을 공유하는 곳입니다">[?]</span>
+                                            {% elif board.name == 'general_qa' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'general_qa' %}">질문과 답변</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="질문과 답변으로 정보공유를 하는 게시판입니다">[?]</span>
+                                            {% elif board.name == 'trading' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'trading' %}">코인 이야기</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="암호화폐와 트레이딩에 관련된 정보를 공유하는 곳입니다">[?]</span>
+                                            {% elif board.name == 'perceptive_board' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'perceptive_board' %}">관점공유 게시판</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="비트코인 및 업비트에 상장된 알트코인에 대한 관점을 자유롭게 작성하는 공간입니다">[?]</span>
+                                            {% elif board.name == 'blockchain' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'blockchain' %}">블록체인</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="블록체인 기술에 관련된 정보를 공유하는 곳입니다">[?]</span>
+                                            {% elif board.name == 'economics' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'economics' %}">경제 및 시황</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="최근 경제와 시황이 어떻게 비트코인과 암호화폐에 영향을 미칠지에 대해 논의하고 경제 공부와 정보공유를 하는 곳입니다">[?]</span>
+                                            {% elif board.name == 'creator_reviews' %}
+                                            <a href="{% url 'aiphabtc:board_filtered' 'creator_reviews' %}">방송과 책 리뷰</a>
+                                            <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="코인 방송 크리에이터와 관련 서적에 관한 리뷰 및 정보를 공유하는 곳입니다">[?]</span>
+                                            {% else %}
+                                            {{ board.name }}
+                                            {% endif %}
+                                        </h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        {% for post in posts %}
+                                        <li class="list-group-item">
+                                            <a href="{% url 'aiphabtc:detail' post.id %}">
+                                                {{ post.subject }}
+                                            </a>
+                                            <span class="badge bg-info float-end">{{ post.create_date|date:"Y-m-d" }}</span>
+                                        </li>
+                                        {% empty %}
+                                        <li class="list-group-item">No posts yet</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                             </div>
-                            <ul class="list-group list-group-flush">
-                                {% for post in posts %}
-                                <li class="list-group-item">
-                                    <a href="{% url 'aiphabtc:detail' post.id %}">
-                                        {{ post.subject }}
-                                    </a>
-                                    <span class="badge bg-info float-end">{{ post.create_date|date:"Y-m-d" }}</span>
-                                </li>
-                                {% empty %}
-                                <li class="list-group-item">No posts yet</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             <hr style="height: 5px; background-color: green;">
