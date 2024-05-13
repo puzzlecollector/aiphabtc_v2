@@ -195,7 +195,11 @@
                     </div>
                     <div class="vote-section">
                         <span class="vote-count" id="vote-count-question-{{ question.id }}">👍: {{ question.voter.count }}</span>
-                        <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="question" data-id="{{ question.id }}">추천</a>
+                        {% if user.is_authenticated %}
+                            <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="question" data-id="{{ question.id }}">추천</a>
+                        {% else %}
+                            <a href="{% url 'common:login' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">추천</a>
+                        {% endif %}
                     </div>
                     <br>
                     <div class="d-flex justify-content-end">
@@ -271,7 +275,11 @@
                     </div>
                     <div class="vote-section">
                         <span class="vote-count" id="vote-count-answer-{{ answer.id }}">👍: {{ answer.voter.count }}</span>
-                        <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="answer" data-id="{{ answer.id }}">추천</a>
+                        {% if user.is_authenticated %}
+                            <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="answer" data-id="{{ answer.id }}">추천</a>
+                        {% else %}
+                            <a href="{% url 'common:login' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">추천</a>
+                        {% endif %}
                     </div>
                     <br>
                     <div class="d-flex justify-content-end">
