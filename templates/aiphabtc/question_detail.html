@@ -30,6 +30,35 @@
         padding: 5px 10px; /* Adjust padding for better touch accessibility */
     }
 
+    .btn-modify, .btn-delete {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    .btn-modify {
+        color: #ffffff;
+        background-color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+    .btn-modify:hover, .btn-modify:focus {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+    .btn-delete {
+        color: #ffffff;
+        background-color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .btn-delete:hover, .btn-delete:focus {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
     /* Responsive adjustments for better mobile view */
     @media (max-width: 767px) {
         .vote-section {
@@ -190,8 +219,8 @@
                     </div>
                     {% if request.user == question.author %}
                     <div class="my-3">
-                        <a href="{% url 'aiphabtc:question_modify' question.id %}" class="btn btn-sm btn-outline-secondary">수정</a>
-                        <a href="#" class="delete btn btn-sm btn-outline-secondary" data-uri="{% url 'aiphabtc:question_delete' question.id %}">삭제</a>
+                        <a href="{% url 'aiphabtc:question_modify' question.id %}" class="btn btn-sm btn-modify">수정</a>
+                        <a href="#" class="delete btn btn-sm btn-delete" data-uri="{% url 'aiphabtc:question_delete' question.id %}">삭제</a>
                     </div>
                     {% endif %}
                     <!-- 질문 댓글 start -->
@@ -266,8 +295,8 @@
                     </div>
                     {% if request.user == answer.author %}
                     <div class="my-3">
-                        <a href="{% url 'aiphabtc:answer_modify' answer.id %}" class="btn btn-sm btn-outline-secondary">수정</a>
-                        <a href="#" class="delete btn btn-sm btn-outline-secondary" data-uri="{% url 'aiphabtc:answer_delete' answer.id %}">삭제</a>
+                        <a href="{% url 'aiphabtc:answer_modify' answer.id %}" class="btn btn-sm btn-modify">수정</a>
+                        <a href="#" class="delete btn btn-sm btn-delete" data-uri="{% url 'aiphabtc:answer_delete' answer.id %}">삭제</a>
                     </div>
                     {% endif %}
                     <!-- 답변 댓글 start -->
@@ -538,7 +567,7 @@ $(document).ready(function() {
     }
 
     // Event handlers for dynamic elements like delete and recommend buttons
-    $('#content-anchor').on('click', '.delete', function() {
+    $('.delete').on('click', function() {
         if (confirm("정말로 삭제하시겠습니까?")) {
             location.href = $(this).data("uri");
         }
