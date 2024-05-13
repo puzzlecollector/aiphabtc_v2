@@ -546,7 +546,7 @@ $(document).ready(function() {
         });
 
         // Attach event for pagination links using AJAX
-        $('#content-anchor').on('click', '.pagination a', function(e) {
+        $('#content-anchor').off('click', '.pagination a').on('click', '.pagination a', function(e) {
             e.preventDefault(); // Prevent the default action
             var pageUrl = $(this).attr('href');
             submitSearchForm(pageUrl);
