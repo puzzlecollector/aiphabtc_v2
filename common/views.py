@@ -205,7 +205,9 @@ def attendance_check(request):
 
     if request.method == "POST" and not already_checked_in:
         Attendance.objects.create(user=user)
-        profile.score += 4  # Update score on profile, not directly on user
+        # profile.score += 4  # Update score on profile, not directly on user
+        new_score = profile.calculate_score()
+        profile.score = new_score
         profile.save()  # Save the profile after modifying
 
         PointTokenTransaction.objects.create(

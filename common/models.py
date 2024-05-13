@@ -47,6 +47,11 @@ class Profile(models.Model):
                 score += 4
             elif answer.question.board.name in ["free_board", "AI", "trading", "blockchain", "economics", "creator_reviews", "perceptive_board"]:
                 score += 1
+
+        # Calculate score from attendance
+        attendance_points = Attendance.objects.filter(user=user).count() * 4  # Assuming 4 points per attendance day
+        score += attendance_points
+
         return score
 
     def get_tier(self):
