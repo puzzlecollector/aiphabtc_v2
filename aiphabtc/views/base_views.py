@@ -578,7 +578,7 @@ def detail(request, question_id):
         "question": question,
         "question_list": page_obj,
         "board": question.board,
-        'page': page, 
+        'page': page,
         'kw': kw,
         'so': so,
         'media_url': media_url,

@@ -243,7 +243,7 @@
         .tradingview-widget-container {
             margin: 0; /* Remove margins */
             height: auto; /* Adjust height automatically */
-            margin-bottom: 20px;
+            margin-bottom: 35px;
         }
 
         .tradingview-widget-container__widget {
@@ -399,7 +399,7 @@
             <hr style="height: 5px; background-color: green;">
                 <div class="row">
                     {% for board, posts in board_posts.items %}
-                    <div class="col-6 mb-4">
+                    <div class="col-12 mb-4">
                         <div class="card h-100">
                             <div class="card-header">
                                 <h5>
@@ -411,13 +411,13 @@
                                     <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="인공지능과 어떻게 머신러닝, 딥러닝을 코인 트레이딩에 접목시킬 수 있는지에 관한 정보글을 공유하는 곳입니다">[?]</span>
                                     {% elif board.name == 'general_qa' %}
                                     <a href="{% url 'aiphabtc:board_filtered' 'general_qa' %}">질문과 답변</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="암호화폐 시장에 관련된 질문과 답변을 해주시면 됩니다">[?]</span>
+                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="질문과 답변으로 정보공유를 하는 게시판입니다">[?]</span>
                                     {% elif board.name == 'trading' %}
                                     <a href="{% url 'aiphabtc:board_filtered' 'trading' %}">트레이딩</a>
                                     <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="암호화폐 트레이딩에 관련된 정보를 공유하는 곳입니다">[?]</span>
                                     {% elif board.name == 'perceptive_board' %}
                                     <a href="{% url 'aiphabtc:board_filtered' 'perceptive_board' %}">관점공유 게시판</a>
-                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="비트코인 및 업비트에 상장된 알트코인에 대한 관점을 제공해주고 해당 관점이 맞는지 틀렸는지에 따라 추가 포인트 보상을 받을 수 있습니다">[?]</span>
+                                    <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="비트코인 및 업비트에 상장된 알트코인에 대한 관점을 자유롭게 작성하는 공간입니다">[?]</span>
                                     {% elif board.name == 'blockchain' %}
                                     <a href="{% url 'aiphabtc:board_filtered' 'blockchain' %}">블록체인</a>
                                     <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="블록체인 기술에 관련된 정보를 공유하는 곳입니다">[?]</span>
