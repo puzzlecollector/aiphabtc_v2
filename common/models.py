@@ -51,7 +51,6 @@ class Profile(models.Model):
         # Calculate score from attendance
         attendance_points = Attendance.objects.filter(user=user).count() * 4  # Assuming 4 points per attendance day
         score += attendance_points
-
         return score
 
     def get_tier(self):

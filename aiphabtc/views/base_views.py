@@ -20,6 +20,7 @@ from tqdm.auto import tqdm
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
+from django.templatetags.static import static
 from dateutil import parser
 from transformers import AutoModelForSequenceClassification, AlbertTokenizer
 import torch
@@ -558,13 +559,29 @@ def detail(request, question_id):
     paginator = Paginator(question_list, 10)  # Show 10 questions per page
     page_obj = paginator.get_page(page)
 
+    # for open graph meta tag preview image
+    soup = BeautifulSoup(question.content, "html.parser")
+    # Find the first image or video in the content
+    media_url = None
+    first_img = soup.find('img')
+    if first_img:
+        media_url = request.build_absolute_uri(first_img['src'])
+    else:
+        first_video = soup.find('video')
+        if first_video and first_video.find('source'):
+            media_url = request.build_absolute_uri(first_video.find('source')['src'])
+
+    if not media_url:
+        media_url = request.build_absolute_uri(static('aiphabtc_mascot.jpeg'))
+
     context = {
         "question": question,
         "question_list": page_obj,
         "board": question.board,
         'page': page,
         'kw': kw,
-        'so': so
+        'so': so,
+        'media_url': media_url,
     }
     return render(request, 'aiphabtc/question_detail.html', context)
 
