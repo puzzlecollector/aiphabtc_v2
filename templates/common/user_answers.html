@@ -172,6 +172,19 @@
         .user_nav_link:hover {
             background-color: #45a049; /* Darker green on hover */
         }
+
+        #answers_section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem; /* Existing top margin */
+            margin-bottom: 30px; /* Increased bottom margin for the table */
+        }
+
+        #pagination .step-links {
+            font-size: 16px;
+            margin-top: 20px; /* Increased top margin for pagination */
+            text-align: center;
+        }
 </style>
 <div class="container">
     <div class="row justify-content-center">
@@ -188,13 +201,13 @@
                     <h3>Replies</h3>
                     <table class="answers-table">
                         <tr>
-                            <th>Content</th>
+                            <!-- <th>Content</th> -->
                             <th>Date</th>
                             <th>Question</th>
                         </tr>
                         {% for answer in answers %}
                         <tr>
-                            <td>{{ answer.content|truncatewords:10|safe }}</td>
+                            <!-- <td>{{ answer.content|truncatewords:10|safe }}</td> -->
                             <td>{{ answer.create_date | date:"Y-m-d H:i" }}</td>
                             <td><a href="{% url 'aiphabtc:detail' answer.question.id %}" class="question-link">{{ answer.question.subject }}</a></td>
                         </tr>

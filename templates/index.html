@@ -303,26 +303,37 @@
                     <a href="https://m.bithumb.com/react/trade/chart/BTC-KRW"><img src="{% static 'bithumb.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Bithumb</a>
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
-                    <a href="https://www.binance.com/en/futures/BTCUSDT"><img src="{% static 'binance.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Binance</a>
+                    <a href="https://coinone.co.kr/user/signup?ref=2XBNWZCO"><img src="{% static 'coinone.jpeg' %}" alt="settings" style="height:20px; margin-right: 5px;">coinone</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://www.binance.info/en/activity/referral-entry/CPA/together-v3?ref=CPA_00UWK2KRRU"><img src="{% static 'binance.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Binance</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://www.bybit.com/invite?ref=ZJXVJ"><img src="{% static 'bybit.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Bybit</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://okx.com/join/76981790"><img src="{% static 'okx.png' %}" alt="settings" style="height:20px; margin-right: 5px;">OKX</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://www.mexc.com/ko-KR/register?inviteCode=mexc-1RwmG"><img src="{% static 'mexc.png' %}" alt="settings" style="height:20px; margin-right: 5px;">MEXC</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://www.gate.io/signup/BVRMUw0J?ref_type=103"><img src="{% static 'gate_io.jpeg' %}" alt="settings" style="height:20px; margin-right: 5px;">Gate.io</a>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://warpcast.com/~/invite-page/300591?id=bd816494"><img src="{% static 'warpcast.jpeg' %}" alt="settings" style="height:20px; margin-right: 5px;">Warpcast</a>
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://www.coinbase.com/"><img src="{% static 'coinbase.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Coinbase</a>
                 </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">
-                    <a href="https://www.bybit.com/en/"><img src="{% static 'bybit.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Bybit</a>
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">
-                    <a href="https://www.okx.com/join/36629823?gad_source=1&gclid=CjwKCAiAloavBhBOEiwAbtAJOyJGUidiYHP3emtf_Xz4vot1pz6rxj_NTJhrLR6kU2-Ftpo08BysNBoCO_MQAvD_BwE"><img src="{% static 'okx.png' %}" alt="settings" style="height:20px; margin-right: 5px;">OKX</a>
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">
-                    <a href="https://www.mexc.com/ko-KR"><img src="{% static 'mexc.png' %}" alt="settings" style="height:20px; margin-right: 5px;">MEXC</a>
-                </button>
+                <!--
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://www.pionex.com/en/"><img src="{% static 'pionex.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Pionex</a>
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://www.bydfi.com/en"><img src="{% static 'bydfi.png' %}" alt="settings" style="height:20px; margin-right: 5px;">BYDFI</a>
                 </button>
+                -->
             </div>
             <br>
             <div class="row">
@@ -414,7 +425,7 @@
                                             <a href="{% url 'aiphabtc:board_filtered' 'general_qa' %}">질문과 답변</a>
                                             <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="질문과 답변으로 정보공유를 하는 게시판입니다">[?]</span>
                                             {% elif board.name == 'trading' %}
-                                            <a href="{% url 'aiphabtc:board_filtered' 'trading' %}">코인 이야기</a>
+                                            <a href="{% url 'aiphabtc:board_filtered' 'trading' %}">코인 지식</a>
                                             <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="암호화폐와 트레이딩에 관련된 정보를 공유하는 곳입니다">[?]</span>
                                             {% elif board.name == 'perceptive_board' %}
                                             <a href="{% url 'aiphabtc:board_filtered' 'perceptive_board' %}">관점공유 게시판</a>

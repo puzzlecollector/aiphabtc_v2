@@ -161,6 +161,18 @@
         .user_nav_link:hover {
             background-color: #45a049; /* Darker green on hover */
         }
+
+        #questions_section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px; /* Increased bottom margin for the table */
+        }
+
+        #pagination .step-links {
+            font-size: 16px;
+            margin-top: 20px; /* Increased top margin for pagination links */
+            text-align: center;
+        }
 </style>
 <div class="container">
     <div class="row justify-content-center">
@@ -186,16 +198,24 @@
                             <td><a href="{% url 'aiphabtc:detail' question.id %}" class="question-link">{{ question.subject|truncatewords:10 }}</a></td>
                             <td>{{ question.create_date | date:"Y-m-d H:i" }}</td>
                             <td>
-                                {% if question.board.name == 'perceptive' %}
-                                    관점공유 게시판
-                                {% elif question.board.name == 'free_board' %}
+                                {% if question.board.name == "free_board" %}
                                     자유게시판
-                                {% elif question.board.name == 'technical_blog' %}
-                                    기술블로그
-                                {% elif question.board.name == 'trading_blog' %}
-                                    트레이딩 블로그
+                                {% elif question.board.name == "trading" %}
+                                    코인 지식
+                                {% elif question.board.name == "AI" %}
+                                    인공지능
+                                {% elif question.board.name == "general_qa" %}
+                                    질문과 답변
+                                {% elif question.board.name == "blockchain" %}
+                                    블록체인
+                                {% elif question.board.name == "perceptive_board" %}
+                                    관점공유 게시판
+                                {% elif question.board.name == "economics" %}
+                                    경제 및 시황
+                                {% elif question.board.name == "creator_reviews" %}
+                                    방송과 책 리뷰
                                 {% else %}
-                                    {{ question.board.name }} <!-- Default display -->
+                                    {{ question.board.name }}
                                 {% endif %}
                             </td> <!-- Assuming the Board model has a 'name' field -->
                         </tr>
