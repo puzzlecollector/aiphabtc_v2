@@ -426,11 +426,14 @@ def index(request):
         posts = Question.objects.filter(board=board).order_by('-create_date')[:4]
         board_posts[board] = posts
 
+    announcement_board = Board.objects.get(name="announcements")
+    announcement_posts = Question.objects.filter(board=announcement_board).order_by("-create_date")[:3]
+
     # Get top 4 popular questions
     popular_posts = Question.objects.annotate(
         num_answer=Count("answer"),
         num_voter=Count('voter')
-    ).order_by("-num_answer", "-num_voter", "-create_date")[:10]
+    ).order_by("-num_answer", "-num_voter", "-create_date")[:5]
 
     kimchi_data = get_kimchi_data()
     print(kimchi_data)
@@ -470,6 +473,7 @@ def index(request):
     context = {
         "board_posts": board_posts,
         "popular_posts": popular_posts,
+        "announcement_posts": announcement_posts,
         "data_fng": data_fng,
         "data_global": data_global,
         "kimchi_data": kimchi_data,

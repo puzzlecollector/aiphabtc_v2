@@ -214,6 +214,11 @@
         border-right: 2px solid #dee2e6;
     }
 
+    .list-group-item-announcement {
+        background-color: #e6f4ea; /* Light green background */
+        border-left: 3px solid #28a745; /* Darker green line on the left side */
+    }
+
     @media (max-width: 768px) {
         .container, .voting-container, .advertisement-container {
             padding: 10px;
@@ -389,6 +394,19 @@
                                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">포스트 검색</button>
                             </div>
                         </form>
+                    </div>
+                    <div class="container mt-4">
+                        <h4 class="mb-3">📢 공지사항</h4>
+                        <ul class="list-group list-group-flush">
+                            {% for post in announcement_posts %}
+                            <li class="list-group-item list-group-item-announcement">
+                                <a href="{% url 'aiphabtc:detail' post.id %}">{{ post.subject }}</a>
+                                <span class="badge bg-success float-end">{{ post.create_date|date:"Y-m-d" }}</span>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">공지사항이 없습니다.</li>
+                            {% endfor %}
+                        </ul>
                     </div>
                     <div class="container mt-3">
                         <h4 class="mb-3"><span style="color: red;">🔥 인기글 🔥</span></h4>
