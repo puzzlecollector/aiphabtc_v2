@@ -214,6 +214,8 @@
                                     경제 및 시황
                                 {% elif question.board.name == "creator_reviews" %}
                                     방송과 책 리뷰
+                                {% elif question.board.name == 'announcements' %}
+                                    공지사항
                                 {% else %}
                                     {{ question.board.name }}
                                 {% endif %}

@@ -16,7 +16,8 @@
             <!-- <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'blockchain' %}">블록체인</a></li> -->
             <!-- <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'economics' %}">경제•시황</a></li> -->
             <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'creator_reviews' %}">방송•책 리뷰</a></li>
-            <li><a class="nav-link" href="{% url 'aiphabtc:guideline' %}">공지사항</a></li>
+            <!-- <li><a class="nav-link" href="{% url 'aiphabtc:guideline' %}">공지사항</a></li> -->
+            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'announcements' %}">공지사항</a></li>
             <li><a class="nav-link" href="{% url 'aiphabtc:pattern_matching' %}">패턴 지표</a></li>
             <li><a class="nav-link" href="{% url 'aiphabtc:bot_indicator' %}">인공지능 지표</a></li>
             {% if user.is_authenticated %}
