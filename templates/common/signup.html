@@ -28,6 +28,28 @@
             <label for="email">이메일</label>
             <input type="text" class="form-control" name="email" id="email" value="{{ form.email.value|default_if_none:'' }}">
         </div>
+        <!-- Terms and Conditions Checkbox -->
+        <div class="form-group">
+            <label for="terms">약관</label>
+            <textarea id="terms" class="form-control" style="height: 200px; overflow-y: scroll;" readonly>
+특정 인종, 국가, 지역, 직업, 성별, 나이, 성적 취향, 종교, 장애 등을 겨냥한 모욕 및 비방 행위를 금지합니다.
+타인을 모욕, 비하, 비방하거나 혐오감, 불쾌감을 느낄 수 있는 행위 및 타인이 위협을 느낄 수 있는 모든 행위를 금지합니다.
+혐오 또는 선동을 유발하는 모든 행위를 금지합니다.
+
+성희롱 및 음란한 대화, 이유를 막론하고 통화, 채팅, 게시글, 프로필, 메시지 등에서 성적인 주제를 다루거나 암시하는 행위를 금지합니다.
+음란한 농담, 외모에 대한 성적인 비유나 평가, 성적인 사실관계를 묻는 행위, 특정 행동을 강요하는 행위 등 육체적, 언어적, 시각적인 성적 언동을 모두 금지합니다.
+
+연락처 교환 및 만남 유도, 과도한 신상 묻기, 개인 전화번호 및 SNS 아이디, 공개 채팅방 등 모든 종류의 연락처 교환을 금지합니다.
+금전 요구 등 불법적인 거래 행위를 금지합니다.
+
+관리자의 사전 동의를 얻지 않은 상태에서 상업적인 제품/서비스를 홍보하거나, 영업하거나, 가입을 권유하는 행위를 금지합니다.
+본 커뮤니티의 저작권, 데이터베이스권, 상표 또는 기타 지식재산권을 침해하는 행위를 금지합니다.
+            </textarea>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="agreeTerms" name="agreeTerms" required>
+            <label class="form-check-label" for="agreeTerms">위 약관에 동의합니다.</label>
+        </div>
         <button type="submit" class="btn btn-primary">계정 생성하기</button>
     </form>
 </div>

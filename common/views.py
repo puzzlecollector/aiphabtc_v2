@@ -145,12 +145,23 @@ def signup(request):
     if request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
-            form.save()
+            # check if terms are accepted
+            if not request.POST.get("agreeTerms") == "on":
+                return render(request, "common/signup.html", {
+                    "form": form,
+                    "error": "약관에 동의를 하셔야 회원가입이 가능합니다."
+                })
+            user = form.save()
             username = form.cleaned_data.get("username")
             raw_password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect("aiphabtc:index")
+        else:
+            return render(request, "common/signup.html", {
+                "form": form,
+                "error": "폼에 에러가 있습니다. 다시 확인해주세요."
+            })
     else:
         form = UserForm()
     return render(request, "common/signup.html", {"form": form})
