@@ -846,6 +846,7 @@
                             <img src="{% static 'coinness.png' %}" alt="Coinness Icon" style="vertical-align: middle; margin-right: 5px; height: 30px;">
                         </a>
                         <strong>코인니스 최신 속보</strong>
+                        <br><br>
                         <div class="d-flex justify-content-center">
                             <div class="news-table w-100">
                                 <div class="loading-indicator" style="display: none; text-align: center;">최신 속보를 읽어오는 중입니다... 조금만 기다려주세요!</div>
@@ -877,11 +878,37 @@
                                 </div>
                             {% endfor %}
                         </div>
+                        <div>
+                            <strong>[유저 투표] 비트코인에 대해서 어떻게 생각하시나요?</strong>
+                            <div class="voting-container">
+                                <form id="sentimentVoteForm" action="{% url 'aiphabtc:submit_sentiment_vote' %}" method="post">
+                                    {% csrf_token %}
+                                    {% for option in sentiment_voting_options %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="sentimentVoteOption" id="sentimentVoteOption{{ option.id }}" value="{{ option.id }}">
+                                        <label class="form-check-label" for="sentimentVoteOption{{ option.id }}">
+                                            {{ option.name }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-primary btn-block">Submit Vote</button>
+                                </form>
+                            </div>
+                            <button class="btn btn-info mt-3" type="button" data-toggle="collapse" data-target="#sentimentResults" aria-expanded="false" aria-controls="sentimentResults">
+                                유저 누적 투표 결과 보기 (%)
+                            </button>
+                            <div class="collapse" id="sentimentResults">
+                                <div class="card card-body">
+                                    <canvas id="sentimentPieChart"></canvas> <!-- Canvas for Chart.js -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </p>
             <hr style="height: 5px; background-color: green;">
-            <!-- add advertisement banners here -->
+            <!-- add advertisement banners here --> <!-- get rid of this section for now -->
+            <!--
             <div class="row">
                 <div class="col-lg-6 column-divider">
                     <div>
@@ -905,7 +932,7 @@
                         </button>
                         <div class="collapse" id="sentimentResults">
                             <div class="card card-body">
-                                <canvas id="sentimentPieChart"></canvas> <!-- Canvas for Chart.js -->
+                                <canvas id="sentimentPieChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -928,6 +955,7 @@
                 </div>
             </div>
             <hr style="height: 5px; background-color: green;">
+            -->
         </div>
     </div>
 </div>
