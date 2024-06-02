@@ -70,11 +70,10 @@ def get_kimchi_data():
     current_time_seoul = datetime.now(seoul_timezone)
     data["current_time"] = current_time_seoul.strftime("%Y-%m-%d %H:%M:%S")
 
-    # Initialize API clients
-    coinbasepro = ccxt.coinbasepro()
-
     # Fetch data using external APIs
     try:
+        # Initialize API clients
+        coinbasepro = ccxt.bitget()
         # Fetch USD to KRW exchange rate
         USDKRW = yf.Ticker("USDKRW=X")
         history = USDKRW.history(period="1d")

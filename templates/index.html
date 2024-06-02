@@ -136,8 +136,9 @@
     }
 
     .tradingview-widget-container {
-      margin: 10px auto;
-      width: 100%; /* Responsive width */
+        margin: 0 auto;
+        width: 100%; /* Responsive width */
+        height: 50vh;
     }
 
     .dominance-container {
@@ -147,10 +148,9 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
     }
 
-
     .investment-calendar-container {
         text-align: center;
-        padding: 20px;
+        padding: 10px;
         background-color: #fff; /* Light background for the container */
         border: 1px solid #ccc; /* Subtle border */
         border-radius: 10px; /* Rounded corners */
@@ -218,6 +218,16 @@
         background-color: #e6f4ea; /* Light green background */
         border-left: 3px solid #28a745; /* Darker green line on the left side */
     }
+
+    .btn-group .btn {
+        margin-right: 5px; /* Adds space between buttons */
+
+    }
+
+    .btn-group .btn:hover {
+        background-color: #0056b3; /* Darker shade on hover for better UI interaction */
+    }
+
 
     @media (max-width: 768px) {
         .container, .voting-container, .advertisement-container {
@@ -546,7 +556,7 @@
                         <strong><img src="{% static 'aiphabtc_sub_logo.png' %}" alt="Robot Assistant Icon" style="height: 20px; margin-right: 5px;">김치 프리미엄 정보</strong>
                         <span style="color: black; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="김치 프리미엄이란 용어는 한국의 암호화폐 가격이 해외 거래소의 가격보다 높을 때 사용됩니다. 김프가 높다는 것은 해외 거래소에서 상장된 코인의 가격이 한국 내에서 거래되는 가격보다 상대적으로 저렴하다는 의미입니다.">[?]</span>
                         <!--<span class="tooltip-question-mark" data-toggle="tooltip" data-html="true" title="김치 프리미엄이란 용어는 한국의 암호화폐 가격이 해외 거래소의 가격보다 높을 때 사용됩니다. 김프가 높다는 것은 해외 거래소에서 상장된 코인의 가격이 한국 내에서 거래되는 가격보다 상대적으로 저렴하다는 의미입니다.">[?]</span>-->
-                        <p>코인베이스와 업비트에서 가져온 BTC 가격 정보로 계산된 수치입니다 (코인베이스/업비트 프리미엄)</p>
+                        <p>비트겟과 업비트에서 가져온 BTC 가격 정보로 계산된 수치입니다 (비트겟/업비트 프리미엄)</p>
                         <table class="table">
                             <tr>
                                 <th>가장 최근 조회 시간</th>
@@ -606,11 +616,17 @@
             <p>
                 <div class="row">
                     <div class="col-lg-6 column-divider">
-                        <div class="tradingview-widgets">
+                        <div class="btn-group mb-3" role="group" aria-label="Chart Toggles">
+                            <button type="button" class="btn btn-secondary" onclick="showChart('btc-dominance')">BTC 도미넌스</button>
+                            <button type="button" class="btn btn-secondary" onclick="showChart('eth-dominance')">ETH 도미넌스</button>
+                            <button type="button" class="btn btn-secondary" onclick="showChart('nasdaq')">NASDAQ</button>
+                            <button type="button" class="btn btn-secondary" onclick="showChart('gold')">Gold</button>
+                        </div>
+                        <div id="btc-dominance" class="chart-container">
                             <div class="tradingview-widget-container">
                                 <h5>BTC 도미넌스</h5>
                                 <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container dominance-container" id="btc-dominance" style="height:100%;width:100%">
+                                <div class="tradingview-widget-container dominance-container" id="btc-dominance_" style="height:100%;width:100%">
                                       <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                                       <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                                       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -631,10 +647,12 @@
                                 </div>
                                 <!-- TradingView Widget END -->
                             </div>
+                        </div>
+                        <div id="eth-dominance" class="chart-container" style="display:none;">
                             <div class="tradingview-widget-container">
                                 <h5>ETH 도미넌스</h5>
                                 <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container dominance-container" id="eth-dominance" style="height:100%;width:100%">
+                                <div class="tradingview-widget-container dominance-container" id="eth-dominance_" style="height:100%;width:100%">
                                       <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                                       <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                                       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -656,8 +674,7 @@
                                 <!-- TradingView Widget END -->
                             </div>
                         </div>
-                        <br><br>
-                        <div class="tradingview-widgets">
+                        <div id="nasdaq" class="chart-container" style="display:none;">
                             <div class="tradingview-widget-container">
                                 <h5>NASDAQ</h5>
                                 <!-- TradingView Widget BEGIN -->
@@ -682,10 +699,12 @@
                                 </div>
                                 <!-- TradingView Widget END -->
                             </div>
+                        </div>
+                        <div id="gold" class="chart-container" style="display:none;">
                             <div class="tradingview-widget-container">
                                 <h5>Gold</h5>
                                 <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container dominance-container" id="gold" style="height:100%;width:100%">
+                                <div class="tradingview-widget-container dominance-container" id="gold_" style="height:100%;width:100%">
                                       <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                                       <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                                       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -1026,6 +1045,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // initializePieChart();
     fetchAndUpdatePieChart();
 });
+
+function showChart(chartId) {
+    // List of all chart container IDs
+    const charts = ['btc-dominance', 'eth-dominance', 'nasdaq', 'gold'];
+    // Hide all charts
+    charts.forEach(id => {
+        document.getElementById(id).style.display = 'none';
+    });
+    // Show the selected chart
+    document.getElementById(chartId).style.display = 'block';
+}
+
 
 function fetchNewsAndSentiment() {
     // Show the loading indicator
