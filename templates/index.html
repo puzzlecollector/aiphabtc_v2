@@ -138,7 +138,6 @@
     .tradingview-widget-container {
         margin: 0 auto;
         width: 100%; /* Responsive width */
-        height: 50vh;
     }
 
     .dominance-container {
@@ -157,10 +156,12 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
         margin: 20px auto;
         width: 100%; /* Full width to accommodate smaller screens */
-        max-width: 960px; /* Maximum width to maintain aesthetics */
+        max-width: 999px; /* Maximum width to maintain aesthetics */
     }
 
     .investment-calendar-container iframe {
+        display: block;
+        margin: 0 auto;
         width: 100%; /* Responsive width */
         height: 450px; /* Height adjustment for better visibility */
         border: none; /* Removing the default border */
@@ -228,11 +229,48 @@
         background-color: #0056b3; /* Darker shade on hover for better UI interaction */
     }
 
+    .dominance-chart {
+        height: 100%; /* Ensures the trading view container fills its parent */
+        padding: 0;
+        margin: 0 auto; /* Centers the chart if necessary */
+        width: 100%; /* Ensures full width */
+    }
 
-    @media (max-width: 768px) {
+    .chart-container {
+        width: 100%; /* Full width */
+        height: 400px; /* Adjust height dynamically based on viewport */
+        transition: height 0.5s ease-in-out; /* Smooth transition for resizing, optional */
+    }
+
+
+    @media (max-width: 999px) {
         .container, .voting-container, .advertisement-container {
             padding: 10px;
             margin-top: 10px;
+        }
+
+        .investment-calendar-container {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .investment-calendar-container ifrmae {
+            width:100%;
+            height:300px;
+            display:block;
+            margin: 0 auto;
+        }
+
+        .poweredBy {
+            text-align: center;
+            font-size: 0.75rem;
+            maring-top: 10px;
+        }
+
+
+        .chart-container {
+            height: auto; /* More flexible on mobile devices */
+            padding-bottom: 20px; /* Extra bottom padding on smaller screens */
         }
 
         .advertisement-container {
@@ -312,12 +350,6 @@
             <!-- Dashboard content here -->
             <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
                 <button type="button" class="btn btn-outline-secondary btn-sm">
-                    <a href="https://upbit.com/exchange?code=CRIX.UPBIT.KRW-BTC"><img src="{% static 'upbit.png' %}" alt="settings" style="height:20px; margin-right: 5px;">UPbit</a>
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">
-                    <a href="https://m.bithumb.com/react/trade/chart/BTC-KRW"><img src="{% static 'bithumb.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Bithumb</a>
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://coinone.co.kr/user/signup?ref=2XBNWZCO"><img src="{% static 'coinone.jpeg' %}" alt="settings" style="height:20px; margin-right: 5px;">coinone</a>
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm">
@@ -338,8 +370,13 @@
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://warpcast.com/~/invite-page/300591?id=bd816494"><img src="{% static 'warpcast.jpeg' %}" alt="settings" style="height:20px; margin-right: 5px;">Warpcast</a>
                 </button>
+                <!--
                 <button type="button" class="btn btn-outline-secondary btn-sm">
                     <a href="https://www.coinbase.com/"><img src="{% static 'coinbase.png' %}" alt="settings" style="height:20px; margin-right: 5px;">Coinbase</a>
+                </button>
+                -->
+                <button type="button" class="btn btn-outline-secondary btn-sm">
+                    <a href="https://www.bitget.com/en-GB/register?inviteCode=FPKX1RFE"><img src="{% static 'bitget.jpeg' %}" alt="settings" style="height:20px; margin-right: 5px;">Bitget</a>
                 </button>
                 <!--
                 <button type="button" class="btn btn-outline-secondary btn-sm">
@@ -355,6 +392,7 @@
                 <div class="col-lg-6 column-divider">
                     <p><a href="{% url 'aiphabtc:bot_indicator' %}">➡️아이파비트 인공지능 및 통계기반 비트코인 투자봇 지표📈📈</a></p>
                     <p><a href="{% url 'aiphabtc:pattern_matching' %}">➡️아이파비트 인공지능 기반 비트코인 패턴매칭 지표📈📈</a></p>
+                    <h5 class="mb-3"><a href="https://upbit.com/exchange?code=CRIX.UPBIT.KRW-BTC"><img src="{% static 'upbit.png' %}" alt="settings" style="height:20px; margin-right: 10px;"></a>BTC-KRW 시황</h5>
                     <!-- TradingView Widget -->
                     <div class="tradingview-widget-container">
                           <div class="tradingview-widget-container__widget" style="height:400px;width:100%">
@@ -623,11 +661,12 @@
                             <button type="button" class="btn btn-secondary" onclick="showChart('gold')">Gold</button>
                         </div>
                         <div id="btc-dominance" class="chart-container">
-                            <div class="tradingview-widget-container">
+                            <div class="tradingview-widget-container dominance-chart">
                                 <h5>BTC 도미넌스</h5>
+                                <p>전체 암호화폐 시장에서 비트코인이 차지하는 시가총액의 비율을 나타냅니다. 이 지표는 시장 내에서 비트코인의 영향력을 측정하는데 사용합니다.</p>
                                 <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container dominance-container" id="btc-dominance_" style="height:100%;width:100%">
-                                      <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                                <div class="tradingview-widget-container dominance-container" id="btc-dominance_">
+                                      <div class="tradingview-widget-container__widget" style="height:300px;width:100%"></div>
                                       <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                                       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
                                           {
@@ -645,15 +684,15 @@
                                           }
                                       </script>
                                 </div>
-                                <!-- TradingView Widget END -->
                             </div>
                         </div>
                         <div id="eth-dominance" class="chart-container" style="display:none;">
-                            <div class="tradingview-widget-container">
+                            <div class="tradingview-widget-container dominance-chart">
                                 <h5>ETH 도미넌스</h5>
+                                <p>전체 암호화폐 시장에서 이더리움이 차지하는 시가총액의 비율을 나타냅니다. 이는 이더리움의 시장 내 지배력을 나타내는 지표입니다.</p>
                                 <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container dominance-container" id="eth-dominance_" style="height:100%;width:100%">
-                                      <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                                <div class="tradingview-widget-container dominance-container" id="eth-dominance_">
+                                      <div class="tradingview-widget-container__widget" style="height:400px;width:100%"></div>
                                       <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
                                       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
                                           {
@@ -675,8 +714,9 @@
                             </div>
                         </div>
                         <div id="nasdaq" class="chart-container" style="display:none;">
-                            <div class="tradingview-widget-container">
+                            <div class="tradingview-widget-container dominance-chart">
                                 <h5>NASDAQ</h5>
+                                <p>US 100 Cash CFD는 NASDAQ 100 지수를 추적하는 계약입니다. 이는 미국 기술주 시장의 성과를 나타내는 지표로 활용됩니다.</p>
                                 <!-- TradingView Widget BEGIN -->
                                 <div class="tradingview-widget-container dominance-container" id="NAS100" style="height:100%;width:100%">
                                       <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
@@ -701,8 +741,9 @@
                             </div>
                         </div>
                         <div id="gold" class="chart-container" style="display:none;">
-                            <div class="tradingview-widget-container">
+                            <div class="tradingview-widget-container dominance-chart">
                                 <h5>Gold</h5>
+                                <p>Gold CFDs는 금(US$/OZ)에 대한 차액결제 계약으로, 실제 금을 소유하지 않고도 금 가격의 변동에 투자할 수 있는 수단입니다.</p>
                                 <!-- TradingView Widget BEGIN -->
                                 <div class="tradingview-widget-container dominance-container" id="gold_" style="height:100%;width:100%">
                                       <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
@@ -730,7 +771,7 @@
                     <div class="col-lg-6">
                         <div class="investment-calendar-container my-4">
                             <h3>경제 캘린더</h3>
-                            <iframe src="https://sslecal2.investing.com?borderColor=%2310b316&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone&countries=5,4,72,14,35,37,6,122,11,39&calType=week&timeZone=88&lang=18" width="650" height="300" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0"></iframe>
+                            <iframe src="https://sslecal2.investing.com?borderColor=%2310b316&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&features=datepicker,timezone&countries=5,4,72,14,35,37,6,122,11,39&calType=week&timeZone=88&lang=18" width="auto" height="300" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0"></iframe>
                             <div class="poweredBy" style="font-family: Arial, Helvetica, sans-serif;">
                                 <span style="font-size: 11px;color: #333333;text-decoration: none;">외환 포털 <a href="https://kr.Investing.com/" rel="nofollow" target="_blank" style="font-size: 11px;color: #06529D; font-weight: bold;" class="underline_link">Investing.com 한국어</a>.</span>
                             </div>
@@ -1200,7 +1241,7 @@ function initializePieChart(data) {
     ];
 
     window.myPieChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'bar',
         data: {
             labels: data.labels,
             datasets: [{
@@ -1211,9 +1252,22 @@ function initializePieChart(data) {
             }],
         },
         options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
             responsive: true,
-            legend: {
-                position: 'top',
+            plugins: {  // 'legend' and 'tooltip' settings are now under 'plugins'
+                legend: {
+                    display: false,
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true  // Enable tooltips
+                }
             },
             animation: {
                 animateScale: true,
