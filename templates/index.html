@@ -242,6 +242,30 @@
         transition: height 0.5s ease-in-out; /* Smooth transition for resizing, optional */
     }
 
+    .additional-news {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa; /* Light gray background to distinguish this section */
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    }
+
+    .additional-news-heading {
+        color: #333; /* Dark grey for text */
+        font-size: 18px;
+        margin-bottom: 10px; /* Space between heading and list */
+    }
+
+    .news-links li {
+        margin-bottom: 5px; /* Space between items for better readability */
+        font-size: 14px; /* Suitable font size for details */
+        line-height: 1.6; /* Increased line height for readability */
+        color: #555; /* Slightly lighter text for easy reading */
+    }
+
+    .news-links strong {
+        color: #007bff; /* Bootstrap primary blue for emphasis */
+    }
 
     @media (max-width: 999px) {
         .container, .voting-container, .advertisement-container {
@@ -922,6 +946,15 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        <div class="additional-news">
+                            <h4 class="additional-news-heading">더 많은 코인 소식을 접해보세요</h4>
+                            <ul class="list-unstyled news-links">
+                                <li><strong><a href="https://www.coinpickle.net/community/news/new#google_vignette">코인피클</a>:</strong> 가상화폐 투자의 지름길, 정확한 데이터로 여정을 시작하세요</li>
+                                <li><strong><a href="https://www.blockmedia.co.kr/">블록미디어</a>:</strong> 디지털자산을 분석하는 전문가, 기자가 만든 글로벌 No.1 종합미디어</li>
+                                <li><strong><a href="https://www.tokenpost.kr/">토큰포스트</a>:</strong> EconoTimes와 함께하는 블록체인 및 디지털 자산 전문 미디어</li>
+                                <li><strong><a href="https://www.blockstreet.co.kr/coin-news">블록스트리트</a>:</strong> 경제미디어 뉴스웨이가 운영하는 가상자산 전문 미디어</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-lg-6">
                         <strong> 딥러닝 언어모델 비트코인 감성 점수 </strong>
@@ -1253,11 +1286,12 @@ function initializePieChart(data) {
         },
         options: {
             scales: {
-                yAxes: [{
+                y: {  // Changed from 'yAxes' to 'y' for Chart.js v3+
+                    beginAtZero: true,
                     ticks: {
-                        beginAtZero: true
+                        precision: 0  // Optional: No decimal places on y-axis ticks
                     }
-                }]
+                }
             },
             responsive: true,
             plugins: {  // 'legend' and 'tooltip' settings are now under 'plugins'
