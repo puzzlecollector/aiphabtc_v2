@@ -845,7 +845,7 @@
                                                     <tbody>
                                                         {% for message in messages %}
                                                             <tr>
-                                                                <td>{{ message|truncatewords_by:35 }}</td>
+                                                                <td>{{ message|truncatewords_by:5 }}</td>
                                                             </tr>
                                                         {% endfor %}
                                                     </tbody>
@@ -956,7 +956,7 @@
                                                 <tbody>
                                                     {% for message in messages %}
                                                         <tr>
-                                                            <td>{{ message }}</td>
+                                                            <td>{{ message|truncatewords_by:35 }}</td>
                                                         </tr>
                                                     {% endfor %}
                                                 </tbody>

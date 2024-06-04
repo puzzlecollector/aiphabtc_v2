@@ -46,7 +46,6 @@ def truncatewords_by(value, arg):
         length = int(arg)
     except ValueError:  # Invalid literal for int()
         return value  # Fail silently.
-
     words = value.split()
     if len(words) > length:
         return ' '.join(words[:length]) + '...'
