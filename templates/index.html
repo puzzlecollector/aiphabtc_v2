@@ -926,7 +926,13 @@
                             {% for channel, messages in telegram_messages.items %}
                                 {% if channel|exclude_channels:'@whalealertkorean,@whaleliq,@crypto_gazua,@shrimp_notice' %}
                                     <li class="nav-item" role="presentation">
-                                        <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-xangle' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-xangle' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-xangle' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                        <a class="nav-link {% if channel == '@xangle_official_kr' %}active{% endif %}"
+                                           id="{{ channel|cut:'@'|add:'-tab-xangle' }}"
+                                           data-bs-toggle="tab"
+                                           href="#{{ channel|cut:'@'|add:'-content-xangle' }}"
+                                           role="tab"
+                                           aria-controls="{{ channel|cut:'@'|add:'-content-xangle' }}"
+                                           aria-selected="{% if channel == '@xangle_official_kr' %}true{% else %}false{% endif %}">
                                             {{ channel }}
                                         </a>
                                     </li>
@@ -935,7 +941,10 @@
                         </ul>
                         <div class="tab-content" id="xangleTabContent">
                             {% for channel, messages in telegram_messages.items %}
-                                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-xangle' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-exchange' }}">
+                                <div class="tab-pane fade {% if channel == '@xangle_official_kr' %}show active{% endif %}"
+                                     id="{{ channel|cut:'@'|add:'-content-xangle' }}"
+                                     role="tabpanel"
+                                     aria-labelledby="{{ channel|cut:'@'|add:'-tab-xangle' }}">
                                     {% if messages %}
                                         <div class="table-responsive">
                                             <table class="table table-hover">
