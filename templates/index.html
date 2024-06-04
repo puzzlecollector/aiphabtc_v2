@@ -915,41 +915,49 @@
                 </div>
                 <div class="col-lg-4 column-divider">
                     <div class="container mt-4">
-                        <h5 class="mb-4">쟁글(Xangle) 이벤트 채널</h5>
+                        <h5 class="mb-4">쟁글(Xangle) 이벤트 채널 알림</h5>
                         <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
                             <button type="button" class="btn btn-outline-secondary btn-sm">
                                 <img src="{% static 'xangle.jpeg' %}" alt="xangle Icon" style="height: 30px; margin-right: 5px;">
                                 <a href="https://t.me/s/xangle_official_kr">@xangle_official_kr</a>
                             </button>
                         </div>
-                        <ul class="nav nav-tabs" id="xangleTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link active" id="xangle-tab" data-toggle="tab" href="#xangle-content" role="tab" aria-controls="xangle-content" aria-selected="true">@xangle_official_kr</a>
-                            </li>
+                        <ul class="nav nav-tabs" id="myTab3" role="tablist">
+                            {% for channel, messages in telegram_messages.items %}
+                                {% if channel|exclude_channels:'@whalealertkorean,@whaleliq,@crypto_gazua,@shrimp_notice' %}
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-xangle' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-xangle' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-xangle' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                            {{ channel }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
                         </ul>
                         <div class="tab-content" id="xangleTabContent">
-                            <div class="tab-pane fade show active" id="xangle-content" role="tabpanel" aria-labelledby="xangle-tab">
-                                {% if telegram_messages.xangle_official_kr %}
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Message</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for message in telegram_messages.xangle_official_kr %}
+                            {% for channel, messages in telegram_messages.items %}
+                                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ channel|cut:'@'|add:'-content-xangle' }}" role="tabpanel" aria-labelledby="{{ channel|cut:'@'|add:'-tab-exchange' }}">
+                                    {% if messages %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ message }}</td>
+                                                        <th>Message</th>
                                                     </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {% else %}
-                                    <p>정보를 긁어오는데 실패했습니다.</p>
-                                {% endif %}
-                            </div>
+                                                </thead>
+                                                <tbody>
+                                                    {% for message in messages %}
+                                                        <tr>
+                                                            <td>{{ message }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <p>정보를 긁어오는데 실패했습니다.</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
