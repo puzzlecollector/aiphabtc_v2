@@ -35,3 +35,20 @@ def exclude_channels(value, arg):
     """
     exclude_list = arg.split(',')
     return value not in exclude_list
+
+@register.filter
+def truncatewords_by(value, arg):
+    """
+    Truncates a string after a certain number of words.
+    Argument: Number of words to truncate after.
+    """
+    try:
+        length = int(arg)
+    except ValueError:  # Invalid literal for int()
+        return value  # Fail silently.
+
+    words = value.split()
+    if len(words) > length:
+        return ' '.join(words[:length]) + '...'
+    return value
+
