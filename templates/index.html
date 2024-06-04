@@ -805,7 +805,7 @@
             </p>
             <hr style="height: 5px; background-color: green;">
             <div class="row">
-                <div class="col-lg-6 column-divider">
+                <div class="col-lg-4 column-divider">
                     <div class="container mt-4">
                             <h5 class="mb-4">실시간 고래 정보 알림</h5>
                             <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
@@ -821,7 +821,7 @@
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 {% for channel, messages in telegram_messages.items %}
-                                    {% if channel|exclude_channels:'@crypto_gazua,@shrimp_notice,@coinkokr' %}
+                                    {% if channel|exclude_channels:'@crypto_gazua,@shrimp_notice,@xangle_official_kr' %}
                                         <li class="nav-item" role="presentation">
                                             <a class="nav-link {% if channel == '@whaleliq' %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-whale' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-whale' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-whale' }}" aria-selected="{% if channel == '@whaleliq' %}true{% else %}false{% endif %}">
                                                 {{ channel }}
@@ -830,7 +830,6 @@
                                     {% endif %}
                                 {% endfor %}
                             </ul>
-
                             <!-- Tab content -->
                             <div class="tab-content" id="myTabContent">
                                 {% for channel, messages in telegram_messages.items %}
@@ -860,7 +859,7 @@
                             </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-4 column-divider">
                     <div class="container mt-4">
                         <h5 class="mb-4">최근 거래소 상장 및 공지 알림</h5>
                         <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
@@ -872,17 +871,11 @@
                                 <img src="{% static 'shrimp_notice.png' %}" alt="shrimp_notice Icon" style="height: 30px; margin-right: 5px;">
                                 <a href="https://t.me/s/shrimp_notice">@shrimp_notice</a>
                             </button>
-                            <!--
-                            <button type="button" class="btn btn-outline-secondary btn-sm">
-                                <img src="{% static 'coinkokr.png' %}" alt="coinkokr Icon" style="height: 30px; margin-right: 5px;">
-                                <a href="https://t.me/s/coinkokr">@coinkokr</a>
-                            </button>
-                            -->
                         </div>
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab2" role="tablist">
                             {% for channel, messages in telegram_messages.items %}
-                                {% if channel|exclude_channels:'@whalealertkorean,@whaleliq' %}
+                                {% if channel|exclude_channels:'@whalealertkorean,@whaleliq,@xangle_official_kr' %}
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ channel|cut:'@'|add:'-tab-exchange' }}" data-toggle="tab" href="#{{ channel|cut:'@'|add:'-content-exchange' }}" role="tab" aria-controls="{{ channel|cut:'@'|add:'-content-exchange' }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
                                             {{ channel }}
@@ -891,7 +884,6 @@
                                 {% endif %}
                             {% endfor %}
                         </ul>
-
                         <!-- Tab content -->
                         <div class="tab-content" id="myTabContent2">
                             {% for channel, messages in telegram_messages.items %}
@@ -918,6 +910,46 @@
                                     {% endif %}
                                 </div>
                             {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 column-divider">
+                    <div class="container mt-4">
+                        <h5 class="mb-4">쟁글(Xangle) 이벤트 채널</h5>
+                        <div class="btn-group mb-3 d-inline-block" role="group" aria-label="Platform Toggle">
+                            <button type="button" class="btn btn-outline-secondary btn-sm">
+                                <img src="{% static 'xangle.jpeg' %}" alt="xangle Icon" style="height: 30px; margin-right: 5px;">
+                                <a href="https://t.me/s/xangle_official_kr">@xangle_official_kr</a>
+                            </button>
+                        </div>
+                        <ul class="nav nav-tabs" id="xangleTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="xangle-tab" data-toggle="tab" href="#xangle-content" role="tab" aria-controls="xangle-content" aria-selected="true">@xangle_official_kr</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="xangleTabContent">
+                            <div class="tab-pane fade show active" id="xangle-content" role="tabpanel" aria-labelledby="xangle-tab">
+                                {% if telegram_messages.xangle_official_kr %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Message</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for message in telegram_messages.xangle_official_kr %}
+                                                    <tr>
+                                                        <td>{{ message }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p>정보를 긁어오는데 실패했습니다.</p>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -378,7 +378,7 @@ async def get_telegram_messages(client, channel, limit=3):
         return []
 
 async def return_telegram_messages(api_id, api_hash):
-    channels = ['@crypto_gazua', '@shrimp_notice', '@whaleliq', '@whalealertkorean']
+    channels = ['@crypto_gazua', '@shrimp_notice', '@whaleliq', '@whalealertkorean', '@xangle_official_kr']
     seoul_tz = pytz.timezone('Asia/Seoul')
 
     async with TelegramClient('/home/ubuntu/venvs/anon_prod.session', api_id, api_hash) as client:
