@@ -1,59 +1,59 @@
 {% load static %}
 {% load transaction_tags %}
+<style>
+    .navbar-nav .nav-link {
+        font-size: 0.80rem; /* Adjust the size as needed */
+    }
+</style>
 <!-- 네비게이션바 -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-    <a class="navbar-brand" href="{% url 'aiphabtc:index' %}" style="color: green;">AIPHABTC <small style="color: black;">v2</small></a>
+    <a class="navbar-brand" href="{% url 'aiphabtc:index' %}" style="color: green;">AIPHABTC <small style="color: black; font-size: 8px;">Powered by Django</small></a>
     <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" arai-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
         <ul class="navbar-nav">
-            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'free_board' %}">자유게시판</a></li>
-            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'perceptive_board' %}">관점공유</a></li>
-            <!-- <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'general_qa' %}">질문•답변</a></li> -->
-            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'AI' %}">인공지능</a></li>
-            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'trading' %}">코인 지식</a></li>
-            <!-- <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'blockchain' %}">블록체인</a></li> -->
-            <!-- <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'economics' %}">경제•시황</a></li> -->
-            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'creator_reviews' %}">방송•책 리뷰</a></li>
-            <!-- <li><a class="nav-link" href="{% url 'aiphabtc:guideline' %}">공지사항</a></li> -->
-            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'announcements' %}">공지사항</a></li>
-            <li><a class="nav-link" href="{% url 'aiphabtc:pattern_matching' %}">패턴 지표</a></li>
-            <li><a class="nav-link" href="{% url 'aiphabtc:bot_indicator' %}">인공지능 지표</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:about-us' %}">About</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'free_board' %}">FreeBoard</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'perceptive_board' %}">Predictions</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'tutorials' %}">Tutorials</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:board_filtered' 'announcements' %}">Announcements</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:pattern_matching' %}">PatternMatching</a></li>
+            <li><a class="nav-link" href="{% url 'aiphabtc:chart_analyst_image' %}">ChartAnalyzer</a></li>
             {% if user.is_authenticated %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'common:account_page' %}">
-                    <img src="{% static 'profile.png' %}" alt="profile" style="width:20px; vertical-align: middle;">{{ user.username }}
+                    <i class="fas fa-user" style="color: green;"></i> {{ user.username }}
                 </a>
             </li>
             {% endif %}
-            <li><a class="nav-link" href="{% url 'common:settings_base' %}"><img src="{% static 'settings.png' %}" alt="settings" style="width:20px; vertical-align: middle;">설정</a></li>
-            <li><a class="nav-link" href="{% url 'common:user_ranking' %}"><img src="{% static 'rankings.png' %}" alt="rankings" style="width:20px; vertical-align: middle;">랭킹</a></li>
-            <li><a class="nav-link" href="{% url 'common:attendance' %}"><img src="{% static 'attendance.png' %}" alt="attendance" style="width:20px; vertical-align: middle;">출석체크</a></li>
-            <li><a class="nav-link" href="{% url 'common:referral' %}"><img src="{% static 'referral.png' %}" alt="referral" style="width:20px; vertical-align: middle;">친구추천</a></li>
+            <li><a class="nav-link" href="{% url 'common:settings_base' %}"><i class="fas fa-cog" style="color: green;"></i> Settings</a></li>
+            <li><a class="nav-link" href="{% url 'common:user_ranking' %}"><i class="fas fa-trophy" style="color: green;"></i> Ranks</a></li>
+            <li><a class="nav-link" href="{% url 'common:attendance' %}"><i class="fas fa-calendar-check" style="color: green;"></i> Attendance</a></li>
+            <li><a class="nav-link" href="{% url 'common:referral' %}"><i class="fas fa-user-friends" style="color: green;"></i> Referrals</a></li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" onclick="toggleDropdown(event)" aria-haspopup="true"><img src="{% static 'notifications.png' %}" alt="notifications" style="width:20px; vertical-align: middle;">알림</a>
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" onclick="toggleDropdown(event)" aria-haspopup="true"><i class="fas fa-bell" style="color: green;"></i> Activity</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                     {% get_last_transactions as last_transactions %}
                     {% for t in last_transactions %}
                     <a class="dropdown-item" href="{% url 'common:transaction_detail' t.id %}">
                         <strong>{{ t.timestamp|date:"SHORT_DATETIME_FORMAT" }}</strong>:
-                        {% if t.points %}{{ t.points }} 포인트{% endif %}
+                        {% if t.points %}{{ t.points }} points{% endif %}
                         - {{ t.reason }}
                     </a>
                     {% empty %}
-                    <a class="dropdown-item" href="#">최근 활동이 없습니다</a>
+                    <a class="dropdown-item" href="#">You don't have any recent activities</a>
                     {% endfor %}
                 </div>
             </li>
             <li class="nav-item">
                 {% if user.is_authenticated %}
                 <a class="nav-link" href="{% url 'common:logout' %}">
-                    <img src="{% static 'logout.png' %}" alt="logout" style="width:20px; vertical-align: middle;">로그아웃
+                    <i class="fas fa-sign-out-alt nav-icon-green" style="color: green;"></i> Logout
                 </a>
                 {% else %}
                 <a class="nav-link" href="{% url 'common:login' %}">
-                    <img src="{% static 'login.png' %}" alt="login" style="width:20px; vertical-align: middle;">로그인/회원가입
+                    <i class="fas fa-sign-in-alt nav-icon-green" style="color: green;"></i> Login/Sign up
                 </a>
                 {% endif %}
             </li>

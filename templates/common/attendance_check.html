@@ -45,20 +45,20 @@
         </style>
     </head>
 <div class="container attendance-container mt-5">
-    <h2 class="text-center">출석체크</h2>
+    <h2 class="text-center">Attendance</h2>
     <!-- Summary Table -->
     <table class="table summary-table table-bordered">
         <thead class="thead-light">
             <tr>
-                <th>최초 회원가입일</th>
-                <th>가입 후 일수</th>
-                <th>출석체크 횟수</th>
-                <th>현재 계급</th>
+                <th>Date of Initial Registration</th>
+                <th>Days Since Registration</th>
+                <th>Attendance Check Count</th>
+                <th>Current Rank</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{ attendance_summary.initial_registration_date|date:"Y년 m월 d일" }}</td>
+                <td>{{ attendance_summary.initial_registration_date|date:"Y. m. d" }}</td>
                 <td>{{ attendance_summary.days_since_registration }}</td>
                 <td>{{ attendance_summary.days_checked }}</td>
                 <td>{{ attendance_summary.points_from_attendance }}</td>
@@ -71,10 +71,10 @@
     {% if not already_checked_in %}
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn check-in-btn">출석체크</button>
+        <button type="submit" class="btn check-in-btn">Check In</button>
     </form>
     {% else %}
-    <button disabled class="btn check-in-btn">오늘 이미 출석체크 완료</button>
+    <button disabled class="btn check-in-btn">Check In Already Completed Today!</button>
     {% endif %}
 </div>
 {% endblock content %}
@@ -82,7 +82,6 @@
 {% block javascript %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/locales/ko.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var checkedInDates = {{ checked_in_dates|safe }};
@@ -90,7 +89,7 @@
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: ['dayGrid'],
             defaultView: 'dayGridMonth',
-            locale: 'ko',
+            locale: 'en',  // Changed locale to English
             header: {
                 left: '',
                 center: 'title',

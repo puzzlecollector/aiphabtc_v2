@@ -90,32 +90,32 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div id="user_profile_nav" class="d-flex justify-content-center mb-4">
-                <a href="#" class="user_nav_link" onclick="window.location.reload();">유저 프로필</a>
-                <a href="{% url 'common:user_questions' user.id %}" class="user_nav_link">유저 포스트</a>
-                <a href="{% url 'common:user_answers' user.id %}" class="user_nav_link">유저 답글</a>
-                <a href="{% url 'common:user_comments' user.id %}" class="user_nav_link">유저 댓글</a>
+                <a href="#" class="user_nav_link" onclick="window.location.reload();">User Profile</a>
+                <a href="{% url 'common:user_questions' user.id %}" class="user_nav_link">User Posts</a>
+                <a href="{% url 'common:user_answers' user.id %}" class="user_nav_link">User Replies</a>
+                <a href="{% url 'common:user_comments' user.id %}" class="user_nav_link">User Comments</a>
             </div>
             <div id="profile_base">
-                <h3>{{ user.username }}의 계정</h3>
+                <h3>{{ user.username }}</h3>
                 <br>
                 <div class="profile-image-container">
                     {% if user.profile.image %}
                         <img src="{{ user.profile.image.url }}" style="width: 300px; height: 300px; object-fit: cover; border-radius: 50%; margin-bottom: 20px;">
                     {% else %}
-                        <p>프로필 이미지가 없습니다.</p>
+                        <p>No profile image available.</p>
                     {% endif %}
                 </div>
                 <div class="profile-details">
-                    <label for="email" class="profile_label">이메일</label>
+                    <label for="email" class="profile_label">Email</label>
                     <p id="email" class="profile_info">{{ user.email }}</p>
 
-                    <label for="intro" class="profile_label">한줄소개</label>
+                    <label for="intro" class="profile_label">About me</label>
                     <p id="intro" class="profile_info">{{ user.profile.intro }}</p>
 
                     <label for="score" class="profile_label">Points</label>
                     <p id="score" class="profile_info">{{ user.profile.score }}</p>
 
-                    <label for="tier" class="profile_label">등급</label>
+                    <label for="tier" class="profile_label">Tier</label>
                     <p id="tier" class="profile_info {{ 'color-'|add:user.profile.get_tier|lower }}">{{ user.profile.get_tier }}</p>
 
                     <div id="social_links" style="text-align: left;">

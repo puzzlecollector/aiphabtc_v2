@@ -28,7 +28,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ['intro', 'instagram_url', 'twitter_url', 'youtube_url', 'personal_url']
         widgets = {
-            'intro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '여기에 한줄소개를 작성하세요'}),
+            'intro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Write a brief introduction here.'}),
             'instagram_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Instagram URL'}),
             'twitter_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Twitter URL'}),
             'youtube_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'YouTube URL'}),
@@ -37,17 +37,17 @@ class ProfileForm(forms.ModelForm):
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(
-        label=_("기존 비밀번호"),
+        label=_("Current Password"),
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),
     )
     new_password1 = forms.CharField(
-        label=_("새 비밀번호"),
+        label=_("New Password"),
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         strip=False,
     )
     new_password2 = forms.CharField(
-        label=_("새 비밀번호 (확인)"),
+        label=_("Confirm New Password"),
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
     )

@@ -26,7 +26,7 @@ from transformers import AutoModelForSequenceClassification, AlbertTokenizer
 import torch
 import torch.nn as nn
 import openai
-from statsmodels.tsa.arima.model import ARIMA
+# from statsmodels.tsa.arima.model import ARIMA
 import pickle
 import joblib
 from sklearn.neural_network import MLPRegressor
@@ -159,9 +159,9 @@ def trading_bot_indicator(request):
         clf_test_input = preprocessed_df.iloc[-2].values.reshape((1, -1))
 
         # ARIMA prediction
-        btc_sequence = df["close"].values[:-1]
-        arima_prediction = get_predictions_arima(btc_sequence)
-        arima_percentage_change = (arima_prediction - previous_btc_close) / previous_btc_close * 100.0
+        #btc_sequence = df["close"].values[:-1]
+        #arima_prediction = get_predictions_arima(btc_sequence)
+        #arima_percentage_change = (arima_prediction - previous_btc_close) / previous_btc_close * 100.0
 
         # MLP prediction
         mlp_test_input = df[["open", "high", "low", "close", "volume"]].iloc[-2].values.reshape((1, -1))
@@ -183,8 +183,8 @@ def trading_bot_indicator(request):
         rf_short, rf_long = get_predictions_rf(clf_test_input)
 
         predictions = {
-            "arima_prediction": arima_prediction,
-            "arima_percentage_change": arima_percentage_change,
+            # "arima_prediction": arima_prediction,
+            # "arima_percentage_change": arima_percentage_change,
             "mlp_prediction": mlp_prediction,
             "mlp_percentage_change": mlp_percentage_change,
             "elasticnet_prediction": elasticnet_prediction,

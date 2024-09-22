@@ -9,7 +9,7 @@ from django.db import models, IntegrityError, transaction
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    intro = models.CharField(max_length=300, blank=True, null=True, verbose_name="한줄소개")
+    intro = models.CharField(max_length=300, blank=True, null=True, verbose_name="About me")
     image = models.ImageField(upload_to="profile_images/")
     score = models.PositiveIntegerField(default=0)
     referral_code = models.CharField(max_length=12, unique=True, null=True, blank=True)  # Updated length
@@ -124,4 +124,4 @@ class PointTokenTransaction(models.Model):
     class Meta:
         ordering = ["-timestamp"]
     def __str__(self):
-        return f"{self.user.username} - 포인트: {self.points}, 내역: {self.reason}"
+        return f"{self.user.username} - Point: {self.points}, details: {self.reason}"

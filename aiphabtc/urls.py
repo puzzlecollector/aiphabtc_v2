@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import base_views, question_views, answer_views, comment_views, vote_views, profile_click_views, pattern_matching_views, bot_indicator_views, ads_views
+from .views import base_views, question_views, answer_views, comment_views, vote_views, profile_click_views, pattern_matching_views, bot_indicator_views, ads_views, imageapi_views
 
 app_name = 'aiphabtc'
 
@@ -10,6 +10,7 @@ urlpatterns = [
     path("<int:question_id>/", base_views.detail, name="detail"),
     path("board/<str:board_name>/", base_views.index_orig, name="board_filtered"),
     path("news-sentiment/", base_views.get_news_and_sentiment, name="get_news_and_sentiment"),
+    path("news-english/", base_views.get_news_eng, name="get_news_eng"),
 
     # question_views.py
     path("question/create/<str:board_name>", question_views.question_create, name="question_create"),
@@ -46,7 +47,9 @@ urlpatterns = [
     path("submit_sentiment_vote/", base_views.submit_sentiment_vote, name="submit_sentiment_vote"),
 
     # getting current price of ticker
-    path('get-current-price/<str:ticker>/', base_views.get_current_price, name='get_current_price'),
+    path('get-tickers/<str:market_type>/', base_views.get_tickers, name='get_tickers'),
+    path('get-current-price/<str:market_type>/<str:ticker>/', base_views.get_current_price, name='get_current_price'),
+    # path('get-current-price/<str:ticker>/', base_views.get_current_price, name='get_current_price'),
 
     # getting main landing page search results
     path('search/', base_views.search_results, name='search_results'),
@@ -78,4 +81,10 @@ urlpatterns = [
 
     # custom 413 error
     path('custom-413-error/', base_views.custom_413_error, name="custom_413_error"),
+
+    path('chartanalyst/', imageapi_views.upload_image, name="chart_analyst_image"),
+
+    path('delete-image/', imageapi_views.delete_uploaded_image, name="delete_uploaded_image"),
+
+    path('about-us/', base_views.about_us_view, name='about-us'),
 ]

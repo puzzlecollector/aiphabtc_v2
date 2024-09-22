@@ -36,7 +36,7 @@ def question_create(request, board_name):
                 duration_to = form.cleaned_data.get('duration_to').strftime('%Y-%m-%d')
                 price_lower_range = form.cleaned_data.get('price_lower_range')
                 price_upper_range = form.cleaned_data.get('price_upper_range')
-                title_prefix = f"[관점][{market}][{final_verdict}][{duration_from} - {duration_to}] "
+                title_prefix = f"[{market}][{final_verdict}][{duration_from} - {duration_to}] "
                 question.subject = title_prefix + question.subject
 
                 # Prepend the form inputs to the content

@@ -26,7 +26,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import openai
-from statsmodels.tsa.arima.model import ARIMA
 import pickle
 import joblib
 from sklearn.neural_network import MLPRegressor
@@ -118,6 +117,30 @@ def distance_to_percentage(distances):
     return percentages
 
 
+# Translation function
+def translate_text_deepl(text, target_lang="EN", source_lang="KO"):
+    api_url = "https://api.deepl.com/v2/translate"
+    api_key = settings.DEEPL_API_KEY  # Replace with your actual DeepL API key
+
+    params = {
+        "auth_key": api_key,
+        "text": text,
+        "target_lang": target_lang,
+        "source_lang": source_lang
+    }
+
+    try:
+        response = requests.post(api_url, data=params)
+        if response.status_code == 200:
+            translation_result = response.json()
+            translated_text = translation_result['translations'][0]['text']
+            return translated_text
+        else:
+            return f"Error: {response.status_code}, {response.text}"
+    except requests.RequestException as e:
+        return f"Error: {str(e)}"
+
+
 # use annoy instead of faiss for fast vector similarity search
 def search_news(request):
     if request.method == "POST":
@@ -125,15 +148,28 @@ def search_news(request):
         query = data.get("news_text")
         topk = int(data.get("top_k", 5))
         topk = max(5, min(topk, 20))
+
+        # Detect if the query is in English, if so, translate it to Korean first
+        lang = data.get("language", "ko")
+        if lang == "en":
+            query = translate_text_deepl(query, target_lang="KO", source_lang="EN")
+
+
         # call the functions to perform the search
         query_embedding = get_query_embedding(query)
         query_embedding = query_embedding.reshape((768))
         indices, distances = u.get_nns_by_vector(query_embedding, 30, include_distances=True)  # Finds the 30 nearest neighbors
         percentages = distance_to_percentage(distances)
         results = []
+
         for i in range(topk):
             text = candidate_texts[indices[i]]
-            text = text.replace("\n", "<br>")
+
+
+            # Translate the result back to English if the request was for English
+            if lang == "en":
+                text = translate_text_deepl(text, target_lang="EN", source_lang="KO")
+
             similarity = round(percentages[i], 3)
             date = published_datetimes[indices[i]]
 
@@ -154,7 +190,7 @@ def search_news(request):
             }
 
             results.append({
-                "text": text,
+                "text": text.replace("\n", "<br>"), # format text for HTML
                 "similarity": similarity,
                 "date": date,
                 "chart_data_30m": chart_data_30m,

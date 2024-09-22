@@ -41,7 +41,7 @@
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="text-center mb-4">게시글 등록</h2>
+    <h2 class="text-center mb-4">Create Post</h2>
     <form method="post" class="post-form">
         {% csrf_token %}
         <!-- Error Display -->
@@ -56,28 +56,31 @@
                 </ul>
             </div>
         {% endif %}
+
         <div class="form-group">
-            <label for="subject" class="custom-form-label">제목</label>
+            <label for="subject" class="custom-form-label">Title</label>
             <input type="text" class="form-control" name="subject" id="subject" value="{{ form.subject.value|default_if_none:'' }}">
         </div>
         <div class="form-group">
-            <label for="content" class="custom-form-label d-block">내용</label>
+            <label for="content" class="custom-form-label d-block">Content</label>
             <div id="editor" class="editor-container" style="height: 300px;">{{ form.content.value|default_if_none:''|safe }}</div>
             <textarea class="form-control" name="content" id="content" style="display: none;">{{ form.content.value|default_if_none:'' }}</textarea>
         </div>
         {% if board_name == "perceptive_board" %}
         <div class="market-info">
             <div class="form-group">
-                <label for="market" class="custom-form-label">마켓:</label>
-                {{ form.market }}
+                <label for="market_type" class="custom-form-label">Market Type:</label>
+                {{ form.market_type }}
             </div>
-            <br>
-            <br>
             <p id="currentPrice" style="font-weight: bold;"></p>
+        </div>
+        <div class="form-group">
+            <label for="market" class="custom-form-label">Ticker:</label>
+            {{ form.market }}
         </div>
         <div class="duration-range">
             <div class="form-group">
-                <label class="custom-form-label">기간:</label>
+                <label class="custom-form-label">Prediction Duration:</label>
                 {{ form.duration_from }}
             </div>
             <div class="form-group">
@@ -87,7 +90,7 @@
         </div>
         <div class="price-range">
             <div class="form-group">
-                <label class="custom-form-label">가격 범위</label>
+                <label class="custom-form-label">Prediction Price Range:</label>
                 {{ form.price_lower_range }}
             </div>
             <div class="form-group">
@@ -96,11 +99,11 @@
             </div>
         </div>
         <div class="final-verdict">
-            <label class="custom-form-label">총평:</label>
+            <label class="custom-form-label">Overall Sentiment:</label>
             {{ form.final_verdict }}
         </div>
         {% endif %}
-        <button type="submit" class="btn btn-primary mt-3">저장하기</button>
+        <button type="submit" class="btn btn-primary mt-3">Post</button>
     </form>
 </div>
 <script>
@@ -163,28 +166,60 @@ document.addEventListener('DOMContentLoaded', function() {
         contentField.value = quill.root.innerHTML;
     };
 
+    // Variables for market type, ticker, and price
+    var marketTypeDropdown = document.querySelector('#id_market_type');
+    var marketDropdown = document.querySelector('#id_market');
+    var currentPriceDisplay = document.getElementById('currentPrice');
+
+    // Function to fetch and update tickers based on selected market type
+    function updateTickers(marketType) {
+        fetch(`/aiphabtc/get-tickers/${marketType}/`)
+            .then(response => response.json())
+            .then(data => {
+                marketDropdown.innerHTML = '';
+                data.tickers.forEach(ticker => {
+                    var option = document.createElement('option');
+                    option.value = ticker;
+                    option.textContent = ticker;
+                    marketDropdown.appendChild(option);
+                });
+                // Fetch price for the first ticker by default
+                fetchCurrentPrice(marketDropdown.value, marketType);
+            });
+    }
+
+
     // Fetching and displaying the current price
     function numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
-    function fetchCurrentPrice(market) {
-        const defaultMarket = "KRW-BTC";
-        market = market || defaultMarket;
-        fetch('/aiphabtc/get-current-price/' + market + '/')
+    // Function to fetch and display the current price
+    function fetchCurrentPrice(market, marketType) {
+        fetch(`/aiphabtc/get-current-price/${marketType}/${market}/`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('currentPrice').textContent = '현재 가격: ' + numberWithCommas(data.price) + '원';
+                const currency = marketType === 'KRW' ? 'KRW' : 'USDT';
+                currentPriceDisplay.textContent = 'Current Price: ' + numberWithCommas(data.price) + ' ' + currency;
             })
             .catch(error => console.error('Error fetching current price:', error));
     }
 
-    fetchCurrentPrice();
-    var marketDropdown = document.querySelector('#id_market');
-    marketDropdown.addEventListener('change', function() {
-        var selectedMarket = marketDropdown.value;
-        fetchCurrentPrice(selectedMarket);
+    // Listen for changes in the market type dropdown
+    marketTypeDropdown.addEventListener('change', function() {
+        updateTickers(marketTypeDropdown.value);
     });
+
+    // Listen for changes in the ticker dropdown
+    marketDropdown.addEventListener('change', function() {
+        fetchCurrentPrice(marketDropdown.value, marketTypeDropdown.value);
+    });
+
+    // Load initial tickers for the default market type
+    updateTickers(marketTypeDropdown.value);
+
+    // Initial fetch of current price for the default market and ticker
+    fetchCurrentPrice(marketDropdown.value, marketTypeDropdown.value);
 });
 </script>
 {% endblock %}

@@ -3,127 +3,425 @@
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="text-center mb-4">AIPHABTC 뉴스 기반 비트코인 패턴매칭 분석 툴</h2>
-    <div class="alert alert-info" role="alert">
-        알파비트 인공지능 팀이 개발한 AI는 입력된 뉴스 제목과 내용에 문맥적으로 유사한 과거 뉴스를 추천하고, 해당 과거 뉴스가 발표된 시점으로부터의 비트코인 차트 데이터 (BTC-KRW)를 보여줍니다. 과거 뉴스 데이터는 주기적으로 업데이트 됩니다. 디폴트로 일봉 차트 데이터가 보여지고 30분봉 차트 데이터로 토글도 가능합니다.
+    <!-- Language Toggle -->
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="languageToggle" id="englishLang" value="en" checked>
+        <label class="form-check-label" for="englishLang">🇺🇸 English</label>
     </div>
-    <div class="mb-3">
-        <label for="topKRange" class="form-label">조회할 상위 결과 수 (5-20):</label>
-        <input type="range" class="form-range" id="topKRange" name="topK" min="5" max="20" value="5">
-        <span id="topKValue" class="badge bg-secondary">5</span>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="languageToggle" id="koreanLang" value="ko">
+        <label class="form-check-label" for="koreanLang">🇰🇷 Korean</label>
     </div>
-    <div class="mb-4">
-        <textarea id="newsText" name="news_text" class="form-control" rows="4" placeholder="뉴스 제목과 내용을 입력하세요."></textarea>
-        <button type="button" id="searchButton" class="btn btn-primary mt-3">검색</button>
-        <div id="loading" class="text-center my-3" style="display: none;">
+    <br>
+    <br>
+    <!-- English Section -->
+    <div id="englishSection" style="display: block;">
+        <h2 class="text-center mb-4">News-Based Bitcoin (BTC) Pattern Matching Analysis Tool</h2>
+        <div class="alert alert-success" role="alert">
+            The pattern matching tool developed by the AI Team at AIPHABTC recommends past news that is contextually similar to the input news titles and content, and displays the Bitcoin chart data (BTC-USDT; from MEXC) from the time the past news was released. The past news data is updated periodically. By default, daily chart data is shown, and it can be toggled to 30-minute chart data. ** Please note, this tool is for study and reference of Bitcoin prices only and is not an investment recommendation. Use at your own discretion **.
+        </div>
+        <div class="mb-3">
+            <label for="topKRange_eng" class="form-label">Number of top results to retrieve (5-20):</label>
+            <input type="range" class="form-range" id="topKRange_eng" name="topK" min="5" max="20" value="5">
+            <span id="topKValue_eng" class="badge bg-secondary">5</span>
+        </div>
+        <div class="mb-4">
+            <textarea id="newsText_eng" name="news_text" class="form-control" rows="4" placeholder="Enter news title and content"></textarea>
+            <button type="button" id="searchButton_eng" class="btn btn-success mt-3">Search</button>
+            <div id="loading_eng" class="text-center my-3" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden"></span>
+                </div>
+            </div>
+            <div id="results_eng" class="mt-4"></div>
+        </div>
+    </div>
+
+    <!-- Korean Section -->
+    <div id="koreanSection" style="display: none;">
+        <h2 class="text-center mb-4">뉴스 기반 비트코인 패턴매칭 분석 툴</h2>
+        <div class="alert alert-success" role="alert">
+            아이파비트 인공지능 팀이 개발한 뉴스 패턴 지표는 입력된 뉴스 제목과 내용에 문맥적으로 유사한 과거 뉴스를 추천하고, 해당 과거 뉴스가 발표된 시점으로부터의 비트코인 차트 데이터 (BTC-KRW; 업비트 데이터)를 보여줍니다. 과거 뉴스 데이터는 가능한 주기적으로 업데이트 됩니다. 디폴트로 일봉 차트 데이터가 보여지고 30분봉 차트 데이터로 토글도 가능합니다.
+        </div>
+        <div class="mb-3">
+            <label for="topKRange" class="form-label">조회할 상위 결과 수 (5-20):</label>
+            <input type="range" class="form-range" id="topKRange" name="topK" min="5" max="20" value="5">
+            <span id="topKValue" class="badge bg-secondary">5</span>
+        </div>
+        <div class="mb-4">
+            <textarea id="newsText" name="news_text" class="form-control" rows="4" placeholder="뉴스 제목과 내용을 입력하세요."></textarea>
+            <button type="button" id="searchButton" class="btn btn-success mt-3">검색</button>
+            <div id="loading" class="text-center my-3" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden"></span>
+                </div>
+            </div>
+            <div id="results" class="mt-4"></div>
+        </div>
+    </div>
+
+
+
+     <!-- English Section for Chart Pattern Matching -->
+    <div id="englishChartSection" style="display: block;">
+        <h2 class="text-center mb-4">Chart-Based Bitcoin (BTC) Pattern Matching Tool</h2>
+        <div class="alert alert-success" role="alert">
+            The chart pattern matching tool uses the Dynamic Time Warping (DTW) method to calculate and display the most similar past daily or 30-minute chart patterns to the current chart. ** Please note, this tool is for study and reference of Bitcoin prices only and is not an investment recommendation. Use at your own discretion **.
+        </div>
+        <!-- Add a toggle for 1D and 30M chart data -->
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="chartType" id="oneDayChart_en" value="1d" checked>
+          <label class="form-check-label" for="oneDayChart_en">1-Day</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="chartType" id="thirtyMinChart_en" value="30m">
+          <label class="form-check-label" for="thirtyMinChart_en">30-Minute</label>
+        </div>
+        <div>
+            <label for="topKChartRange_en">Number of top chart results to retrieve (5-20): </label>
+            <input type="range" id="topKChartRange_en" name="topKChart" min="5" max="20" value="5">
+            <span id="topKChartValue_en">5</span>
+        </div>
+        <div>
+            <div style="text-align: center;"> <!-- Added inline CSS for center alignment -->
+                <p><strong>Current Chart Closing Price Movement</strong></p>
+            </div>
+            <div id="currentPatternInfo_en"></div>
+            <div class="chart" id="currentPatternChart_en"></div>
+        </div>
+
+        <div>
+            <button type="button" id="searchChartButton_en" class="btn btn-success">Search</button>
+        </div>
+        <br>
+        <div id="chartLoading_en" class="text-center my-3" style="display: none;">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden"></span>
             </div>
         </div>
-        <div id="results" class="mt-4"></div>
+        <div id="chartResults_en"></div>
     </div>
 
-    <h2 class="text-center mb-4">AIPHABTC 종가 기반 비트코인 패턴매칭 분석 툴</h2>
-    <div class="alert alert-info" role="alert">
-        Dynamic Time Warping (DTW) 방법의 차트 패턴 매칭 방법으로 현재 일봉 혹은 30분봉 구간과 가장 유사한 과거 일봉 혹은 30분봉을 계산해서 보여줍니다.
-    </div>
-    <!-- Add a toggle for 1D and 30M chart data -->
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="chartType" id="oneDayChart" value="1d" checked>
-      <label class="form-check-label" for="oneDayChart">일봉</label>
-    </div>
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="chartType" id="thirtyMinChart" value="30m">
-      <label class="form-check-label" for="thirtyMinChart">30분봉</label>
-    </div>
-    <div>
-        <label for="topKChartRange">조회할 상위 차트 결과 수 (5-20): </label>
-        <input type="range" id="topKChartRange" name="topKChart" min="5" max="20" value="5">
-        <span id="topKChartValue">5</span>
-    </div>
-    <div>
-        <div style="text-align: center;"> <!-- Added inline CSS for center alignment -->
-            <p><strong>현재 차트 종가 움직임</strong></p>
+    <!-- Korean Section for Chart Pattern Matching -->
+    <div id="koreanChartSection" style="display: none;">
+        <h2 class="text-center mb-4">차트 기반 비트코인 패턴매칭 분석 툴</h2>
+        <div class="alert alert-success" role="alert">
+            Dynamic Time Warping (DTW) 방법의 차트 패턴 매칭 방법으로 현재 일봉 혹은 30분봉 구간과 가장 유사한 과거 일봉 혹은 30분봉을 계산해서 보여줍니다.
         </div>
-        <div id="currentPatternInfo"></div>
-        <div class="chart" id="currentPatternChart"></div>
-    </div>
-    <div>
-        <button type="button" id="searchChartButton" class="btn btn-primary">검색</button>
-    </div>
-    <div id="chartLoading" class="text-center my-3" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden"></span>
+        <!-- Add a toggle for 1D and 30M chart data -->
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="chartType" id="oneDayChart_ko" value="1d" checked>
+          <label class="form-check-label" for="oneDayChart_ko">일봉</label>
         </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="chartType" id="thirtyMinChart_ko" value="30m">
+          <label class="form-check-label" for="thirtyMinChart_ko">30분봉</label>
+        </div>
+        <div>
+            <label for="topKChartRange_ko">조회할 상위 차트 결과 수 (5-20): </label>
+            <input type="range" id="topKChartRange_ko" name="topKChart" min="5" max="20" value="5">
+            <span id="topKChartValue_ko">5</span>
+        </div>
+        <div>
+            <div style="text-align: center;"> <!-- Added inline CSS for center alignment -->
+                <p><strong>현재 차트 종가 움직임</strong></p>
+            </div>
+            <div id="currentPatternInfo_ko"></div>
+            <div class="chart" id="currentPatternChart_ko"></div>
+        </div>
+        <div>
+            <button type="button" id="searchChartButton_ko" class="btn btn-success">검색</button>
+        </div>
+        <br>
+        <div id="chartLoading_ko" class="text-center my-3" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
+        <div id="chartResults_ko"></div>
     </div>
-    <div id="chartResults"></div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript">
-    var chartDataStorage = {};
-    document.getElementById("searchButton").addEventListener("click", function() {
-        document.getElementById("loading").style.display = "block";
-        var newsText = document.getElementById("newsText").value;
-        var topK = document.getElementById("topKRange").value;
+    // Function to toggle between English and Korean sections
+    function toggleLanguageSection() {
+        var selectedLanguage = document.querySelector('input[name="languageToggle"]:checked').value;
 
-        // Update the fetch URL to match your Django URL configuration
-        var searchNewsUrl = "{% url 'aiphabtc:news_similarity' %}";
+        // Clear the chart results when toggling between languages
+        clearChartResults();
 
-        // Get the CSRF token from the cookie
-        var csrfToken = getCookie('csrftoken');
+        if (selectedLanguage === 'en') {
+            document.getElementById("englishSection").style.display = "block";
+            document.getElementById("koreanSection").style.display = "none";
+            document.getElementById("englishChartSection").style.display = "block";
+            document.getElementById("koreanChartSection").style.display = "none";
+        } else {
+            document.getElementById("englishSection").style.display = "none";
+            document.getElementById("koreanSection").style.display = "block";
+            document.getElementById("englishChartSection").style.display = "none";
+            document.getElementById("koreanChartSection").style.display = "block";
+        }
 
-        fetch(searchNewsUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken  // Include the CSRF token in the headers
-            },
-            body: JSON.stringify({ news_text: newsText, top_k: topK }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            var resultsContainer = document.getElementById("results");
-            resultsContainer.innerHTML = '';  // Clear previous results
+        // Fetch and display the current chart pattern based on the language toggle
+        fetchAndPlotCurrentPattern(selectedLanguage);
+    }
 
-            data.results.forEach(function(result, index) {
-                // Store chart data in the global object
-                chartDataStorage[index] = {
-                    chart_data_30m: result.chart_data_30m,
-                    chart_data_1d: result.chart_data_1d,
-                }
-
-                var resultDiv = document.createElement('div');
-                resultDiv.className = 'result';
-                resultDiv.innerHTML = `
-                    <h5> Rank ${index + 1} </h5>
-                    <p>${result.text}</p>
-                    <p><strong>문맥형 유사도:</strong> ${result.similarity}%</p>
-                    <p><strong>날짜:</strong> ${result.date}</p>
-                    <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m')">30m Chart</button>
-                    <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d')">1d Chart</button>
-                    <div class="chart" id="chart${index}"></div>
-                `;
-                resultsContainer.appendChild(resultDiv);
-
-                // Plot the chart: Default plot 1d chart
-                updateChart(`chart${index}`, 'chart_data_1d');
-            });
-            document.getElementById("loading").style.display = "none";
-        })
-        .catch(error => {
-            console.error("Error fetching news similarity results:", error);
-            document.getElementById("loading").style.display = "none";
-        });
+    // Add event listeners to the language toggle radio buttons
+    document.querySelectorAll('input[name="languageToggle"]').forEach((elem) => {
+        elem.addEventListener('change', toggleLanguageSection);
     });
 
+    // Initialize the page with the correct section shown based on the default selected language
+    window.onload = function() {
+        toggleLanguageSection();  // Call the function on page load
+        fetchAndPlotCurrentPattern('en');  // Fetch current chart data when the page loads
+    };
+
+    var chartDataStorage = {};  // Declare chartDataStorage globally to store chart data
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+    // Search functionality for English
+    if (document.getElementById("searchButton_eng") !== null) {
+        document.getElementById("searchButton_eng").addEventListener("click", function() {
+            document.getElementById("loading_eng").style.display = "block";
+            var newsText = document.getElementById("newsText_eng").value;
+            var topK = document.getElementById("topKRange_eng").value;
+
+            var searchNewsUrl = "{% url 'aiphabtc:news_similarity' %}";
+            var csrfToken = getCookie('csrftoken');
+
+            fetch(searchNewsUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({
+                    news_text: newsText,
+                    top_k: topK,
+                    language: "en"  // Specify English
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                var resultsContainer = document.getElementById("results_eng");
+                resultsContainer.innerHTML = '';  // Clear previous results
+
+                data.results.forEach(function(result, index) {
+                    chartDataStorage[index] = {
+                        chart_data_30m: result.chart_data_30m,
+                        chart_data_1d: result.chart_data_1d,
+                    };
+
+                    var resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        <h5> Rank ${index + 1} </h5>
+                        <p>${result.text}</p>
+                        <p><strong>Contextual Similarity:</strong> ${result.similarity}%</p>
+                        <p><strong>Date:</strong> ${result.date}</p>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m')">30m Chart</button>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d')">1d Chart</button>
+                        <div class="chart" id="chart${index}"></div>
+                    `;
+                    resultsContainer.appendChild(resultDiv);
+                    updateChart(`chart${index}`, 'chart_data_1d');  // Default plot 1d chart
+                });
+                document.getElementById("loading_eng").style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error fetching news similarity results:", error);
+                document.getElementById("loading_eng").style.display = "none";
+            });
+        });
+    }
+
+    // Search functionality for Korean
+    if (document.getElementById("searchButton") !== null) {
+        document.getElementById("searchButton").addEventListener("click", function() {
+            document.getElementById("loading").style.display = "block";
+            var newsText = document.getElementById("newsText").value;
+            var topK = document.getElementById("topKRange").value;
+
+            var searchNewsUrl = "{% url 'aiphabtc:news_similarity' %}";
+            var csrfToken = getCookie('csrftoken');
+
+            fetch(searchNewsUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({
+                    news_text: newsText,
+                    top_k: topK,
+                    language: "ko"  // Specify Korean
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                var resultsContainer = document.getElementById("results");
+                resultsContainer.innerHTML = '';  // Clear previous results
+
+                data.results.forEach(function(result, index) {
+                    chartDataStorage[index] = {
+                        chart_data_30m: result.chart_data_30m,
+                        chart_data_1d: result.chart_data_1d,
+                    };
+
+                    var resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        <h5> Rank ${index + 1} </h5>
+                        <p>${result.text}</p>
+                        <p><strong>문맥형 유사도:</strong> ${result.similarity}%</p>
+                        <p><strong>날짜:</strong> ${result.date}</p>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m')">30m Chart</button>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d')">1d Chart</button>
+                        <div class="chart" id="chart${index}"></div>
+                    `;
+                    resultsContainer.appendChild(resultDiv);
+                    updateChart(`chart${index}`, 'chart_data_1d');  // Default plot 1d chart
+                });
+                document.getElementById("loading").style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error fetching news similarity results:", error);
+                document.getElementById("loading").style.display = "none";
+            });
+        });
+    }
+
+
+    // Search functionality for chart patterns (English)
+    if (document.getElementById("searchChartButton_en") !== null) {
+        document.getElementById("searchChartButton_en").addEventListener("click", function() {
+            document.getElementById("chartLoading_en").style.display = "block";
+            var topK = document.getElementById("topKChartRange_en").value;
+            var chartType = document.querySelector('input[name="chartType"]:checked').value;
+
+            var searchChartUrl = `/aiphabtc/chart_similarity/${chartType}/`;  // Dynamic URL based on chart type
+            var csrfToken = getCookie("csrftoken");
+
+            fetch(searchChartUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({ top_k: topK }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                var resultsContainer = document.getElementById("chartResults_en");
+                resultsContainer.innerHTML = '';  // Clear previous results
+
+                data.results.forEach(function(result, index) {
+                    var chartIdStart = `chartPatternStart${index}`;
+                    var chartIdEnd = `chartPatternEnd${index}`;
+
+                    var chartId = `chartCombined${index}`;  // Define chartId for combined chart
+                    var resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        <h5> Pattern Rank ${index + 1}</h5>
+                        <div class="chart" id="${chartId}"></div>
+                    `;
+                    resultsContainer.appendChild(resultDiv);
+
+                    // Plot both the start and end of the chart pattern
+                    // plotChartPattern(chartIdStart, result.date_start, result.chart_data_start, 'rgba(255, 99, 132, 1)');
+                    // plotChartPattern(chartIdEnd, result.date_end, result.chart_data_end, 'rgba(75, 192, 192, 1)');
+                    plotCombinedChartPattern(chartId, result.date_start, result.chart_data_start, result.date_end, result.chart_data_end);
+                });
+                document.getElementById("chartLoading_en").style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error fetching chart pattern results:", error);
+                document.getElementById("chartLoading_en").style.display = "none";
+            });
+        });
+    }
+
+    // Search functionality for chart patterns (Korean)
+    if (document.getElementById("searchChartButton_ko") !== null) {
+        document.getElementById("searchChartButton_ko").addEventListener("click", function() {
+            document.getElementById("chartLoading_ko").style.display = "block";
+            var topK = document.getElementById("topKChartRange_ko").value;
+            var chartType = document.querySelector('input[name="chartType"]:checked').value;
+
+            var searchChartUrl = `/aiphabtc/chart_similarity/${chartType}/`;  // Dynamic URL based on chart type
+            var csrfToken = getCookie("csrftoken");
+
+            fetch(searchChartUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({ top_k: topK }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                var resultsContainer = document.getElementById("chartResults_ko");
+                resultsContainer.innerHTML = '';  // Clear previous results
+
+                data.results.forEach(function(result, index) {
+                    var chartIdStart = `chartPatternStart${index}`;
+                    var chartIdEnd = `chartPatternEnd${index}`;
+
+                    var chartId = `chartCombined${index}`;  // Define chartId for combined chart
+                    var resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        <h5> 패턴 순위 ${index + 1}</h5>
+                        <div class="chart" id="${chartId}"></div>
+                    `;
+                    resultsContainer.appendChild(resultDiv);
+
+                    // Plot both the start and end of the chart pattern
+                    // plotChartPattern(chartIdStart, result.date_start, result.chart_data_start, 'rgba(255, 99, 132, 1)');
+                    // plotChartPattern(chartIdEnd, result.date_end, result.chart_data_end, 'rgba(75, 192, 192, 1)');
+                    plotCombinedChartPattern(chartId, result.date_start, result.chart_data_start, result.date_end, result.chart_data_end);
+                });
+                document.getElementById("chartLoading_ko").style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error fetching chart pattern results:", error);
+                document.getElementById("chartLoading_ko").style.display = "none";
+            });
+        });
+    }
+
+    // Update chart function
     function updateChart(chartId, chartDataType) {
-        var index = chartId.replace('chart', ''); // Extract index from chartId
+        var chartDiv = document.getElementById(chartId);
+        if (!chartDiv) {
+            console.error(`Chart div with ID "${chartId}" not found.`);
+            return;
+        }
+        var index = chartId.replace('chart', '');  // Extract index from chartId
         var chartData = chartDataStorage[index][chartDataType];  // Get the correct chart data from the global object
 
-        var chartDiv = document.getElementById(chartId);
         Plotly.newPlot(chartDiv, [
             {
                 type: 'scatter',
@@ -138,58 +436,50 @@
         });
     }
 
-
-    document.getElementById("searchChartButton").addEventListener("click", function() {
-        document.getElementById("chartLoading").style.display = "block";
-
-        var topK = document.getElementById("topKChartRange").value;
+    // Function to fetch and plot current chart pattern
+    function fetchAndPlotCurrentPattern(selectedLanguage) {
         var chartType = document.querySelector('input[name="chartType"]:checked').value;
-        // Construct the URL dynamically based on the selected chart type
-        var searchChartUrl = `/aiphabtc/chart_similarity/${chartType}/`;
         var csrfToken = getCookie("csrftoken");
 
-        fetch(searchChartUrl, {
-            method: "POST",
+        // Set chart IDs dynamically based on selected language
+        var chartId = selectedLanguage === 'en' ? "currentPatternChart_en" : "currentPatternChart_ko";
+
+        fetch(`/aiphabtc/get_current_chart_pattern/`, {
+            method: "GET",
             headers: {
-                "Content-Type": "application/json",
                 "X-CSRFToken": csrfToken
             },
-            body: JSON.stringify({ top_k: topK }),
         })
         .then(response => response.json())
         .then(data => {
-            var resultsContainer = document.getElementById("chartResults");
-            resultsContainer.innerHTML = '';
-            data.results.forEach(function(result, index) {
-                var chartIdStart = `chartPatternStart${index}`;
-                var chartIdEnd = `chartPatternEnd${index}`;
+            // Fetch correct pattern data based on chart type
+            var currentPatternData = chartType === '1d' ? data.current_pattern_1d : data.current_pattern_30m;
 
-                var resultDiv = document.createElement('div');
-                resultDiv.className = 'result';
-                resultDiv.innerHTML = `
-                    <br><br>
-                    <h5> DTW Based Pattern Rank ${index + 1} </h5>
-                    <div>DTW 유사 차트 패턴 구간:</div>
-                    <div class="chart" id="${chartIdStart}"></div>
-                    <div>DTW 유사 차트 패턴 구간 이후 움직임:</div>
-                    <div class="chart" id="${chartIdEnd}"></div>
-                `;
-                resultsContainer.appendChild(resultDiv);
+            // Log chart data to ensure it's correctly fetched
+            console.log(`Chart data for ${selectedLanguage}:`, currentPatternData);
 
-                plotChartPattern(chartIdStart, result.date_start, result.chart_data_start, 'rgba(255, 99, 132, 1)');
-                plotChartPattern(chartIdEnd, result.date_end, result.chart_data_end, 'rgba(75, 192, 192, 1)');
-            });
-
-            document.getElementById("chartLoading").style.display = "none";
+            plotChartPattern(chartId, currentPatternData.dates, currentPatternData.close, 'rgba(0, 123, 255, 1)');
         })
         .catch(error => {
-            console.error("Error fetching chart pattern matching results:", error);
-            document.getElementById("chartLoading").style.display = "none";
+            console.error("Error fetching current chart pattern:", error);
         });
-    });
+    }
 
+
+    // Function to plot chart patterns
     function plotChartPattern(chartId, xData, yData, lineColor) {
         var chartDiv = document.getElementById(chartId);
+        if (!chartDiv) {
+            console.error(`Chart div with ID "${chartId}" not found.`);
+            return;
+        }
+
+        // Ensure xData and yData are non-empty
+        if (!xData || !yData || xData.length === 0 || yData.length === 0) {
+            chartDiv.innerHTML = '<p>차트 데이터가 비어 있습니다 (Chart data is empty)</p>';
+            return;
+        }
+
         Plotly.newPlot(chartDiv, [
             {
                 type: 'scatter',
@@ -204,32 +494,70 @@
         });
     }
 
-    // Function to fetch and plot current chart pattern
-    function fetchAndPlotCurrentPattern() {
-        var chartType = document.querySelector('input[name="chartType"]:checked').value;
-        var csrfToken = getCookie("csrftoken");
 
-        fetch(`/aiphabtc/get_current_chart_pattern/`, {  // Adjust the URL as necessary
-            method: "GET",
-            headers: {
-                "X-CSRFToken": csrfToken
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Choose the dataset based on the selected chart type
-            var currentPatternData = chartType === '1d' ? data.current_pattern_1d : data.current_pattern_30m;
-            plotChartPattern("currentPatternChart", currentPatternData.dates, currentPatternData.close, 'rgba(0, 123, 255, 1)');
-        })
-        .catch(error => {
-            console.error("Error fetching current chart pattern:", error);
+    // Combine and plot the start and end chart pattern in a single chart
+    function plotCombinedChartPattern(chartId, startDate, startData, endDate, endData) {
+        var chartDiv = document.getElementById(chartId);
+        if (!chartDiv) {
+            console.error(`Chart div with ID "${chartId}" not found.`);
+            return;
+        }
+
+        // Ensure that startDate, startData, endDate, and endData are valid arrays
+        if (!Array.isArray(startDate) || !Array.isArray(startData) || !Array.isArray(endDate) || !Array.isArray(endData)) {
+            console.error(`Invalid chart data for chart ID "${chartId}"`);
+            chartDiv.innerHTML = '<p>Invalid or missing chart data</p>';
+            return;
+        }
+
+        // Combine x-axis (dates) and y-axis (prices) for start and end
+        var combinedX = startDate.concat(endDate);
+        var combinedY = startData.concat(endData);
+
+        // Define traces for start and end data with different colors
+        var startTrace = {
+            type: 'scatter',
+            mode: 'lines',
+            x: startDate,
+            y: startData,
+            line: { color: 'rgba(255, 99, 132, 1)' },  // Red color for Pattern Start
+            name: 'Pattern Start'
+        };
+
+        var endTrace = {
+            type: 'scatter',
+            mode: 'lines',
+            x: endDate,
+            y: endData,
+            line: { color: 'rgba(75, 192, 192, 1)' },  // Blue color for Pattern End
+            name: 'Pattern End'
+        };
+
+        // Plot both traces on the same chart
+        Plotly.newPlot(chartDiv, [startTrace, endTrace], {
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'BTC-KRW' },
+            title: 'Combined Pattern Start and End',
+            showlegend: true  // Display the legend
         });
     }
 
-    window.onload = function() {
-        fetchAndPlotCurrentPattern();
-    };
 
+
+    // Listen for changes to the chart type radio buttons and re-plot the current chart pattern
+    document.querySelectorAll('input[name="chartType"]').forEach((elem) => {
+        elem.addEventListener('change', function() {
+            var selectedLanguage = document.querySelector('input[name="languageToggle"]:checked').value;
+            fetchAndPlotCurrentPattern(selectedLanguage);
+        });
+    });
+
+
+    // Clear chart results when switching between languages to avoid displaying old results
+    function clearChartResults() {
+        document.getElementById("chartResults_en").innerHTML = '';
+        document.getElementById("chartResults_ko").innerHTML = '';
+    }
 
     // Listen for changes to the chart type radio buttons and re-plot the current chart pattern
     document.querySelectorAll('input[name="chartType"]').forEach((elem) => {
@@ -238,31 +566,35 @@
         });
     });
 
-    // Add an event listener to update the displayed value when the slider changes
-    document.getElementById("topKChartRange").addEventListener("input", function() {
-        document.getElementById("topKChartValue").innerText = this.value;
-    });
-
-    // Function to get CSRF token from cookies
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
+    // Update the displayed value for the slider (only if element exists)
+    var topKChartRange_en = document.getElementById("topKChartRange_en");
+    if (topKChartRange_en) {
+        topKChartRange_en.addEventListener("input", function() {
+            document.getElementById("topKChartValue_en").innerText = this.value;
+        });
     }
 
-    // Add an event listener to update the displayed value when the slider changes
-    document.getElementById("topKRange").addEventListener("input", function() {
-        document.getElementById("topKValue").innerText = this.value;
-    });
+    var topKChartRange_ko = document.getElementById("topKChartRange_ko");
+    if (topKChartRange_ko) {
+        topKChartRange_ko.addEventListener("input", function() {
+            document.getElementById("topKChartValue_ko").innerText = this.value;
+        });
+    }
+
+    var topKRange = document.getElementById("topKRange");
+    if (topKRange) {
+        topKRange.addEventListener("input", function() {
+            document.getElementById("topKValue").innerText = this.value;
+        });
+    }
+
+    var topKRange_eng = document.getElementById("topKRange_eng");
+    if (topKRange_eng) {
+        topKRange_eng.addEventListener("input", function() {
+            document.getElementById("topKValue_eng").innerText = this.value;
+        });
+    }
+
+
 </script>
 {% endblock %}

@@ -37,7 +37,7 @@ def base(request):
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
-            messages.success(request, '프로필이 정상적으로 업데이트 되었습니다!')
+            messages.success(request, 'Your profile has been successfully updated!')
             return redirect("common:settings_base")
     else:
         # Instantiate the form with the current user's profile data
@@ -224,7 +224,7 @@ def attendance_check(request):
         PointTokenTransaction.objects.create(
             user=user,
             points=4,
-            reason="출석체크 보상"
+            reason="Daily attendance reward"
         )
 
         return redirect("common:attendance")
@@ -252,46 +252,59 @@ def attendance_check(request):
 def referral_view(request):
     if not request.user.is_authenticated:
         return redirect('common:login')
+
     user_profile = request.user.profile
     if request.method == "POST":
         referral_code = request.POST.get('referral_code').strip()
-        # check if the user has already used a referral code
+
+        # Check if the user has already used a referral code
         if user_profile.referred_by is not None:
-            messages.error(request, '이미 추천 코드를 사용하셨습니다.')
-        # check if the referral code is the user's own code
+            messages.error(request, 'You have already used a referral code.')
+
+        # Check if the referral code is the user's own code
         elif referral_code == user_profile.referral_code:
-            messages.error(request, "본인의 레퍼럴 코드를 사용할 수 없어요!")
+            messages.error(request, "You cannot use your own referral code!")
+
         elif referral_code:
             try:
                 referrer_profile = Profile.objects.get(referral_code=referral_code)
-                # additional check to prevent self referral
+
+                # Prevent self-referral
                 if referrer_profile.user == request.user:
-                    messages.error(request, '본인의 레퍼럴 코드를 사용할 수 없어요!')
+                    messages.error(request, 'You cannot use your own referral code!')
                     return redirect('referral')
+
+                # Assign the referrer and reward points
                 user_profile.referred_by = referrer_profile
                 user_profile.score += 50
                 referrer_profile.score += 50
                 user_profile.save()
                 referrer_profile.save()
+
+                # Create transactions using the User instance from the Profile
                 PointTokenTransaction.objects.create(
-                    user=user_profile,
+                    user=user_profile.user,  # Use user_profile.user
                     points=50,
-                    reason="친구추천 보상"
+                    reason="Friend referral reward"
                 )
                 PointTokenTransaction.objects.create(
-                    user=referrer_profile,
+                    user=referrer_profile.user,  # Use referrer_profile.user
                     points=50,
-                    reason="친구추천 보상"
+                    reason="Friend referral reward"
                 )
-                messages.success(request, '추천 코드가 승인되었습니다. 귀하와 추천인 모두 포인트를 받게 되었습니다.')
+
+                messages.success(request,
+                                 'The referral code has been approved. Both you and the referrer have received points.')
             except Profile.DoesNotExist:
-                messages.error(request, '유효하지 않은 레퍼릴 코드입니다!')
+                messages.error(request, 'Invalid referral code!')
     else:
         referral_code = None
+
     context = {
         "referral_code": user_profile.referral_code,
         "has_referred": user_profile.referred_by is not None
     }
+
     return render(request, 'common/referral.html', context)
 
 

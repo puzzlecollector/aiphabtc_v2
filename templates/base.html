@@ -24,44 +24,6 @@
     <!-- <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"> -->
     <title>AIPHABTC: 아이파비트, AI와 함께 비트코인 공부하자</title>
     <meta name="description" content="아이파비트 AIPHABTC에서 비트코인, 이더리움, 알트코인, 트레이딩, 딥러닝, 블록체인, 투자봇, 경제, 코인시장 시황 관련 정보 공유와 공부를 해보세요">
-    <!-- Spinner CSS -->
-    <style>
-        /* Spinner Overlay */
-        #spinner-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background: rgba(255, 255, 255, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .spinner {
-            border: 4px solid rgba(0,0,0,.1);
-            border-radius: 50%;
-            border-top: 4px solid #000;
-            width: 50px;
-            height: 50px;
-            -webkit-animation: spin 1s linear infinite;
-            animation: spin 1s linear infinite;
-        }
-
-        @-webkit-keyframes spin {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8407897247207083"
-     crossorigin="anonymous"></script>
     {% block head %}
     {% endblock %}
 </head>
@@ -81,14 +43,7 @@
     <!-- Bootstrap JS -->
     <script src="{% static 'bootstrap.min.js' %}"></script>
     <!-- Spinner JS -->
-    <script>
-        window.onload = function() {
-            document.getElementById('spinner-overlay').style.display = 'none';
-        };
-        window.onbeforeunload = function() {
-            document.getElementById('spinner-overlay').style.display = 'flex';
-        };
-    </script>
+
     {% block script %}
     {% endblock %}
     {% block javascript %}

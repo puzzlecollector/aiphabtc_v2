@@ -8,23 +8,13 @@
         <div class="col-12">
             <h3 class="text-left">
                 {% if board.name == 'free_board' %}
-                    자유게시판
-                {% elif board.name == 'AI' %}
-                    인공지능
-                {% elif board.name == 'trading' %}
-                    코인 지식
-                {% elif board.name == 'blockchain' %}
-                    블록체인
-                {% elif board.name == 'general_qa' %}
-                    질문과 답변
+                    Free Board
+                {% elif board.name == 'tutorials' %}
+                    Tutorials
                 {% elif board.name == 'perceptive_board' %}
-                    관점공유 게시판
-                {% elif board.name == 'economics' %}
-                    경제 및 시황
-                {% elif board.name == 'creator_reviews' %}
-                    방송과 책 리뷰
+                    Crypto Predictions
                 {% elif board.name == 'announcements' %}
-                    공지사항
+                    Announcements
                 {% else %}
                     {{ board.name }}
                 {% endif %}
@@ -42,15 +32,15 @@
     <div class="row justify-content-between my-3">
         <div class="col-md-3 col-4">
             <select class="form-control so">
-                <option value="recent" {% if so == 'recent' %}selected{% endif %}>최신순</option>
-                <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>추천순</option>
-                <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
+                <option value="recent" {% if so == 'recent' %}selected{% endif %}>Newest First</option>
+                <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>Most Recommended</option>
+                <option value="popular" {% if so == 'popular' %}selected{% endif %}>Most Popular</option>
             </select>
         </div>
         <div class="col-8 input-group">
             <input type="text" class="form-control kw" value="{{ kw|default_if_none:'' }}">
             <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">Search Post</button>
             </div>
         </div>
     </div>
@@ -58,7 +48,7 @@
         <thead>
         <tr class="text-center thead-dark">
             <th>ID</th>
-            <th>제목</th>
+            <th>Title</th>
         </tr>
         </thead>
         <tbody>
@@ -72,18 +62,18 @@
                 </a> [{{ question.answer_set.count }}]
                 <br>
                 <small>
-                    추천: {{ question.voter.count }},
-                    글쓴이: <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
+                    👍: {{ question.voter.count }},
+                    Author: <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
                                 {{ question.author.username }}
                             </a>,
-                    작성일시: {{ question.create_date }}
+                    Posted on: {{ question.create_date }}
                 </small>
             </td>
         </tr>
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="3">질문이 없습니다.</td>
+            <td colspan="3">No Posts Yet</td>
         </tr>
         {% endif %}
         </tbody>
@@ -91,11 +81,11 @@
     <ul class="pagination justify-content-center">
         {% if question_list.has_previous %}
         <li class="page-item">
-            <a class="page-link" data-page="{{ question_list.previous_page_number }}" href="#">이전</a>
+            <a class="page-link" data-page="{{ question_list.previous_page_number }}" href="#">Prev</a>
         </li>
         {% else %}
         <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">Prev</a>
         </li>
         {% endif %}
         <!-- 페이지 리스트 -->
@@ -115,22 +105,22 @@
         <!-- 다음 페이지 -->
         {% if question_list.has_next %}
         <li class="page-item">
-            <a class="page-link" data-page="{{ question_list.next_page_number }}" href="#">다음</a>
+            <a class="page-link" data-page="{{ question_list.next_page_number }}" href="#">Next</a>
         </li>
         {% else %}
         <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">다음</a>
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">Next</a>
         </li>
         {% endif %}
     </ul>
     {% if board.name == 'announcements' %}
         {% if user.is_staff or user.is_superuser %}
-            <a href="{% url 'aiphabtc:question_create' board.name %}" class="btn btn-primary">게시글 등록하기</a>
+            <a href="{% url 'aiphabtc:question_create' board.name %}" class="btn btn-primary">Create Post</a>
         {% else %}
-            <p class="text-muted">관리자들만 공지글을 작성할 수 있습니다</p>
+            <p class="text-muted">Only Admins can post on the announcement board</p>
         {% endif %}
     {% else %}
-        <a href="{% url 'aiphabtc:question_create' board.name %}" class="btn btn-primary">게시글 등록하기</a>
+        <a href="{% url 'aiphabtc:question_create' board.name %}" class="btn btn-primary">Create Post</a>
     {% endif %}
 </div>
 <form id="searchForm" method="get" action="{% url 'aiphabtc:board_filtered' board_name=board.name %}">

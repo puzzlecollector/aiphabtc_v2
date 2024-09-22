@@ -145,6 +145,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY") # because openai removes it if exposed
 TELEGRAM_ID = os.environ.get("telegram_api_id")
 TELEGRAM_HASH = os.environ.get("telegram_api_hash")
+DEEPL_API_KEY = os.environ.get("DEEPL_API_KEY")
+EXCHANGERATE_API_KEY = os.environ.get("EXCHANGERATE_API_KEY")
 
 CACHES = {
     'default': {

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<title>Chart Analysis Tool</title>
+<style>
+    .custom-file-upload {
+        background-color: #f8f9fa;
+        border: 2px dashed #007bff;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .custom-file-upload:hover {
+        background-color: #e9ecef;
+    }
+
+    .uploaded-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .analysis-result {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        white-space: pre-line;
+    }
+
+    .description-section {
+        margin-top: 40px;
+        text-align: left;
+        font-size: 18px;
+    }
+
+    .description-section h4 {
+        font-weight: bold;
+    }
+
+    .description-section p {
+        font-size: 16px;
+    }
+
+    /* Spinner Styling */
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        margin: 20px auto;
+        display: none;
+    }
+
+    /* Hide the refresh button initially */
+    #refreshButton {
+        display: none;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center">Chart Analysis Tool</h2>
+
+    <!-- Tool Explanation in English and Korean -->
+    <div class="description-section">
+        <h4>What this tool does:</h4>
+        <p>This tool allows users to upload a chart image (such as a CVD graph or Bitcoin price chart or MVRV Ratio) and receive detailed technical analysis using OpenAI's GPT models. You can choose between English or Korean for the analysis output.</p>
+        <h4>이 도구는 무엇입니까?</h4>
+        <p>이 도구는 사용자가 차트 이미지 (예: CVD 그래프, 비트코인 가격 차트, MVRV 비율)를 업로드하고 OpenAI의 GPT 모델을 사용하여 자세한 기술 분석을 받을 수 있도록 합니다. 영어 또는 한국어 중 하나를 선택하여 분석 결과를 받을 수 있습니다.</p>
+    </div>
+
+    <!-- File Upload Form -->
+    <form method="post" enctype="multipart/form-data" id="uploadForm" class="mt-5">
+        {% csrf_token %}
+
+        <!-- Custom File Upload Style -->
+        <label class="custom-file-upload">
+            <input type="file" name="image" id="imageUpload" class="form-control-file" required>
+            <i class="fas fa-cloud-upload-alt fa-3x"></i><br>
+            <span>Click here to select a chart image</span>
+        </label>
+
+        <!-- Language Selection -->
+        <div class="form-group mt-4">
+            {{ form.language.label_tag }}
+            <div>{{ form.language }}</div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-lg btn-block mt-4">Send chart image for analysis</button>
+    </form>
+
+    <!-- Spinner -->
+    <div class="spinner-border text-primary" role="status" id="spinner">
+        <span class="sr-only">Loading...</span>
+    </div>
+
+    <!-- Refresh Button -->
+    <button id="refreshButton" class="btn btn-secondary btn-lg btn-block">Refresh</button>
+
+    <!-- Display Uploaded Image and Analysis Result -->
+    {% if analysis_text %}
+        <div id="uploadedImageContainer" class="text-center mt-5">
+            <h3>Uploaded Chart</h3>
+            <img src="{{ uploaded_image_url }}" class="uploaded-image" alt="Uploaded chart image">
+        </div>
+
+        <div id="analysisResultContainer" class="analysis-result mt-4">
+            <h3>Analysis</h3>
+            <p id="analysisText">{{ analysis_text }}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.getElementById('imageUpload').addEventListener('change', function() {
+        var fileName = this.value.split("\\").pop();
+        if (fileName) {
+            document.querySelector('.custom-file-upload span').innerText = fileName;
+        } else {
+            document.querySelector('.custom-file-upload span').innerText = "Click here to select a chart image";
+        }
+    });
+
+    // Form submission: Show the spinner and hide the form
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        document.getElementById('spinner').style.display = 'block';  // Show spinner
+        this.style.display = 'none';  // Hide the form
+    });
+
+    // Refresh button: Clear the analysis text and image without reloading the page
+    document.getElementById('refreshButton').addEventListener('click', function() {
+        document.getElementById('analysisResultContainer').style.display = 'none';  // Hide the analysis result
+        document.getElementById('uploadedImageContainer').style.display = 'none';  // Hide the uploaded image
+        document.getElementById('refreshButton').style.display = 'none';  // Hide the refresh button
+    });
+
+    // Show the refresh button if analysis is present
+    {% if analysis_text %}
+        document.getElementById('refreshButton').style.display = 'block';
+    {% endif %}
+
+    // Delete the uploaded image when the user navigates away
+    window.addEventListener('beforeunload', function (e) {
+        fetch("{% url 'aiphabtc:delete_uploaded_image' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        }).then(response => response.json())
+          .then(data => {
+              console.log('Image deleted:', data);
+          }).catch(error => {
+              console.error('Error deleting image:', error);
+          });
+    });
+</script>
+{% endblock %}

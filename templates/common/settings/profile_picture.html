@@ -14,28 +14,40 @@
     {% endif %}
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link" href="{% url 'common:settings_base' %}">기본정보</a>
+            <a class="nav-link" href="{% url 'common:settings_base' %}">Account Information</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link active" href="{% url 'common:settings_image' %}">프로필 이미지</a>
+            <a class="nav-link active" href="{% url 'common:settings_image' %}">Profile Image</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{% url 'common:password_reset' %}">비밀번호 변경</a>
+            <a class="nav-link" href="{% url 'common:password_reset' %}">Reset Password</a>
         </li>
     </ul>
     <div class="mt-3">
-        <h4>프로필 이미지 설정하기</h4>
+        <h4>Set your profile image</h4>
         <form method="post" enctype="multipart/form-data" action="{% url 'common:settings_image' %}" class="needs-validation" novalidate>
             {% csrf_token %}
             <div class="mb-3">
-                <label for="profile_picture" class="form-label">이미지를 고르세요:</label>
-                <input type="file" name="profile_picture" id="profile_picture" class="form-control" accept="image/*">
+                <label for="profile_picture" class="form-label">Choose image:</label>
+                <!-- Custom file input -->
+                <div class="custom-file" style="width: 300px;">
+                    <input type="file" name="profile_picture" id="profile_picture" class="custom-file-input" accept="image/*">
+                    <label class="custom-file-label" for="profile_picture">Choose file</label>
+                </div>
                 <div class="invalid-feedback">
                     Please select a profile picture.
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">이미지 업로드하기</button>
+            <button type="submit" class="btn btn-primary">Upload Image</button>
         </form>
     </div>
 </div>
+
+<script>
+    // JavaScript to update file input label when file is selected
+    document.querySelector('#profile_picture').addEventListener('change', function(e) {
+        var fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+        document.querySelector('.custom-file-label').textContent = fileName;
+    });
+</script>
 {% endblock %}

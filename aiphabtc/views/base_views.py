@@ -26,7 +26,7 @@ from transformers import AutoModelForSequenceClassification, AlbertTokenizer
 import torch
 import torch.nn as nn
 import openai
-from statsmodels.tsa.arima.model import ARIMA
+# from statsmodels.tsa.arima.model import ARIMA
 import pickle
 import joblib
 from sklearn.neural_network import MLPRegressor
@@ -40,8 +40,10 @@ import asyncio
 from telethon import TelegramClient, errors
 
 
+'''
 def loading(request):
     return render(request, "loading.html")
+'''
 
 
 # return percentage
@@ -55,6 +57,18 @@ def latest_voting_data(request):
     return JsonResponse(data)
 
 
+# Function to fetch USD to KRW exchange rate using ExchangeRate-API
+def get_usd_krw_exchangerate():
+    api_key = settings.EXCHANGERATE_API_KEY
+    url = f"https://v6.exchangerate-api.com/v6/{api_key}/pair/USD/KRW"
+    response = requests.get(url)
+    data = response.json()
+    if data['result'] == 'success':
+        return data['conversion_rate']
+    else:
+        print("Failed to fetch exchange rate data")
+        return None
+
 # it says bitget, but we are using coinbase data
 # rule: korean exchange - upbit, american exchange - coinbase
 def get_kimchi_data():
@@ -65,6 +79,7 @@ def get_kimchi_data():
         return data
 
     print("No current cached kimchi premium data")
+
     data = {}
     seoul_timezone = pytz.timezone("Asia/Seoul")
     current_time_seoul = datetime.now(seoul_timezone)
@@ -73,19 +88,19 @@ def get_kimchi_data():
     # Fetch data using external APIs
     try:
         # Initialize API clients
-        coinbasepro = ccxt.bitget()
-        # Fetch USD to KRW exchange rate
-        USDKRW = yf.Ticker("USDKRW=X")
-        history = USDKRW.history(period="1d")
-        data["now_usd_krw"] = history["Close"].iloc[0]
+        bitget = ccxt.bitget()
 
-        # Fetch Bitcoin prices from Upbit and Coinbase
+        # Fetch USD to KRW exchange rate using the new function
+        data["now_usd_krw"] = get_usd_krw_exchangerate()
+
+        # Fetch Bitcoin prices from Upbit and Bitget
         data["now_upbit_price"] = pyupbit.get_current_price("KRW-BTC")
-        data["now_bitget_price"] = coinbasepro.fetch_ticker("BTC/USDT")["close"]
+        data["now_bitget_price"] = bitget.fetch_ticker("BTC/USDT")["close"]
 
         # Calculate the Kimchi Premium if all values are available
         if None not in (data["now_usd_krw"], data["now_upbit_price"], data["now_bitget_price"]):
-            data["kp"] = round((data["now_upbit_price"] * 100 / (data["now_bitget_price"] * data["now_usd_krw"])) - 100, 3)
+            data["kp"] = round((data["now_upbit_price"] * 100 / (data["now_bitget_price"] * data["now_usd_krw"])) - 100,
+                               3)
         else:
             data["kp"] = "Data unavailable"
 
@@ -178,6 +193,7 @@ def fetch_with_retry(url, headers):
 
 def scrape_coinness_xhr():
     url = 'https://api.coinness.com/feed/v1/news'
+    # url = 'https://api.coinness.com/feed/v1/en/breaking-news?languageCode=en'
     headers = {'User-Agent': 'Mozilla/5.0'}
     titles, contents, datetimes_arr = [], [], []
 
@@ -202,6 +218,35 @@ def scrape_coinness_xhr():
         return pd.DataFrame()  # Return an empty DataFrame on failure
 
     return pd.DataFrame({'titles': titles, 'contents': contents, 'datetimes': datetimes_arr})
+
+
+def scrape_coinness_xhr_eng():
+    url = 'https://api.coinness.com/feed/v1/en/breaking-news?languageCode=en'
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    titles, contents, datetimes_arr = [], [], []
+
+    try:
+        news_data = fetch_with_retry(url, headers)
+
+        # Loop through each news item in the response
+        for news_item in news_data:
+            title = news_item.get('title')
+            content = news_item.get('content')
+            publish_at = news_item.get('publishAt')
+
+            titles.append(title)
+            contents.append(content)
+            datetimes_arr.append(publish_at)
+
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e.response.status_code}")
+        return pd.DataFrame()  # Return an empty DataFrame on failure
+    except requests.exceptions.RequestException as e:
+        print("Networking error, giving up.")
+        return pd.DataFrame()  # Return an empty DataFrame on failure
+
+    return pd.DataFrame({'titles': titles, 'contents': contents, 'datetimes': datetimes_arr})
+
 
 
 def get_sentiment_scores(df):
@@ -229,12 +274,20 @@ def get_news_and_sentiment(request):
     scraped_data = df.to_dict(orient="records")  # converts DataFrame to list of dicts
     avg_sentiment_scores = get_sentiment_scores(df)
     avg_sentiment_scores_percentage = [round(score * 100, 2) for score in avg_sentiment_scores]
-    sentiment_labels = ['호재', '악재', '중립']
+    sentiment_labels = ['Positive', 'Negative', 'Neutral']
     # Prepare your context data for JsonResponse
     data = {
         "scraped_data": scraped_data,
         "avg_sentiment_scores_percentage": avg_sentiment_scores_percentage,
         "sentiment_labels": sentiment_labels,
+    }
+    return JsonResponse(data)
+
+def get_news_eng(request):
+    df = scrape_coinness_xhr_eng()
+    scraped_data_eng = df.to_dict(orient="records")  # converts DataFrame to list of dicts
+    data = {
+        "scraped_data_eng": scraped_data_eng,
     }
     return JsonResponse(data)
 
@@ -435,6 +488,7 @@ def index(request):
     ).order_by("-num_answer", "-num_voter", "-create_date")[:5]
 
     kimchi_data = get_kimchi_data()
+    print("==== printing kimchi data ====")
     print(kimchi_data)
 
     sentiment_voting_options = VotingOption.objects.annotate(vote_count=Count('votes'))
@@ -444,30 +498,29 @@ def index(request):
         "data": [percentage for _, percentage in sentiment_votes_with_percentages]
     }
 
-    try:
-        telegram_messages = get_telegram_messages_sync(api_id, api_hash)
-    except Exception as e:
-        print(e)
-        telegram_messages = {}
+
+    #try:
+    #    telegram_messages = get_telegram_messages_sync(api_id, api_hash)
+    #except Exception as e:
+    #    print(e)
+    #    telegram_messages = {}
 
     if should_update_prediction():
         print("calculating as we cannot use previously cached value")
-
         data_fng = fetch_fng_data()
         data_global = fetch_global_data()
-        #pearson, spearman, kendall = get_correlation()
         cache.set('data_fng', data_fng, 86400)
         cache.set('data_global', data_global, 86400)  # Expire after one day
-        #cache.set('pearson', pearson, 86400),
-        #cache.set('spearman', spearman, 86400),
-        #cache.set('kendall', kendall, 86400),
         cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
 
     data_fng = cache.get('data_fng', [])
+    if len(data_fng) == 0:
+        print("fear greed data currently empty")
+        data_fng = fetch_fng_data()
     data_global = cache.get('data_global', {})
-    #pearson = cache.get('pearson')
-    #spearman = cache.get('spearman')
-    #kendall = cache.get('kendall')
+
+    print("====== data fng ======")
+    print(data_fng)
 
     context = {
         "board_posts": board_posts,
@@ -478,15 +531,14 @@ def index(request):
         "kimchi_data": kimchi_data,
         "sentiment_voting_options": sentiment_voting_options,
         "sentiment_data": sentiment_data,
-        #"pearson": pearson,
-        #"spearman": spearman,
-        #"kendall": kendall,
-        "telegram_messages": telegram_messages,
     }
     # merge context and prediction_contexts then return it as context
     # context = {**context, **prediction_contexts}
     return render(request, 'index.html', context)
 
+
+def about_us_view(request):
+    return render(request, 'aiphabtc/about_us.html', {})
 
 def index_orig(request, board_name="free_board"):
     page = request.GET.get('page', '1')
@@ -595,14 +647,112 @@ def community_guideline(request):
 
 
 # for perceptive board
-def get_current_price(request, ticker):
-    try:
+import requests
+import time
+from requests.exceptions import RequestException
+
+
+# Function to get all available tickers from MEXC
+def get_all_tickers():
+    url = "https://www.mexc.com/open/api/v2/market/symbols"
+    response = requests.get(url)
+    data = response.json()
+    if data['code'] == 200:
+        return data['data']
+    else:
+        raise Exception("Failed to fetch tickers")
+
+
+# Function to filter USDT pairs
+def get_usdt_tickers(tickers):
+    usdt_tickers = [ticker['symbol'] for ticker in tickers if ticker['symbol'].endswith('_USDT')]
+    return usdt_tickers
+
+
+# Sort USDT tickers based on the reference list
+def sort_tickers_based_on_market_cap(usdt_tickers, market_cap_ordered_tickers):
+    # Create a dictionary for the market cap tickers with their ranking positions
+    market_cap_rankings = {ticker: i for i, ticker in enumerate(market_cap_ordered_tickers)}
+
+    # Split the tickers into those that are in the reference and those that aren't
+    known_tickers = []
+    unknown_tickers = []
+
+    for ticker in usdt_tickers:
+        if ticker in market_cap_rankings:
+            known_tickers.append(ticker)
+        else:
+            unknown_tickers.append(ticker)
+
+    # Sort known tickers by their rank in the market cap list
+    sorted_known_tickers = sorted(known_tickers, key=lambda x: market_cap_rankings[x])
+
+    # Combine the sorted known tickers with the unknown tickers at the end
+    sorted_tickers = sorted_known_tickers + unknown_tickers
+
+    return sorted_tickers
+
+
+# Function to get MEXC USDT tickers and sort by market cap
+def get_mexc_usdt_tickers(retries=3, backoff_factor=1.0):
+    tickers = get_all_tickers()
+    usdt_tickers = get_usdt_tickers(tickers)
+
+    # Reference list for market cap sorting (as provided)
+    market_cap_ordered_tickers = [
+        "BTC_USDT", "ETH_USDT", "USDT_USDT", "BNB_USDT", "SOL_USDT", "USDC_USDT",
+        "XRP_USDT", "STETH_USDT", "DOGE_USDT", "TON_USDT", "TRX_USDT", "ADA_USDT",
+        "AVAX_USDT", "WSTETH_USDT", "WBTC_USDT", "SHIB_USDT", "WETH_USDT", "LINK_USDT",
+        "BCH_USDT", "DOT_USDT", "DAI_USDT", "LEO_USDT", "UNI_USDT", "LTC_USDT",
+        "NEAR_USDT", "WEETH_USDT", "KAS_USDT", "FET_USDT", "SUI_USDT", "ICP_USDT",
+        "APT_USDT", "PEPE_USDT", "XMR_USDT", "TAO_USDT", "FDUSD_USDT", "POL_USDT",
+        "XLM_USDT", "ETC_USDT", "STX_USDT", "USDE_USDT", "IMX_USDT", "OKB_USDT",
+        "CRO_USDT", "AAVE_USDT", "FIL_USDT", "ARB_USDT", "RENDER_USDT", "INJ_USDT",
+        "HBAR_USDT", "MNT_USDT", "OP_USDT", "VET_USDT", "FTM_USDT", "ATOM_USDT",
+        "WIF_USDT", "WBT_USDT", "GRT_USDT", "RUNE_USDT", "THETA_USDT", "RETH_USDT",
+        "MKR_USDT", "SOLVBTC_USDT", "AR_USDT", "BGB_USDT", "METH_USDT", "SEI_USDT",
+        "FLOKI_USDT", "BONK_USDT", "TIA_USDT", "MATIC_USDT", "HNT_USDT", "PYTH_USDT",
+        "JUP_USDT", "ALGO_USDT", "GT_USDT", "QNT_USDT", "JASMY_USDT", "OM_USDT",
+        "ONDO_USDT", "LDO_USDT", "CORE_USDT", "BSV_USDT", "EZETH_USDT", "WETH_USDT",
+        "KCS_USDT", "FLOW_USDT", "POPCAT_USDT", "BTT_USDT", "EETH_USDT", "BEAM_USDT",
+        "KLAY_USDT", "EOS_USDT", "BRETT_USDT", "GALA_USDT", "EGLD_USDT", "TKX_USDT",
+        "NOT_USDT", "AXS_USDT", "FTN_USDT"
+    ]
+
+    # Sort tickers according to market cap ranking
+    sorted_usdt_tickers = sort_tickers_based_on_market_cap(usdt_tickers, market_cap_ordered_tickers)
+
+    return sorted_usdt_tickers
+
+
+# Function to fetch price for a specific ticker
+def get_mexc_ticker_price(ticker):
+    url = f"https://www.mexc.com/open/api/v2/market/ticker?symbol={ticker}"
+    response = requests.get(url)
+    data = response.json()
+    if data['code'] == 200:
+        return data['data'][0]['last']
+    else:
+        raise Exception(f"Failed to fetch price for {ticker}")
+
+
+def get_tickers(request, market_type):
+    if market_type == 'KRW':
+        tickers = pyupbit.get_tickers(fiat="KRW")
+    elif market_type == 'USDT':
+        tickers = get_mexc_usdt_tickers()
+    else:
+        tickers = []
+    return JsonResponse({'tickers': tickers})
+
+def get_current_price(request, market_type, ticker):
+    if market_type == 'KRW':
         price = pyupbit.get_current_price(ticker)
-        print(price)
-        return JsonResponse({'price': price})
-    except Exception as e:
-        # Handle errors or the case where the price cannot be fetched
-        return JsonResponse({'error': str(e)}, status=400)
+    elif market_type == 'USDT':
+        price = get_mexc_ticker_price(ticker)
+    else:
+        price = None
+    return JsonResponse({'price': price})
 
 
 def search_results(request):

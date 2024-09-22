@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>About Us | AIPHABTC</title>
+<style>
+    .about-container {
+        margin: 50px auto;
+        max-width: 900px;
+        text-align: left;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+    }
+
+    .about-container h1 {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 40px;
+    }
+
+    .about-section {
+        display: none;
+    }
+
+    .about-section.active {
+        display: block;
+    }
+
+    .toggle-language {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .toggle-language button {
+        margin: 0 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 5px;
+    }
+
+    .toggle-language button:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <h1>About Us</h1>
+
+    <!-- Language Toggle Buttons -->
+    <div class="toggle-language">
+        <button id="btnEnglish" class="btn-lang">🇺🇸 English</button>
+        <button id="btnKorean" class="btn-lang">🇰🇷 Korean</button>
+    </div>
+
+    <!-- English Version -->
+    <div id="englishContent" class="about-section active">
+        <h2>AIPHABTC: Leverage AI for Smarter Crypto Investment</h2>
+        <p>
+            AIPHABTC is not just another meme coin project. Our team consists of AI experts from Stanford and UCLA, aiming to share knowledge in both cryptocurrency and artificial intelligence. We want to show how AI can be applied to crypto investments for smarter decisions and better market understanding.
+        </p>
+        <p>
+            We are currently running a free Telegram channel, where we send daily analyses of Bitcoin, Ethereum, and Solana markets using OpenAI's GPT-4 model. Both English and Korean versions are supported. In the future, we plan to offer a subscription bot that can provide answers to crypto-related questions and offer advanced machine-learning-based prediction indicators. This subscription service will be available for Solana payments, as well as platforms like Patreon and Fanding.
+        </p>
+        <p>
+            Unlike many other platforms created using templates like WIX or WordPress, AIPHABTC is built from scratch using Django. In our <b>Free Board</b>, you can discuss various topics (preferably about cryptocurrency, economics, politics, AI, or blockchain). In the <b>Crypto Predictions</b> board, you can share your opinions and insights about specific cryptocurrencies. The <b>Tutorial</b> section is dedicated to sharing knowledge on how AI and data analytics can be applied to the crypto market for more effective investments and analyses.
+        </p>
+        <p>
+            We also plan to upload tutorials on YouTube about creating machine-learning-based trading bots, both free and premium, to help users build their own bots and explore the alpha in crypto trading, especially in futures markets.
+        </p>
+        <p>
+            Users can earn points and rank up by contributing to the community (e.g., posting, referring friends, or checking attendance). Achieving ranks like Bronze, Silver, and Gold will be rewarded with AIPHABTC token airdrops and exclusive events.
+        </p>
+        <p>
+            Our long-term goal is to embrace Web 3.0 concepts like <b>Farcaster</b>, integrating blockchain features such as tipping fellow users in AIPHABTC tokens through Phantom wallet. We're also exploring new ways to incorporate blockchain technology throughout the platform.
+        </p>
+        <p>
+            AIPHABTC will host Kaggle-style competitions, where participants can develop futures trading bots that produce the highest returns. The entrance fee will be paid in AIPHABTC tokens, and rewards will be distributed to the top performers.
+        </p>
+        <p>
+            As our community grows, we also plan to launch AIPHABTC mascot merchandise (t-shirts, mugs) and NFTs. We will introduce a board where users can recommend and review crypto creators (YouTubers, Twitter influencers), helping the community find valuable content.
+        </p>
+        <p>
+            Although the site currently supports only English and Korean, we may add support for other languages in the future, based on user requests. We aim to grow our community and frequently communicate via social media platforms such as Instagram, Twitter, Telegram, YouTube, and GitHub.
+        </p>
+        <p>
+            Regardless of what happens with the AIPHABTC token, we aim to grow the platform into a place where we can learn together about economics, the upcoming AI era, and share knowledge. Our goal is to move away from viewing the crypto market as gambling, helping each other develop into wise investors with broader perspectives.
+        </p>
+        <p>
+            Thank you for your interest, and we look forward to growing this platform together.
+        </p>
+    </div>
+
+    <!-- Korean Version -->
+    <div id="koreanContent" class="about-section">
+        <h2>아이파비트: 인공지능을 활용한 더 똑똑한 암호화폐 투자</h2>
+        <p>
+            아이파비트는 단순한 밈코인 프로젝트가 아닙니다. 저희 팀은 Stanford와 UCLA 출신 인공지능 전문가들로 구성되어 있으며, 암호화폐와 인공지능 관련 교육을 제공하고, 이를 암호화폐 투자에 접목시켜 더 현명한 결정을 내리고 시장을 이해하는 데 도움을 주고자 합니다.
+        </p>
+        <p>
+            저희는 현재 OpenAI GPT-4 모델을 사용해 비트코인, 이더리움, 솔라나 시장에 대한 일일 분석을 제공하는 무료 텔레그램 채널을 운영 중입니다. 영어와 한국어 버전 모두 지원하며, 앞으로는 유료 구독 봇도 제공하여 암호화폐 관련 질문에 대한 답변과 강력한 머신러닝 예측 지표들을 제공할 계획입니다. 유료 구독 서비스는 솔라나 결제 또는 Patreon과 같은 플랫폼을 통해 제공될 예정입니다.
+        </p>
+        <p>
+            저희 웹사이트는 WIX나 WordPress 같은 템플릿을 사용하지 않고 Django로 직접 개발되었습니다. <b>Free Board</b>에서는 암호화폐, 경제, 정치, 인공지능, 블록체인과 관련된 주제를 자유롭게 토론할 수 있으며, <b>Crypto Predictions</b> 게시판에서는 특정 암호화폐에 대한 의견과 전망을 공유할 수 있습니다. <b>Tutorial</b> 게시판은 인공지능과 데이터 분석이 어떻게 암호화폐 시장에 적용될 수 있는지에 대한 지식을 나누는 곳입니다.
+        </p>
+        <p>
+            또한, 저희는 유튜브에 머신러닝 기반 트레이딩 봇을 만드는 방법에 대한 강의 자료를 업로드할 계획입니다. 일부는 무료로, 일부는 유료로 제공하여 유저들이 직접 봇을 만들어 사용할 수 있도록 돕겠습니다.
+        </p>
+        <p>
+            커뮤니티 활동(게시글 작성, 친구 추천, 출석 체크 등)을 통해 포인트를 쌓아 등급을 올릴 수 있습니다. Bronze, Silver, Gold 등급을 달성하고 인증한 유저에게는 AIPHABTC 토큰 에어드랍을 진행하고, 더 다양한 이벤트도 준비 중입니다.
+        </p>
+        <p>
+            아이파비트는 Web 3.0 방향을 지향하며, 블록체인 기술을 플랫폼 곳곳에 적용해 나갈 것입니다. 추후 유저들 간의 팁 기능을 도입하고, 팬텁 지갑과 연동하여 AIPHABTC 토큰을 통한 결제도 가능하게 만들 계획입니다.
+        </p>
+        <p>
+            저희는 크립토 분야에서 Kaggle 스타일의 대회를 계획하고 있습니다. 특정 기간의 데이터를 학습하여 가장 높은 수익률을 기록한 참가자에게 보상을 제공하는 방식으로, 입장료는 AIPHABTC 토큰으로 받습니다.
+        </p>
+        <p>
+            커뮤니티가 성장하면 아이파비트 마스코트 굿즈 (티셔츠, 머그잔)와 NFT 발행도 고려 중입니다. 또한, 트위터, 유튜브 등에서 활동하는 크립토 관련 크리에이터들을 추천하고 평가할 수 있는 게시판도 마련할 예정입니다.
+        </p>
+        <p>
+            현재는 영어와 한국어만 지원하지만, 향후 요청이 많다면 다른 언어도 지원할 계획입니다. 다양한 SNS 채널을 통해 커뮤니티와 자주 소통하겠습니다.
+        </p>
+        <p>
+            토큰이 어떻게 되든 저희는 플랫폼을 키워 서로 경제에 대해 공부하고, 다가오는 인공지능 시대에 대한 지식을 나누며 더 이상 암호화폐 시장을 도박으로 보지 않고, 현명한 투자자로서의 시야를 넓히는 플랫폼으로 발전시키고자 합니다.
+        </p>
+        <p>
+            관심 가져주셔서 감사합니다. 함께 플랫폼을 성장시켜 나가길 바랍니다.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.getElementById('btnEnglish').addEventListener('click', function() {
+        document.getElementById('englishContent').classList.add('active');
+        document.getElementById('koreanContent').classList.remove('active');
+    });
+
+    document.getElementById('btnKorean').addEventListener('click', function() {
+        document.getElementById('koreanContent').classList.add('active');
+        document.getElementById('englishContent').classList.remove('active');
+    });
+</script>
+{% endblock %}

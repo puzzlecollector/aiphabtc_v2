@@ -161,23 +161,23 @@
             <li class="breadcrumb-item">
                 <a href="{% url 'aiphabtc:board_filtered' question.board.name %}">
                     {% if question.board.name == "free_board" %}
-                        자유게시판
+                        Free Board
                     {% elif question.board.name == "trading" %}
-                        코인 지식
+                        Announcements
                     {% elif question.board.name == "AI" %}
-                        인공지능
+                        Tutorials
                     {% elif question.board.name == "general_qa" %}
                         질문과 답변
                     {% elif question.board.name == "blockchain" %}
                         블록체인
                     {% elif question.board.name == "perceptive_board" %}
-                        관점공유 게시판
+                        Predictions
                     {% elif question.board.name == "economics" %}
                         경제 및 시황
                     {% elif question.board.name == "creator_reviews" %}
                         방송과 책 리뷰
                     {% elif question.board.name == "announcements" %}
-                        공지사항
+                        announcements
                     {% else %}
                         {{ question.board.name }}
                     {% endif %}
@@ -198,9 +198,9 @@
                     <div class="vote-section">
                         <span class="vote-count" id="vote-count-question-{{ question.id }}">👍: {{ question.voter.count }}</span>
                         {% if user.is_authenticated %}
-                            <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="question" data-id="{{ question.id }}">추천</a>
+                            <a href="#" data-uri="{% url 'aiphabtc:vote_question' question.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="question" data-id="{{ question.id }}">Upvote</a>
                         {% else %}
-                            <a href="{% url 'common:login' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">추천</a>
+                            <a href="{% url 'common:login' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">Upvote</a>
                         {% endif %}
                     </div>
                     <br>
@@ -225,8 +225,8 @@
                     </div>
                     {% if request.user == question.author %}
                     <div class="my-3">
-                        <a href="{% url 'aiphabtc:question_modify' question.id %}" class="btn btn-sm btn-modify">수정</a>
-                        <a href="#" class="delete btn btn-sm btn-delete" data-uri="{% url 'aiphabtc:question_delete' question.id %}">삭제</a>
+                        <a href="{% url 'aiphabtc:question_modify' question.id %}" class="btn btn-sm btn-modify">Edit</a>
+                        <a href="#" class="delete btn btn-sm btn-delete" data-uri="{% url 'aiphabtc:question_delete' question.id %}">Delete</a>
                     </div>
                     {% endif %}
                     <!-- 질문 댓글 start -->
@@ -248,15 +248,15 @@
                                 {% endif %}
                             </span>
                             {% if request.user == comment.author %}
-                            <a href="{% url 'aiphabtc:comment_modify_question' comment.id %}" class="small">수정</a>
-                            <a href="#" class="small delete" data-uri="{% url 'aiphabtc:comment_delete_question' comment.id %}">삭제</a>
+                            <a href="{% url 'aiphabtc:comment_modify_question' comment.id %}" class="small">Edit</a>
+                            <a href="#" class="small delete" data-uri="{% url 'aiphabtc:comment_delete_question' comment.id %}">Delete</a>
                             {% endif %}
                         </div>
                         {% endfor %}
                     </div>
                     {% endif %}
                     <div>
-                        <a href="{% url 'aiphabtc:comment_create_question' question.id %}" class="small"><small>댓글 추가</small></a>
+                        <a href="{% url 'aiphabtc:comment_create_question' question.id %}" class="small"><small>Add Comment</small></a>
                     </div>
                     <!-- 질문 댓글 end -->
                 </div>
@@ -264,7 +264,7 @@
         </div>
     </div>
     <h5 class="border-bottom my-3 py-2">
-        {{ question.answer_set.count }}개의 답변이 있습니다.
+        There are {{ question.answer_set.count }} answers.
     </h5>
     {% for answer in question.answer_set.all %}
     <a name="answer_{{ answer.id }}"></a>
@@ -278,9 +278,9 @@
                     <div class="vote-section">
                         <span class="vote-count" id="vote-count-answer-{{ answer.id }}">👍: {{ answer.voter.count }}</span>
                         {% if user.is_authenticated %}
-                            <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="answer" data-id="{{ answer.id }}">추천</a>
+                            <a href="#" data-uri="{% url 'aiphabtc:vote_answer' answer.id %}" class="recommend btn btn-sm btn-secondary vote-button" data-target="answer" data-id="{{ answer.id }}">Upvote</a>
                         {% else %}
-                            <a href="{% url 'common:login' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">추천</a>
+                            <a href="{% url 'common:login' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">Upvote</a>
                         {% endif %}
                     </div>
                     <br>
@@ -305,8 +305,8 @@
                     </div>
                     {% if request.user == answer.author %}
                     <div class="my-3">
-                        <a href="{% url 'aiphabtc:answer_modify' answer.id %}" class="btn btn-sm btn-modify">수정</a>
-                        <a href="#" class="delete btn btn-sm btn-delete" data-uri="{% url 'aiphabtc:answer_delete' answer.id %}">삭제</a>
+                        <a href="{% url 'aiphabtc:answer_modify' answer.id %}" class="btn btn-sm btn-modify">Edit</a>
+                        <a href="#" class="delete btn btn-sm btn-delete" data-uri="{% url 'aiphabtc:answer_delete' answer.id %}">Delete</a>
                     </div>
                     {% endif %}
                     <!-- 답변 댓글 start -->
@@ -328,8 +328,8 @@
                                 {% endif %}
                             </span>
                             {% if request.user == comment.author %}
-                            <a href="{% url 'aiphabtc:comment_modify_answer' comment.id %}" class="small">수정</a>
-                            <a href="#" class="small delete" data-uri="{% url 'aiphabtc:comment_delete_answer' comment.id %}">삭제</a>
+                            <a href="{% url 'aiphabtc:comment_modify_answer' comment.id %}" class="small">Edit</a>
+                            <a href="#" class="small delete" data-uri="{% url 'aiphabtc:comment_delete_answer' comment.id %}">Delete</a>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -364,7 +364,7 @@
             <!-- The actual textarea where Quill's content will be copied for submission -->
             <textarea name="content" id="answer-content" class="form-control" rows="10" style="display: none;"></textarea>
         </div>
-        <input type="submit" value="답변 등록" class="btn btn-primary">
+        <input type="submit" value="Post Replies" class="btn btn-primary">
     </form>
 
     <!-- Questions from the same board -->
@@ -373,25 +373,15 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="{% url 'aiphabtc:board_filtered' question.board.name %}">
-                        아이파비트 (AIPHABTC) -
+                        AIPHABTC -
                         {% if question.board.name == "free_board" %}
-                            자유게시판
-                        {% elif question.board.name == "trading" %}
-                            코인 지식
-                        {% elif question.board.name == "AI" %}
-                            인공지능
-                        {% elif question.board.name == "general_qa" %}
-                            질문과 답변
-                        {% elif question.board.name == "blockchain" %}
-                            블록체인
+                            Free Board
+                        {% elif question.board.name == "tutorials" %}
+                            Tutorials
                         {% elif question.board.name == "perceptive_board" %}
-                            관점공유 게시판
-                        {% elif question.board.name == "economics" %}
-                            경제 및 시황
-                        {% elif question.board.name == "creator_reviews" %}
-                            방송과 책 리뷰
+                            Crypto Predictions
                         {% elif question.board.name == "announcements" %}
-                            공지사항
+                            Announcements
                         {% else %}
                             {{ question.board.name }}
                         {% endif %}
@@ -403,9 +393,9 @@
         <div class="row justify-content-between my-3">
             <div class="col-md-3 col-12">
                 <select class="form-control so" onchange="submitSearchForm();">
-                    <option value="recent" {% if so == 'recent' %}selected{% endif %}>최신순</option>
-                    <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>추천순</option>
-                    <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
+                    <option value="recent" {% if so == 'recent' %}selected{% endif %}>Most Recent</option>
+                    <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>Most Recommended</option>
+                    <option value="popular" {% if so == 'popular' %}selected{% endif %}>Most Popular</option>
                 </select>
             </div>
             <div class="col-8 input-group">
@@ -434,11 +424,11 @@
                         </a> [{{ question.answer_set.count }}]
                         <br>
                         <small>
-                            추천: {{ question.voter.count }},
-                            글쓴이: <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
+                            Upvotes: {{ question.voter.count }},
+                            Author: <a href="{% url 'aiphabtc:profile_detail' question.author.id %}">
                                         {{ question.author.username }}
                                     </a>,
-                            작성일시: {{ question.create_date }}
+                            Post Created: {{ question.create_date }}
                         </small>
                     </td>
                 </tr>
@@ -581,7 +571,7 @@ $(document).ready(function() {
 
     // Event handlers for dynamic elements like delete and recommend buttons
     $('.delete').on('click', function() {
-        if (confirm("정말로 삭제하시겠습니까?")) {
+        if (confirm("Do you really want to delete?")) {
             location.href = $(this).data("uri");
         }
     });
@@ -611,7 +601,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.error('Voting failed:', status, error);
-                alert("본인의 글은 추천할 수 없습니다.");
+                alert("You cannot upvote your own post.");
             }
         });
     });
