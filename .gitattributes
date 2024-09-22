@@ -8,6 +8,9 @@ published_datetimes_0325.pkl filter=lfs diff=lfs merge=lfs -text
 coinness_annoy_30.index filter=lfs diff=lfs merge=lfs -text
 coinness_annoy_30_ubuntu.index filter=lfs diff=lfs merge=lfs -text
 upbit_chart_data_0325_v2.csv filter=lfs diff=lfs merge=lfs -text
+aiphabtc/candidate_texts_240919.pkl filter=lfs diff=lfs merge=lfs -text
+aiphabtc/annoy_index_full_text_240919.ann filter=lfs diff=lfs merge=lfs -text
+aiphabtc/lib/python3.12/site-packages/torch/lib/libtorch_cpu.dylib filter=lfs diff=lfs merge=lfs -text
 *.pkl filter=lfs diff=lfs merge=lfs -text
 *.ann filter=lfs diff=lfs merge=lfs -text
 *.dylib filter=lfs diff=lfs merge=lfs -text
