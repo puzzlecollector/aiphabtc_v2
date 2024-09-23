@@ -29,9 +29,7 @@ import openai
 # from statsmodels.tsa.arima.model import ARIMA
 import pickle
 import joblib
-from sklearn.neural_network import MLPRegressor
 from xgboost import XGBClassifier
-import lightgbm as lgb
 from common.models import PointTokenTransaction
 from django.db.models import Q
 from django.core.cache import cache

@@ -30,7 +30,6 @@ import pickle
 import joblib
 from sklearn.neural_network import MLPRegressor
 from xgboost import XGBClassifier
-import lightgbm as lgb
 from common.models import PointTokenTransaction
 from django.db.models import Q
 from django.core.cache import cache
@@ -38,6 +37,7 @@ import backoff
 from annoy import AnnoyIndex # alternative to faiss-cpu
 import json
 import gc
+import math
 
 # prepare model and tokenizer
 tokenizer = AlbertTokenizer.from_pretrained("aiphabtc/kr-cryptodeberta")
@@ -56,6 +56,16 @@ with open('aiphabtc/published_datetimes_0325.pkl', 'rb') as f:
 chart_df = pd.read_csv("aiphabtc/chart_data.csv", encoding='utf-8')
 
 chart_df_30m = pd.read_csv("aiphabtc/chart_data_30m.csv", encoding="utf-8")
+
+
+#chart_df_usdt = pd.read_feather("aiphabtc/BTC_USDT-1d.feather")
+#chart_df_30m_usdt = pd.read_feather("aiphabtc/BTC_USDT-30m.feather") # fetch usdt chart data
+
+
+#print(chart_df_30m)
+#print("="*100)
+
+#print(chart_df_30m_usdt)
 
 def inner_product_to_percentage(inner_product):
     return (inner_product + 1) / 2 * 100

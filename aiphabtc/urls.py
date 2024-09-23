@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import base_views, question_views, answer_views, comment_views, vote_views, profile_click_views, pattern_matching_views, bot_indicator_views, ads_views, imageapi_views
+from .views import base_views, question_views, answer_views, comment_views, vote_views, profile_click_views, pattern_matching_views, ads_views, imageapi_views
 
 app_name = 'aiphabtc'
 
@@ -74,7 +74,7 @@ urlpatterns = [
     path('get_current_chart_pattern/', pattern_matching_views.get_current_chart_pattern, name='get_current_chart_pattern'),
 
     # bot indicator page
-    path('bot-indicator/', bot_indicator_views.trading_bot_indicator, name='bot_indicator'),
+    # path('bot-indicator/', bot_indicator_views.trading_bot_indicator, name='bot_indicator'),
 
     # ads url
     path('ads.txt', ads_views.ads_txt, name='ads_txt'),
