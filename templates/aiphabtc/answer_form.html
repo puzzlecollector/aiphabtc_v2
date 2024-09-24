@@ -14,13 +14,13 @@
         {% csrf_token %}
         {% include "form_errors.html" %}
         <div class="form-group">
-            <label for="content">답변내용</label>
+            <label for="content">Answer Content</label>
             <div id="editor" style="height: 300px;">{{ form.content.value|default_if_none:''|safe }}</div> <!-- Placeholder for Quill editor -->
             <textarea class="form-control" name="content" id="content" rows="10" style="display: none;">
                 {{ form.content.value|default_if_none:'' }}
             </textarea>
         </div>
-        <button type="submit" class="btn btn-primary">저장하기</button>
+        <button type="submit" class="btn btn-primary">Post</button>
     </form>
 </div>
 <script>
