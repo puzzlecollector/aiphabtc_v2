@@ -744,13 +744,21 @@ def get_tickers(request, market_type):
     return JsonResponse({'tickers': tickers})
 
 def get_current_price(request, market_type, ticker):
-    if market_type == 'KRW':
-        price = pyupbit.get_current_price(ticker)
-    elif market_type == 'USDT':
-        price = get_mexc_ticker_price(ticker)
-    else:
-        price = None
-    return JsonResponse({'price': price})
+    try:
+        if market_type == 'KRW':
+            if 'USDT' in ticker:
+                split_ticker = ticker.split("_")
+                cur_ticker = "KRW-" + str(split_ticker[0])
+                price = pyupbit.get_current_price(cur_ticker)
+            else:
+                price = pyupbit.get_current_price(ticker)
+        elif market_type == 'USDT':
+            price = get_mexc_ticker_price(ticker)
+        else:
+            return JsonResponse({"error": "Invalid market type"}, status=400)
+        return JsonResponse({"price": price})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 def search_results(request):

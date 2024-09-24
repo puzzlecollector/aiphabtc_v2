@@ -176,17 +176,26 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/aiphabtc/get-tickers/${marketType}/`)
             .then(response => response.json())
             .then(data => {
+                // Clear the existing ticker options
                 marketDropdown.innerHTML = '';
+
+                // Populate the ticker dropdown with new options
                 data.tickers.forEach(ticker => {
                     var option = document.createElement('option');
                     option.value = ticker;
                     option.textContent = ticker;
                     marketDropdown.appendChild(option);
                 });
-                // Fetch price for the first ticker by default
-                fetchCurrentPrice(marketDropdown.value, marketType);
-            });
+
+                // Fetch price for the first ticker by default (if any exist)
+                if (marketDropdown.options.length > 0) {
+                    fetchCurrentPrice(marketDropdown.value, marketType);
+                }
+            })
+            .catch(error => console.error('Error fetching tickers:', error));
     }
+
+
 
 
     // Fetching and displaying the current price

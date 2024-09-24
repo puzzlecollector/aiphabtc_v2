@@ -122,7 +122,7 @@ class PerceptiveBoardQuestionForm(forms.ModelForm):
     ]
 
     market_type = forms.ChoiceField(choices=MARKET_TYPE_CHOICES, label="Market Type", initial='USDT')
-    market = forms.ChoiceField(choices=[], label="Ticker")
+    market = forms.ChoiceField(choices=[], label="Ticker")  # Choices will be populated dynamically
     duration_from = forms.DateField(widget=forms.SelectDateWidget(), label="Duration From")
     duration_to = forms.DateField(widget=forms.SelectDateWidget(), label="Duration To")
     price_lower_range = forms.FloatField(label="Price Lower Range")
@@ -141,9 +141,24 @@ class PerceptiveBoardQuestionForm(forms.ModelForm):
         self.fields['duration_from'].initial = today
         self.fields['duration_to'].initial = today + timedelta(days=1)
 
-        # Set the default market type to 'USDT' and load MEXC tickers
-        self.fields['market_type'].initial = 'USDT'
-        self.fields['market'].choices = [(ticker, ticker) for ticker in get_mexc_usdt_tickers()]
+        # Retain the market type from the submitted data, or use the default
+        market_type = self.data.get('market_type') or self.fields['market_type'].initial
+        self.update_market_choices(market_type)
+
+        # Retain the market ticker from the submitted data if available
+        if self.data.get('market'):
+            self.fields['market'].initial = self.data.get('market')
+
+    def update_market_choices(self, market_type):
+        if market_type == 'KRW':
+            tickers = pyupbit.get_tickers(fiat="KRW")
+        elif market_type == 'USDT':
+            tickers = get_mexc_usdt_tickers()
+        else:
+            tickers = []
+
+        # Update the 'market' choices dynamically based on the selected market type
+        self.fields['market'].choices = [(ticker, ticker) for ticker in tickers]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -152,14 +167,6 @@ class PerceptiveBoardQuestionForm(forms.ModelForm):
         if duration_to and duration_from and duration_to < duration_from:
             self.add_error('duration_to', "Duration 'To date' must be after 'From date'.")
         return cleaned_data
-
-    # Dynamic population of market tickers based on the selected market type
-    def update_market_choices(self, market_type):
-        if market_type == 'KRW':
-            return [(ticker, ticker) for ticker in pyupbit.get_tickers(fiat="KRW")]
-        elif market_type == 'USDT':
-            return [(ticker, ticker) for ticker in get_mexc_usdt_tickers()]
-        return []
 
 class ImageUploadForm(forms.Form):
     image = forms.ImageField(label='Upload an Image')
