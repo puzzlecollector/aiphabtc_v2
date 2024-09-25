@@ -149,7 +149,7 @@ def signup(request):
             if not request.POST.get("agreeTerms") == "on":
                 return render(request, "common/signup.html", {
                     "form": form,
-                    "error": "약관에 동의를 하셔야 회원가입이 가능합니다."
+                    "error": "You must agree to the terms and conditions to complete the registration."
                 })
             user = form.save()
             username = form.cleaned_data.get("username")
@@ -324,9 +324,9 @@ def find_id_view(request):
         try:
             user = User.objects.get(email=email)  # Search for the user by email
             send_simple_message(user.email, user.username)  # Send email with the username
-            messages.success(request, "이메일이 발송 되었습니다.")
+            messages.success(request, "An email has been sent.")
         except ObjectDoesNotExist:
-            messages.error(request, "해당 이메일이 존재 하지 않습니다.")
+            messages.error(request, "The email does not exist.")
             return redirect('aiphabtc:index')
         return redirect('aiphabtc:index')  # Redirect back to the find ID page or to a success page
     else:
@@ -340,7 +340,7 @@ def send_simple_message(email_to, username):
         auth=("api", mailgun_api_key),
         data={"from": "AIPHABTC 고객응대 <mailgun@mail.aiphabtc-v2.com>",
               "to": [email_to],
-              "subject": "AIPHABTC - 아이디찾기 아이디 전달 드립니다.",
+              "subject": "AIPHABTC - Username has been sent for ID recovery.",
               "template": "findid",
               "h:X-Mailgun-Variables": json.dumps({"username": username}, ensure_ascii=False)
               })
@@ -363,7 +363,7 @@ def send_simple_message2(email_to, username, password):
         auth=("api", mailgun_api_key),
         data={"from": "AIPHABTC 고객응대 <mailgun@mail.aiphabtc-v2.com>",
               "to": [email_to],
-              "subject": "AIPHABTC - 비밀번호 찾기의 임시 비밀번호 전달 드립니다.",
+              "subject": "AIPHABTC - A temporary password has been sent for password recovery.",
               "template": "findpassword",
               "h:X-Mailgun-Variables": json.dumps({"username": username, "password": password}, ensure_ascii=False)
               })
@@ -381,9 +381,9 @@ def find_password_view(request):
             user.password = make_password(new_password)  # Hash and set the new password
             user.save()  # Save the user object to update the password in the database
             send_simple_message2(user.email, user.username, new_password)  # Send email with the new password
-            messages.success(request, "이메일이 발송 되었습니다.")
+            messages.success(request, "An email has been sent.")
         except ObjectDoesNotExist:
-            messages.error(request, "해당 유저가 존재 하지 않습니다.")
+            messages.error(request, "The user does not exist.")
             return redirect('aiphabtc:index')
         return redirect('aiphabtc:index')  # Redirect back to the find ID page or to a success page
     else:

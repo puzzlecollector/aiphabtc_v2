@@ -29,11 +29,11 @@ def answer_create(request, question_id):
             if question.board.name in ["general_qa"]:
                 profile.score += 4
                 score_obtained = 4
-                reason = "질문과 답변 게시글에 답변 작성 보상"
+                reason = "Reward for writing a reply for general qa board"
             else:
                 profile.score += 1  # Default score for other boards
                 score_obtained = 1
-                reason = "답글 작성 보상"
+                reason = "Reward for writing a reply"
             profile.save()
             PointTokenTransaction.objects.create(
                 user=request.user,
@@ -78,11 +78,11 @@ def answer_delete(request, answer_id):
         if answer.question.board.name in ["general_qa"]:
             profile.score -= 4  # Subtract the points for a general_qa board
             score_obtained = -4
-            reason = "질문과 답변 게시판에서 답글 삭제 보상 철회"
+            reason = "Reward retracted for deleting a reply from general qa board"
         else:
             profile.score -= 1  # Default subtraction for other boards
             score_obtained = -1
-            reason = "답글 삭제 보상 철회"
+            reason = "Reward retracted for deleting a reply"
         if profile.score < 0:
             profile.score = 0
         profile.save()

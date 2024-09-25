@@ -51,19 +51,19 @@ def question_create(request, board_name):
             if board_name == "perceptive_board":
                 score_obtained = 5
                 profile.score += 5
-                reason = "관점 게시글 작성 보상"
+                reason = "Reward for writing a prediction post"
             elif board_name == "free_board":
                 score_obtained = 2
                 profile.score += 2
-                reason = "자유 게시판 게시글 작성 보상"
-            elif board_name in ["AI", "trading", "blockchain", "economics"]:
+                reason = "Reward for writing a post in the Free Board"
+            elif board_name in ["AI", "trading", "blockchain", "economics", "tutorial"]:
                 score_obtained = 3
                 profile.score += 3
-                reason = "전문 게시판 게시글 작성 보상"
+                reason = "Reward for writing a post in the Tutorial Board"
             elif board_name in ["general_qa", "creator_reviews"]:
                 score_obtained = 4
                 profile.score += 4
-                reason = "Q&A / 리뷰 게시판 게시글 작성 보상"
+                reason = "Reward for writing a post in the reviews board"
             profile.save()
             PointTokenTransaction.objects.create(
                 user=request.user,
@@ -109,19 +109,19 @@ def question_delete(request, question_id):
     if board_name == "perceptive_board":
         profile.score -= 5
         score_obtained = -5
-        reason = "관점공유 글 삭제 보상 철회"
+        reason = "Reward retracted for deleting a prediction post"
     elif board_name == "free_board":
         profile.score -= 2
         score_obtained = -2
-        reason = "자유게시판 글 삭제 보상 철회"
-    elif board_name in ["AI", "trading", "blockchain", "economics"]:
+        reason = "Reward retracted for deleting a post in the Free Board"
+    elif board_name in ["AI", "trading", "blockchain", "economics", "tutorial"]:
         profile.score -= 3
         score_obtained = -3
-        reason = "전문 게시판 게시글 삭제 보상 철회"
+        reason = "Reward retracted for deleting a post in the Tutorial Board"
     elif board_name in ["general_qa", "creator_reviews"]:
         profile.score -= 4
         score_obtained = -4
-        reason = "Q&A / 리뷰 게시판 게시글 삭제 보상 철회"
+        reason = "Reward retracted for deleting a post in the Reviews Board"
     if profile.score < 0:
         profile.score = 0
     profile.save()
