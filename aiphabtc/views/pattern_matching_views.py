@@ -38,6 +38,42 @@ from annoy import AnnoyIndex # alternative to faiss-cpu
 import json
 import gc
 import math
+import logging
+
+# define functions to get ohlcv from MEXC
+def fetch_with_retries(url, params, retries=5, delays=5):
+    for i in range(retries):
+        try:
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logging.error(f"Failed to fetch data from {url}. Status code: {response.status_code}")
+        except Exception as e:
+            logging.error(f"Attempt {i+1}: Error fetching data from {url}: {e}")
+            time.sleep(delays)
+    raise Exception(f"Failed to fetch data fater {retries} attempts")
+
+def get_mexc_ohlcv(symbol="BTC_USDT", interval="1d", limit=21):
+    url = f"https://www.mexc.com/open/api/v2/market/kline"
+    params = {
+        "symbol": symbol,
+        "interval": interval,
+        "limit": limit
+    }
+    try:
+        data = fetch_with_retries(url, params)
+        df = pd.DataFrame(data["data"], columns=["timestamp", "open", "high", "low", "close", "volume", "QuoteAssetVolume"])
+        df.drop(columns={"QuoteAssetVolume"}, inplace=True)
+        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
+        today_utc = datetime.utcnow().date()
+        df = df[df["timestamp"].dt.date < today_utc]
+        df[["open", "high", "low", "close", "volume"]] = df[["open", "high", "low", "close", "volume"]].astype(float)
+        return df
+    except Exception as e:
+        logging.error(f"Error in get_mexc_ohlcv: {e}")
+        raise
+
 
 # prepare model and tokenizer
 tokenizer = AlbertTokenizer.from_pretrained("aiphabtc/kr-cryptodeberta")
@@ -53,19 +89,12 @@ with open('aiphabtc/published_datetimes_0325.pkl', 'rb') as f:
     published_datetimes = pickle.load(f)
 
 # get chart data
-chart_df = pd.read_csv("aiphabtc/chart_data.csv", encoding='utf-8')
+chart_df = pd.read_csv("aiphabtc/kr_1d_truncated_0925.csv", encoding='utf-8') # BTC-KRW dataframe
+chart_df_30m = pd.read_csv("aiphabtc/kr_30m_truncated_0925.csv", encoding="utf-8") # BTC-KRW dataframe
 
-chart_df_30m = pd.read_csv("aiphabtc/chart_data_30m.csv", encoding="utf-8")
-
-
-#chart_df_usdt = pd.read_feather("aiphabtc/BTC_USDT-1d.feather")
-#chart_df_30m_usdt = pd.read_feather("aiphabtc/BTC_USDT-30m.feather") # fetch usdt chart data
-
-
-#print(chart_df_30m)
-#print("="*100)
-
-#print(chart_df_30m_usdt)
+# get usdt chart data
+chart_df_usdt = pd.read_csv("aiphabtc/usd_1d_truncated.csv", encoding="utf-8") # BTC-USDT dataframe
+chart_df_usdt_30m = pd.read_csv("aiphabtc/usd_30m_truncated.csv", encoding="utf-8") # BTC-USDT dataframe
 
 def inner_product_to_percentage(inner_product):
     return (inner_product + 1) / 2 * 100
@@ -86,40 +115,63 @@ def get_query_embedding(query):
       query_embedding = query_embedding.numpy()
     return query_embedding
 
-def get_relevant_chart_segment30m(chart_df_30m, datestr):
+
+def get_relevant_chart_segment30m(chart_df_30m_cur, datestr):
     df1d_idx = -1
-    cur_date = chart_df_30m["dates"].values  # Ensure this column contains date and time
-    news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S")
+    cur_date = chart_df_30m_cur["dates"].values  # Ensure this column contains date and time
+    # Handle both timezone-aware and naive dates
+    if '+' in datestr or 'Z' in datestr:  # Check if it's a timezone-aware string
+        news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S%z")
+    else:
+        news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+
     for i in range(len(cur_date) - 1):
         # Convert numpy.datetime64 to string and then to datetime
-        current_date_str = cur_date[i]
-        # current_date_str = current_date_str.split('T')[0] + ' ' + current_date_str.split('T')[1].split('.')[0]
-        current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S")
-        next_date_str = cur_date[i + 1]
-        # next_date_str = next_date_str.split('T')[0] + ' ' + next_date_str.split('T')[1].split('.')[0]
-        next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S")
+        current_date_str = str(cur_date[i])
+        next_date_str = str(cur_date[i + 1])
+
+        # Convert to datetime with timezone awareness
+        if '+' in current_date_str or 'Z' in current_date_str:
+            current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S%z")
+            next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S%z")
+        else:
+            current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+            next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+
         if news_datestr >= current_date and news_datestr < next_date:
             df1d_idx = i
             break
     return df1d_idx
 
 
-def get_relevant_chart_segment1d(chart_df, datestr):
+def get_relevant_chart_segment1d(chart_df_cur, datestr):
     df1d_idx = -1
-    cur_date = chart_df["dates"].values  # Ensure this column contains date and time
-    news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S")
+    cur_date = chart_df_cur["dates"].values  # Ensure this column contains date and time
+
+    # Handle both timezone-aware and naive dates
+    if '+' in datestr or 'Z' in datestr:
+        news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S%z")
+    else:
+        news_datestr = datetime.strptime(datestr, "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+
     for i in range(len(cur_date) - 1):
         # Convert numpy.datetime64 to string and then to datetime
-        current_date_str = cur_date[i]
-        # current_date_str = current_date_str.split('T')[0] + ' ' + current_date_str.split('T')[1].split('.')[0]
-        current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S")
-        next_date_str = cur_date[i + 1]
-        # next_date_str = next_date_str.split('T')[0] + ' ' + next_date_str.split('T')[1].split('.')[0]
-        next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S")
+        current_date_str = str(cur_date[i])
+        next_date_str = str(cur_date[i + 1])
+
+        # Convert to datetime with timezone awareness
+        if '+' in current_date_str or 'Z' in current_date_str:
+            current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S%z")
+            next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S%z")
+        else:
+            current_date = datetime.strptime(current_date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+            next_date = datetime.strptime(next_date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=pytz.UTC)
+
         if news_datestr >= current_date and news_datestr < next_date:
             df1d_idx = i
             break
     return df1d_idx
+
 
 def distance_to_percentage(distances):
     # Convert squared Euclidean distances to cosine similarity percentages
@@ -157,24 +209,33 @@ def search_news(request):
         data = json.loads(request.body)
         query = data.get("news_text")
         topk = int(data.get("top_k", 5))
+        chart_type = data.get("chart_type", "KRW")  # Get the chart type from the request
         topk = max(5, min(topk, 20))
 
-        # Detect if the query is in English, if so, translate it to Korean first
+        # Assign the appropriate dataframe based on chart_type
+        if chart_type == "USDT":
+            print("Using USDT chart data")
+            relevant_chart_df_30m = chart_df_usdt_30m
+            relevant_chart_df_1d = chart_df_usdt
+        elif chart_type == "KRW":
+            print("Using KRW chart data")
+            relevant_chart_df_30m = chart_df_30m
+            relevant_chart_df_1d = chart_df
+
+        # Detect if the query is in English, and translate it to Korean if necessary
         lang = data.get("language", "ko")
         if lang == "en":
             query = translate_text_deepl(query, target_lang="KO", source_lang="EN")
 
-
-        # call the functions to perform the search
+        # Perform the search using Annoy
         query_embedding = get_query_embedding(query)
         query_embedding = query_embedding.reshape((768))
-        indices, distances = u.get_nns_by_vector(query_embedding, 30, include_distances=True)  # Finds the 30 nearest neighbors
+        indices, distances = u.get_nns_by_vector(query_embedding, 30, include_distances=True)  # Find 30 nearest neighbors
         percentages = distance_to_percentage(distances)
         results = []
 
         for i in range(topk):
             text = candidate_texts[indices[i]]
-
 
             # Translate the result back to English if the request was for English
             if lang == "en":
@@ -183,31 +244,33 @@ def search_news(request):
             similarity = round(percentages[i], 3)
             date = published_datetimes[indices[i]]
 
-            relevant_chart_idx_30m = get_relevant_chart_segment30m(chart_df_30m, date)
-            relevant_chart_segment30m = chart_df_30m.iloc[relevant_chart_idx_30m:relevant_chart_idx_30m + 48] # relevant chart data for the next day
+            # Use the relevant dataframe based on chart type for getting chart data
+            relevant_chart_idx_30m = get_relevant_chart_segment30m(relevant_chart_df_30m, date)
+            relevant_chart_segment30m = relevant_chart_df_30m.iloc[relevant_chart_idx_30m:relevant_chart_idx_30m + 48]
 
-            relevant_chart_idx_1d = get_relevant_chart_segment1d(chart_df, date)
-            relevant_chart_segment_1d = chart_df.iloc[relevant_chart_idx_1d:relevant_chart_idx_1d + 30] # relevant chart data for the next 1 month
+            relevant_chart_idx_1d = get_relevant_chart_segment1d(relevant_chart_df_1d, date)
+            relevant_chart_segment_1d = relevant_chart_df_1d.iloc[relevant_chart_idx_1d:relevant_chart_idx_1d + 30]
 
-            chart_data_30m = {
+            # Prepare chart data for both 30m and 1d intervals
+            cur_chart_data_30m = {
                 'x': relevant_chart_segment30m["dates"].tolist(),
                 'y': relevant_chart_segment30m['close'].tolist(),
             }
 
-            chart_data_1d = {
+            cur_chart_data_1d = {
                 'x': relevant_chart_segment_1d["dates"].tolist(),
                 'y': relevant_chart_segment_1d['close'].tolist(),
             }
 
             results.append({
-                "text": text.replace("\n", "<br>"), # format text for HTML
+                "text": text.replace("\n", "<br>"),  # Format text for HTML
                 "similarity": similarity,
                 "date": date,
-                "chart_data_30m": chart_data_30m,
-                "chart_data_1d": chart_data_1d,
+                "chart_data_30m": cur_chart_data_30m,
+                "chart_data_1d": cur_chart_data_1d,
             })
 
-        # Return the results as Json
+        # Return the results as JSON
         return JsonResponse({"results": results})
 
 
@@ -245,33 +308,62 @@ def search_chart_pattern(request, chart_type):
     if request.method == "POST":
         data = json.loads(request.body)
         topk = int(data.get("top_k", 5))
+        chart_currency = data.get("chart_currency", "KRW")  # Get the chart currency (KRW or USDT)
         topk = max(5, min(topk, 20))
 
-        # Determine chart data source based on chart_type
-        if chart_type == "1d":
-            btc_krw = pyupbit.get_ohlcv("KRW-BTC", interval="day")
-            btc_krw["dates"] = btc_krw.index
-            btc_krw = btc_krw.iloc[-21:]
-        elif chart_type == "30m":
-            btc_krw = pyupbit.get_ohlcv("KRW-BTC", interval="minute30")
-            btc_krw["dates"] = btc_krw.index
-            btc_krw = btc_krw.iloc[-7:]
+        # Determine the correct chart data source based on chart_currency and chart_type
+        if chart_currency == "KRW":
+            if chart_type == "1d":
+                btc_chart = pyupbit.get_ohlcv("KRW-BTC", interval="day")
+                btc_chart["dates"] = btc_chart.index
+                btc_chart = btc_chart.iloc[-21:]
+            elif chart_type == "30m":
+                btc_chart = pyupbit.get_ohlcv("KRW-BTC", interval="minute30")
+                btc_chart["dates"] = btc_chart.index
+                btc_chart = btc_chart.iloc[-7:]
+            else:
+                return JsonResponse({"error": "Invalid chart type"}, status=400)
+
+            # Use the historical KRW chart dataframes
+            if chart_type == "1d":
+                historical_data = chart_df["close"].values[:-30]
+                historical_date = chart_df["dates"].values[:-30]
+            elif chart_type == "30m":
+                historical_data = chart_df_30m["close"].values
+                historical_date = chart_df_30m["dates"].values
+            else:
+                return JsonResponse({"error": "Invalid chart type"}, status=400)
+
+        elif chart_currency == "USDT":
+            if chart_type == "1d":
+                btc_chart = pyupbit.get_ohlcv("USDT-BTC", interval="day")
+                btc_chart["dates"] = btc_chart.index
+                btc_chart = btc_chart.iloc[-21:]
+            elif chart_type == "30m":
+                btc_chart = pyupbit.get_ohlcv("USDT-BTC", interval="minute30")
+                btc_chart["dates"] = btc_chart.index
+                btc_chart = btc_chart.iloc[-7:]
+            else:
+                return JsonResponse({"error": "Invalid chart type"}, status=400)
+
+            # Use the historical USDT chart dataframes
+            if chart_type == "1d":
+                historical_data = chart_df_usdt["close"].values[:-30]
+                historical_date = chart_df_usdt["dates"].values[:-30]
+            elif chart_type == "30m":
+                historical_data = chart_df_usdt_30m["close"].values
+                historical_date = chart_df_usdt_30m["dates"].values
+            else:
+                return JsonResponse({"error": "Invalid chart type"}, status=400)
+
         else:
-            return JsonResponse({"error": "Invalid chart type"}, status=400)
+            return JsonResponse({"error": "Invalid chart currency"}, status=400)
 
-        current_pattern = btc_krw["close"].values
-        current_datetime = [ts.strftime("%Y-%m-%d %H:%M:%S") for ts in btc_krw["dates"]]
+        # Extract the current pattern and datetime from the latest data
+        current_pattern = btc_chart["close"].values
+        current_datetime = [ts.strftime("%Y-%m-%d %H:%M:%S") for ts in btc_chart["dates"]]
 
-        # Determine historical chart data source based on chart_type
-        if chart_type == "1d":
-            historical_data = chart_df["close"].values[:-30]
-            historical_date = chart_df["dates"].values[:-30]
-        elif chart_type == "30m":
-            historical_data = chart_df_30m["close"].values
-            historical_date = chart_df_30m["dates"].values
-        else:
-            return JsonResponse({"error": "Invalid chart type"}, status=400)
-
+        # Perform Dynamic Time Warping (DTW) to match patterns with historical data
         similarities = []
         for i in tqdm(range(len(historical_data) - len(current_pattern))):
             past_pattern = historical_data[i:i + len(current_pattern)]
@@ -280,18 +372,17 @@ def search_chart_pattern(request, chart_type):
 
         top_k_similar = sorted(similarities, key=lambda x: x[1])[:topk]
 
+        # Build results
         results = []
         date_format = "%Y-%m-%d %H:%M:%S"
         for i in range(topk):
             cur_idx, _ = top_k_similar[i]
-            if chart_type == "1d":
-                add = 21
-            elif chart_type == "30m":
-                add = 7
+            add = 21 if chart_type == "1d" else 7
             sim_chart_start = historical_data[cur_idx:cur_idx + add].tolist()
             sim_chart_end = historical_data[cur_idx + add:cur_idx + add + add].tolist()
             date_start = [pd.Timestamp(ts).strftime(date_format) for ts in historical_date[cur_idx:cur_idx + add]]
-            date_end = [pd.Timestamp(ts).strftime(date_format) for ts in historical_date[cur_idx + add:cur_idx + add + add]]
+            date_end = [pd.Timestamp(ts).strftime(date_format) for ts in
+                        historical_date[cur_idx + add:cur_idx + add + add]]
 
             results.append({
                 "chart_data_start": sim_chart_start,
@@ -304,24 +395,36 @@ def search_chart_pattern(request, chart_type):
             'results': results,
             'current_pattern': current_pattern.tolist(),
             'current_datetime': current_datetime,
-            'chart_type': chart_type  # Indicate whether the response is for 1d or 30m data
+            'chart_type': chart_type,  # Indicate whether the response is for 1d or 30m data
+            'chart_currency': chart_currency  # Include chart currency
         })
 
+def get_current_chart_pattern_helper(chart_currency, chart_type):
+    if chart_currency == "KRW":
+        if chart_type == "1d":
+            btc_chart = pyupbit.get_ohlcv("KRW-BTC", interval="day")
+            btc_chart["dates"] = btc_chart.index
+            btc_chart = btc_chart.iloc[-21:]
+        elif chart_type == "30m":
+            btc_chart = pyupbit.get_ohlcv("KRW-BTC", interval="minute30")
+            btc_chart["dates"] = btc_chart.index
+            btc_chart = btc_chart.iloc[-7:]
+        else:
+            return JsonResponse({"error": "Invalid chart type"}, status=400)
+    elif chart_currency == "USDT":
+        if chart_type == "1d":
+            btc_chart = get_mexc_ohlcv(symbol="BTC_USDT", interval="1d", limit=21)
+            btc_chart.rename(columns={"timestamp":"dates"}, inplace=True)
+        elif chart_type == "30m":
+            btc_chart = get_mexc_ohlcv(symbol="BTC_USDT", interval="30m", limit=21)
+            btc_chart.rename(columns={"timestamp":"dates"}, inplace=True)
+            btc_chart = btc_chart.iloc[-7:]
+        else:
+            return JsonResponse({"error": "Invalid chart type"}, status=400)
 
-def get_current_chart_pattern_helper(chart_type):
-    if chart_type == "1d":
-        btc_krw = pyupbit.get_ohlcv("KRW-BTC", interval="day")
-        btc_krw["dates"] = btc_krw.index
-        btc_krw = btc_krw.iloc[-21:]
-    elif chart_type == "30m":
-        btc_krw = pyupbit.get_ohlcv("KRW-BTC", interval="minute30")
-        btc_krw["dates"] = btc_krw.index
-        btc_krw = btc_krw.iloc[-7:]
-    else:
-        return JsonResponse({"error": "Invalid chart type"}, status=400)
+    current_pattern = btc_chart["close"].values
 
-    current_pattern = btc_krw["close"].values
-    current_datetime = [ts.strftime("%Y-%m-%d %H:%M:%S") for ts in btc_krw["dates"]]
+    current_datetime = [ts.strftime("%Y-%m-%d %H:%M:%S") for ts in btc_chart["dates"]]
 
     pattern = {
         'dates': current_datetime,
@@ -330,13 +433,19 @@ def get_current_chart_pattern_helper(chart_type):
     return pattern
 
 def get_current_chart_pattern(request):
-    # Fetch the most recent patterns for both 1d and 30m charts
-    current_pattern_1d = get_current_chart_pattern_helper('1d')  # Implement this function
-    current_pattern_30m = get_current_chart_pattern_helper('30m')  # And this one
-    return JsonResponse({
-        'current_pattern_1d': current_pattern_1d,
-        'current_pattern_30m': current_pattern_30m,
-    })
+    if request.method == "GET":
+        chart_currency = request.GET.get("chart_currency", "KRW")  # Get chart currency from request
+        chart_type = request.GET.get("chart_type", "1d")  # Get chart type from request
+
+        # Fetch the most recent patterns for the given chart type and currency
+        current_pattern = get_current_chart_pattern_helper(chart_currency, chart_type)
+        return JsonResponse({
+            'current_pattern': current_pattern,
+            'chart_currency': chart_currency,
+            'chart_type': chart_type
+        })
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 def pattern_matching_views(request):

@@ -1,8 +1,52 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+<style>
+/* Custom style for the beta version tag */
+.beta-tag {
+    display: inline-block;
+    padding: 6px 14px;  /* Reduced padding for a smaller box */
+    background-color: #ff9900; /* Vibrant orange */
+    border-radius: 12px;  /* Slightly smaller border-radius */
+    font-family: 'Roboto', sans-serif;
+    color: white;
+    font-size: 14px;  /* Slightly smaller font size */
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);  /* Slightly reduced shadow */
+    animation: fadeIn 1s ease-in-out, bounce 0.5s infinite alternate ease-in-out;
+    letter-spacing: 1px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-3px);
+    }
+}
+</style>
+{% endblock %}
+
+
 {% block content %}
 <div class="container my-5">
+    <div class="beta-tag">
+        <p><strong>beta version</strong></p>
+    </div>
+    <br>
+    <br>
     <!-- Language Toggle -->
     <div class="form-check form-check-inline">
         <input class="form-check-input" type="radio" name="languageToggle" id="englishLang" value="en" checked>
@@ -11,6 +55,14 @@
     <div class="form-check form-check-inline">
         <input class="form-check-input" type="radio" name="languageToggle" id="koreanLang" value="ko">
         <label class="form-check-label" for="koreanLang">🇰🇷 Korean</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="chartCurrency" id="chartKrw" value="KRW" checked>
+        <label class="form-check-label" for="chartKrw">BTC-KRW</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="chartCurrency" id="chartUsdt" value="USDT">
+        <label class="form-check-label" for="chartUsdt">BTC-USDT</label>
     </div>
     <br>
     <br>
@@ -151,14 +203,18 @@
         var selectedLanguage = document.querySelector('input[name="languageToggle"]:checked').value;
 
         // Clear the chart results when toggling between languages
+        chartDataStorage_en = {}
+        chartDataStorage_ko = {}
         clearChartResults();
 
         if (selectedLanguage === 'en') {
+            chartDataStorage_ko = {}; // Clear Korean chart data storage
             document.getElementById("englishSection").style.display = "block";
             document.getElementById("koreanSection").style.display = "none";
             document.getElementById("englishChartSection").style.display = "block";
             document.getElementById("koreanChartSection").style.display = "none";
         } else {
+            chartDataStorage_en = {}; // Clear English chart data storage
             document.getElementById("englishSection").style.display = "none";
             document.getElementById("koreanSection").style.display = "block";
             document.getElementById("englishChartSection").style.display = "none";
@@ -180,7 +236,9 @@
         fetchAndPlotCurrentPattern('en');  // Fetch current chart data when the page loads
     };
 
-    var chartDataStorage = {};  // Declare chartDataStorage globally to store chart data
+    var chartDataStorage_en = {};
+    var chartDataStorage_ko = {};
+
 
     // Function to get CSRF token from cookies
     function getCookie(name) {
@@ -202,6 +260,7 @@
     // Search functionality for English
     if (document.getElementById("searchButton_eng") !== null) {
         document.getElementById("searchButton_eng").addEventListener("click", function() {
+            var chartCurrency = document.querySelector('input[name="chartCurrency"]:checked').value;  // Get chart currency
             document.getElementById("loading_eng").style.display = "block";
             var newsText = document.getElementById("newsText_eng").value;
             var topK = document.getElementById("topKRange_eng").value;
@@ -218,16 +277,18 @@
                 body: JSON.stringify({
                     news_text: newsText,
                     top_k: topK,
+                    chart_type: chartCurrency,
                     language: "en"  // Specify English
                 }),
             })
             .then(response => response.json())
             .then(data => {
+                console.log("English data received:", data);
                 var resultsContainer = document.getElementById("results_eng");
                 resultsContainer.innerHTML = '';  // Clear previous results
 
                 data.results.forEach(function(result, index) {
-                    chartDataStorage[index] = {
+                    chartDataStorage_en[index] = {
                         chart_data_30m: result.chart_data_30m,
                         chart_data_1d: result.chart_data_1d,
                     };
@@ -239,12 +300,12 @@
                         <p>${result.text}</p>
                         <p><strong>Contextual Similarity:</strong> ${result.similarity}%</p>
                         <p><strong>Date:</strong> ${result.date}</p>
-                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m')">30m Chart</button>
-                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d')">1d Chart</button>
-                        <div class="chart" id="chart${index}"></div>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m', '${chartCurrency}', 'en')">30m Chart</button>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d', '${chartCurrency}', 'en')">1d Chart</button>
+                        <div class="chart" id="en_chart${index}"></div>
                     `;
                     resultsContainer.appendChild(resultDiv);
-                    updateChart(`chart${index}`, 'chart_data_1d');  // Default plot 1d chart
+                    updateChart(`chart${index}`, 'chart_data_1d', chartCurrency, 'en');  // Default plot 1d chart
                 });
                 document.getElementById("loading_eng").style.display = "none";
             })
@@ -258,6 +319,7 @@
     // Search functionality for Korean
     if (document.getElementById("searchButton") !== null) {
         document.getElementById("searchButton").addEventListener("click", function() {
+            var chartCurrency = document.querySelector('input[name="chartCurrency"]:checked').value;  // Get chart currency
             document.getElementById("loading").style.display = "block";
             var newsText = document.getElementById("newsText").value;
             var topK = document.getElementById("topKRange").value;
@@ -274,16 +336,18 @@
                 body: JSON.stringify({
                     news_text: newsText,
                     top_k: topK,
+                    chart_type: chartCurrency,
                     language: "ko"  // Specify Korean
                 }),
             })
             .then(response => response.json())
             .then(data => {
+                console.log("Korean data received:", data);
                 var resultsContainer = document.getElementById("results");
                 resultsContainer.innerHTML = '';  // Clear previous results
 
                 data.results.forEach(function(result, index) {
-                    chartDataStorage[index] = {
+                    chartDataStorage_ko[index] = {
                         chart_data_30m: result.chart_data_30m,
                         chart_data_1d: result.chart_data_1d,
                     };
@@ -295,12 +359,12 @@
                         <p>${result.text}</p>
                         <p><strong>문맥형 유사도:</strong> ${result.similarity}%</p>
                         <p><strong>날짜:</strong> ${result.date}</p>
-                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m')">30m Chart</button>
-                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d')">1d Chart</button>
-                        <div class="chart" id="chart${index}"></div>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_30m', '${chartCurrency}', 'ko')">30m Chart</button>
+                        <button class="btn btn-secondary btn-sm" onclick="updateChart('chart${index}', 'chart_data_1d', '${chartCurrency}', 'ko')">1d Chart</button>
+                        <div class="chart" id="ko_chart${index}"></div>
                     `;
                     resultsContainer.appendChild(resultDiv);
-                    updateChart(`chart${index}`, 'chart_data_1d');  // Default plot 1d chart
+                    updateChart(`chart${index}`, 'chart_data_1d', chartCurrency, 'ko');  // Default plot 1d chart
                 });
                 document.getElementById("loading").style.display = "none";
             })
@@ -315,6 +379,8 @@
     // Search functionality for chart patterns (English)
     if (document.getElementById("searchChartButton_en") !== null) {
         document.getElementById("searchChartButton_en").addEventListener("click", function() {
+            chartDataStorage = {}
+            var chartCurrency = document.querySelector('input[name="chartCurrency"]:checked').value;
             document.getElementById("chartLoading_en").style.display = "block";
             var topK = document.getElementById("topKChartRange_en").value;
             var chartType = document.querySelector('input[name="chartType"]:checked').value;
@@ -328,7 +394,10 @@
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrfToken
                 },
-                body: JSON.stringify({ top_k: topK }),
+                body: JSON.stringify({
+                    top_k: topK,
+                    chart_currency:chartCurrency
+                }),
             })
             .then(response => response.json())
             .then(data => {
@@ -336,9 +405,6 @@
                 resultsContainer.innerHTML = '';  // Clear previous results
 
                 data.results.forEach(function(result, index) {
-                    var chartIdStart = `chartPatternStart${index}`;
-                    var chartIdEnd = `chartPatternEnd${index}`;
-
                     var chartId = `chartCombined${index}`;  // Define chartId for combined chart
                     var resultDiv = document.createElement('div');
                     resultDiv.className = 'result';
@@ -347,11 +413,8 @@
                         <div class="chart" id="${chartId}"></div>
                     `;
                     resultsContainer.appendChild(resultDiv);
-
                     // Plot both the start and end of the chart pattern
-                    // plotChartPattern(chartIdStart, result.date_start, result.chart_data_start, 'rgba(255, 99, 132, 1)');
-                    // plotChartPattern(chartIdEnd, result.date_end, result.chart_data_end, 'rgba(75, 192, 192, 1)');
-                    plotCombinedChartPattern(chartId, result.date_start, result.chart_data_start, result.date_end, result.chart_data_end);
+                    plotCombinedChartPattern(chartId, result.date_start, result.chart_data_start, result.date_end, result.chart_data_end, chartCurrency);
                 });
                 document.getElementById("chartLoading_en").style.display = "none";
             })
@@ -365,6 +428,7 @@
     // Search functionality for chart patterns (Korean)
     if (document.getElementById("searchChartButton_ko") !== null) {
         document.getElementById("searchChartButton_ko").addEventListener("click", function() {
+            var chartCurrency = document.querySelector('input[name="chartCurrency"]:checked').value;
             document.getElementById("chartLoading_ko").style.display = "block";
             var topK = document.getElementById("topKChartRange_ko").value;
             var chartType = document.querySelector('input[name="chartType"]:checked').value;
@@ -378,7 +442,10 @@
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrfToken
                 },
-                body: JSON.stringify({ top_k: topK }),
+                body: JSON.stringify({
+                    top_k: topK,
+                    chart_currency: chartCurrency
+                }),
             })
             .then(response => response.json())
             .then(data => {
@@ -386,9 +453,6 @@
                 resultsContainer.innerHTML = '';  // Clear previous results
 
                 data.results.forEach(function(result, index) {
-                    var chartIdStart = `chartPatternStart${index}`;
-                    var chartIdEnd = `chartPatternEnd${index}`;
-
                     var chartId = `chartCombined${index}`;  // Define chartId for combined chart
                     var resultDiv = document.createElement('div');
                     resultDiv.className = 'result';
@@ -399,9 +463,7 @@
                     resultsContainer.appendChild(resultDiv);
 
                     // Plot both the start and end of the chart pattern
-                    // plotChartPattern(chartIdStart, result.date_start, result.chart_data_start, 'rgba(255, 99, 132, 1)');
-                    // plotChartPattern(chartIdEnd, result.date_end, result.chart_data_end, 'rgba(75, 192, 192, 1)');
-                    plotCombinedChartPattern(chartId, result.date_start, result.chart_data_start, result.date_end, result.chart_data_end);
+                    plotCombinedChartPattern(chartId, result.date_start, result.chart_data_start, result.date_end, result.chart_data_end, chartCurrency);
                 });
                 document.getElementById("chartLoading_ko").style.display = "none";
             })
@@ -412,39 +474,63 @@
         });
     }
 
-    // Update chart function
-    function updateChart(chartId, chartDataType) {
-        var chartDiv = document.getElementById(chartId);
+    // Function to clear the chart container before re-plotting
+    function clearPlot(chartDiv) {
+        if (chartDiv) {
+            Plotly.purge(chartDiv);  // Completely remove the old chart
+        }
+    }
+
+    // Update chart function with clearing old chart
+    function updateChart(chartId, chartDataType, chartCurrency, language) {
+        // Use the appropriate prefix for chart IDs based on the language
+        var actualChartId = language === 'en' ? `en_${chartId}` : `ko_${chartId}`;
+        var chartDiv = document.getElementById(actualChartId);
+
         if (!chartDiv) {
-            console.error(`Chart div with ID "${chartId}" not found.`);
+            console.error(`Chart div with ID "${actualChartId}" not found.`);
             return;
         }
-        var index = chartId.replace('chart', '');  // Extract index from chartId
-        var chartData = chartDataStorage[index][chartDataType];  // Get the correct chart data from the global object
 
-        Plotly.newPlot(chartDiv, [
-            {
-                type: 'scatter',
-                mode: 'lines',
-                x: chartData.x,
-                y: chartData.y,
-            },
-        ], {
+        var index = chartId.replace('chart', '');  // Extract index from chartId
+        var chartData = language === 'en' ? chartDataStorage_en[index][chartDataType] : chartDataStorage_ko[index][chartDataType];  // Get the correct chart data
+
+        // Clear previous chart if any
+        clearPlot(chartDiv);
+
+        // Validate the chart data
+        if (!chartData || !Array.isArray(chartData.x) || !Array.isArray(chartData.y) || chartData.x.length !== chartData.y.length) {
+            console.error("Invalid data format for chart", chartData);
+            return;
+        }
+
+        console.log(`Updating chart for ${actualChartId} with data:`, chartData);
+
+        // Plot the chart with Plotly
+        Plotly.newPlot(chartDiv, [{
+            type: 'scatter',
+            mode: 'lines',
+            x: chartData.x,
+            y: chartData.y,
+        }], {
             title: 'Bitcoin Price Chart',
             xaxis: { title: 'Time' },
-            yaxis: { title: 'BTC-KRW' },
+            yaxis: { title: `BTC-${chartCurrency}` },
         });
     }
+
+
 
     // Function to fetch and plot current chart pattern
     function fetchAndPlotCurrentPattern(selectedLanguage) {
         var chartType = document.querySelector('input[name="chartType"]:checked').value;
+        var chartCurrency = document.querySelector('input[name="chartCurrency"]:checked').value;  // Get chart currency
         var csrfToken = getCookie("csrftoken");
 
         // Set chart IDs dynamically based on selected language
         var chartId = selectedLanguage === 'en' ? "currentPatternChart_en" : "currentPatternChart_ko";
 
-        fetch(`/aiphabtc/get_current_chart_pattern/`, {
+        fetch(`/aiphabtc/get_current_chart_pattern/?chart_currency=${chartCurrency}&chart_type=${chartType}`, {
             method: "GET",
             headers: {
                 "X-CSRFToken": csrfToken
@@ -453,21 +539,29 @@
         .then(response => response.json())
         .then(data => {
             // Fetch correct pattern data based on chart type
-            var currentPatternData = chartType === '1d' ? data.current_pattern_1d : data.current_pattern_30m;
+            var currentPatternData = data.current_pattern;
 
             // Log chart data to ensure it's correctly fetched
-            console.log(`Chart data for ${selectedLanguage}:`, currentPatternData);
+            // console.log(`Chart data for ${selectedLanguage}:`, currentPatternData);
 
-            plotChartPattern(chartId, currentPatternData.dates, currentPatternData.close, 'rgba(0, 123, 255, 1)');
+            plotChartPattern(chartId, currentPatternData.dates, currentPatternData.close, chartCurrency, 'rgba(0, 123, 255, 1)');
         })
         .catch(error => {
             console.error("Error fetching current chart pattern:", error);
         });
     }
 
+    // Add event listeners for chart currency changes
+    document.querySelectorAll('input[name="chartCurrency"]').forEach((elem) => {
+        elem.addEventListener('change', function() {
+            var selectedLanguage = document.querySelector('input[name="languageToggle"]:checked').value;
+            fetchAndPlotCurrentPattern(selectedLanguage);  // Re-fetch and re-plot the chart when currency is changed
+        });
+    });
+
 
     // Function to plot chart patterns
-    function plotChartPattern(chartId, xData, yData, lineColor) {
+    function plotChartPattern(chartId, xData, yData, chartCurrency, lineColor) {
         var chartDiv = document.getElementById(chartId);
         if (!chartDiv) {
             console.error(`Chart div with ID "${chartId}" not found.`);
@@ -490,13 +584,13 @@
             }
         ], {
             xaxis: { title: 'Time' },
-            yaxis: { title: 'BTC-KRW' }
+            yaxis: { title: `BTC-${chartCurrency}` }
         });
     }
 
 
     // Combine and plot the start and end chart pattern in a single chart
-    function plotCombinedChartPattern(chartId, startDate, startData, endDate, endData) {
+    function plotCombinedChartPattern(chartId, startDate, startData, endDate, endData, chartCurrency) {
         var chartDiv = document.getElementById(chartId);
         if (!chartDiv) {
             console.error(`Chart div with ID "${chartId}" not found.`);
@@ -536,7 +630,7 @@
         // Plot both traces on the same chart
         Plotly.newPlot(chartDiv, [startTrace, endTrace], {
             xaxis: { title: 'Time' },
-            yaxis: { title: 'BTC-KRW' },
+            yaxis: { title: `BTC-${chartCurrency}` },
             title: 'Combined Pattern Start and End',
             showlegend: true  // Display the legend
         });
@@ -555,16 +649,14 @@
 
     // Clear chart results when switching between languages to avoid displaying old results
     function clearChartResults() {
-        document.getElementById("chartResults_en").innerHTML = '';
-        document.getElementById("chartResults_ko").innerHTML = '';
+        const enChartContainers = document.querySelectorAll('.chart[id^="en_chart"]');
+        const koChartContainers = document.querySelectorAll('.chart[id^="ko_chart"]');
+
+        enChartContainers.forEach(chartDiv => clearPlot(chartDiv));
+        koChartContainers.forEach(chartDiv => clearPlot(chartDiv));
     }
 
-    // Listen for changes to the chart type radio buttons and re-plot the current chart pattern
-    document.querySelectorAll('input[name="chartType"]').forEach((elem) => {
-        elem.addEventListener('change', function() {
-            fetchAndPlotCurrentPattern();
-        });
-    });
+
 
     // Update the displayed value for the slider (only if element exists)
     var topKChartRange_en = document.getElementById("topKChartRange_en");
@@ -594,7 +686,5 @@
             document.getElementById("topKValue_eng").innerText = this.value;
         });
     }
-
-
 </script>
 {% endblock %}
