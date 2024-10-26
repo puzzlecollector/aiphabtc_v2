@@ -503,30 +503,30 @@ def index(request):
     #    print(e)
     #    telegram_messages = {}
 
-    if should_update_prediction():
-        print("calculating as we cannot use previously cached value")
-        data_fng = fetch_fng_data()
-        data_global = fetch_global_data()
-        cache.set('data_fng', data_fng, 86400)
-        cache.set('data_global', data_global, 86400)  # Expire after one day
-        cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
+    #if should_update_prediction():
+    #    print("calculating as we cannot use previously cached value")
+    #    data_fng = fetch_fng_data()
+    #    data_global = fetch_global_data()
+    #    cache.set('data_fng', data_fng, 86400)
+    #    cache.set('data_global', data_global, 86400)  # Expire after one day
+    #    cache.set('last_prediction_update', datetime.now(pytz.timezone('Asia/Seoul')))
 
-    data_fng = cache.get('data_fng', [])
-    if len(data_fng) == 0:
-        print("fear greed data currently empty")
-        data_fng = fetch_fng_data()
-    data_global = cache.get('data_global', {})
+    #data_fng = cache.get('data_fng', [])
+    #if len(data_fng) == 0:
+    #    print("fear greed data currently empty")
+    #    data_fng = fetch_fng_data()
+    #data_global = cache.get('data_global', {})
 
-    print("====== data fng ======")
-    print(data_fng)
+    #print("====== data fng ======")
+    #print(data_fng)
 
     context = {
         "board_posts": board_posts,
         "popular_posts": popular_posts,
         "announcement_posts": announcement_posts,
-        "data_fng": data_fng,
-        "data_global": data_global,
-        "kimchi_data": kimchi_data,
+        #"data_fng": data_fng,
+        #"data_global": data_global,
+        #"kimchi_data": kimchi_data,
         "sentiment_voting_options": sentiment_voting_options,
         "sentiment_data": sentiment_data,
     }

@@ -396,8 +396,6 @@
         <div class="col-lg-12">
             <h3>DASHBOARD</h3>
             <hr>
-            <p>Learn more <a href="{% url 'aiphabtc:about-us' %}">about us and our project</a></p>
-            <p><img src="{% static 'pumpfun.png' %}" alt="pumpfun" style="height:20px; margin-right: 5px;">We are currently <a href="https://pump.fun/Ft3yQY49wcpAGj2kAJnkyhDBYmekKeFLhmg81vhHpump" target="_blank" class="d-inline-flex align-items-center text-decoration-none">live on pump.fun</a></p>
             <!-- Telegram Analyst Channel Section -->
             <div class="d-flex align-items-center mb-3">
                 <h6 class="me-3 mb-0">🚀 AIPHABTC Free Telegram Analyst Channel:</h6>
@@ -485,6 +483,11 @@
                         <span>BIRP (KDD)</span>
                     </a>
                 </div>
+            </div>
+
+            <!-- Pumpfun Section -->
+            <div class="d-flex align-items-center mb-3">
+                <h6 class="me-3 mb-0"><img src="{% static 'pumpfun.png' %}" alt="pumpfun" style="height:20px; margin-right: 5px;"><a href="https://pump.fun/Ft3yQY49wcpAGj2kAJnkyhDBYmekKeFLhmg81vhHpump" target="_blank" class="d-inline-flex align-items-center text-decoration-none">aiphabtc</a></h6>
             </div>
 
             <hr style="height: 5px; background-color: green;">
@@ -996,104 +999,6 @@
             <p>
                 <div class="row">
                     <div class="col-lg-6 column-divider">
-                         <div class="card p-3 shadow-sm">
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="{% static 'aiphabtc_sub_logo.png' %}" alt="Robot Assistant Icon" style="height: 20px; margin-right: 5px;">
-                                <h5 class="mb-0">Crypto Fear & Greed Index</h5>
-                                <span class="ms-2 text-muted" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="The Crypto Fear and Greed Index reflects investors' emotions. It ranges from 0 (fear) to 100 (greed), capturing extreme market sentiment and potential price reversals.">
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </div>
-                            <p>This index tracks investor sentiment for Bitcoin and major cryptocurrencies over the past 5 days. <a href="https://alternative.me/crypto/fear-and-greed-index/">[Source]</a></p>
-
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Value</th>
-                                            <th>Sentiment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for row in data_fng %}
-                                        <tr class="{% if row.value < 25 %}table-danger{% elif row.value >= 75 %}table-success{% else %}table-warning{% endif %}">
-                                            <td>{{ row.timestamp }}</td>
-                                            <td>{{ row.value }}</td>
-                                            <td>
-                                                <span style="color:
-                                                    {% if 'Fear' in row.value_classification or 'fear' in row.value_classification %}
-                                                        red
-                                                    {% elif 'Greed' in row.value_classification or 'greed' in row.value_classification %}
-                                                        green
-                                                    {% else %}
-                                                        inherit
-                                                    {% endif %};">
-                                                    {{ row.value_classification }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 column-divider">
-                        <div class="card p-3 shadow-sm">
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="{% static 'aiphabtc_sub_logo.png' %}" alt="Robot Assistant Icon" style="height: 20px; margin-right: 5px;">
-                                <h5 class="mb-0">Kimchi Premium Information</h5>
-                                <span class="ms-2 text-muted" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="The term 'Kimchi Premium' refers to the phenomenon where cryptocurrency prices in South Korea are higher than those on overseas exchanges. A high Kimchi Premium suggests that cryptocurrency prices in South Korea are more expensive relative to global prices.">
-                                    <i class="fas fa-info-circle"></i>
-                                </span>
-                            </div>
-                            <p>These numbers are based on the BTC price information from Bitget and Upbit (Bitget/UPbit Premium). <a href="https://kimpga.com/">[More on Kimpga]</a></p>
-
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Metric</th>
-                                            <th>Value</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Most Recent Check</td>
-                                            <td>{{ kimchi_data.current_time }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>USD/KRW</td>
-                                            <td>{{ kimchi_data.now_usd_krw |floatformat:2 |intcomma }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>BTC Price (KRW)</td>
-                                            <td>{{ kimchi_data.now_upbit_price |floatformat:2 |intcomma }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>BTC Price (USDT)</td>
-                                            <td>{{ kimchi_data.now_bitget_price |floatformat:2 |intcomma }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>BTC Kimchi Premium (%)</td>
-                                            <td class="{% if kimchi_data.kp|to_float >= 0 %}text-success{% else %}text-danger{% endif %}">
-                                                {% if kimchi_data.kp|to_float >= 0 %}+{% endif %}{{ kimchi_data.kp |floatformat:2 }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </p>
-            <hr style="height: 5px; background-color: green;">
-
-            <p>
-                <div class="row">
-                    <div class="col-lg-6 column-divider">
                         <!-- Dropdown to switch between heatmaps -->
                         <div class="dropdown mb-3">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="heatmapDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -1248,7 +1153,7 @@
                             AIPHABTC AI research team.
                         </p>
                         <div class="d-flex justify-content-end">
-                            <a href="https://huggingface.co/LDKSolutions/KR-cryptodeberta-v2-base" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center" style="width: auto;">
+                            <a href="https://huggingface.co/LDKSolutions/KR-cryptodeberta-v2-base" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center" style="width: auto;" target="_blank" class="d-inline-flex align-items-center text-decoration-none">
                                 <img src="{% static 'huggingface.png' %}" alt="settings" class="me-2" style="height: 30px;">
                                 AIPHABTC Transformer Encoders
                             </a>
